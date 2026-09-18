@@ -2,6 +2,7 @@ import { Carousel } from './instance.js';
 import { supportsNative } from './support.js';
 import { applyFallback } from './fallback.js';
 import { applyLoop } from './loop.js';
+import { applyAutoplay } from './autoplay.js';
 
 const SELECTOR = '[data-carousel]';
 const BATCH_MS = 50;
@@ -12,6 +13,7 @@ export function init(root) {
   // loop가 슬라이드를 복제한 뒤에 폴백이 마커를 만들어야 한다
   if (root.hasAttribute('data-carousel-loop')) applyLoop(carousel);
   if (!supportsNative()) applyFallback(carousel);
+  if (root.hasAttribute('data-carousel-autoplay')) applyAutoplay(carousel);
   return carousel;
 }
 
