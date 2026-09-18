@@ -119,3 +119,45 @@
 [data-carousel] > [data-carousel-scroller] > *::scroll-marker:target-current {
   background: var(--carousel-marker-color-current);
 }
+
+/* ── 폴백 경로: 버튼 ──────────────────────────────
+   Task 2의 ::scroll-button() 규칙과 같은 변수를 읽는다.
+   사용자는 변수만 한 번 설정하면 양쪽 경로가 따라온다. */
+
+[data-carousel] > .carousel-button {
+  position: absolute;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  z-index: 1;
+
+  inline-size: var(--carousel-button-size);
+  block-size: var(--carousel-button-size);
+  border: 0;
+  border-radius: var(--carousel-button-radius);
+  color: var(--carousel-button-color);
+  background: var(--carousel-button-bg);
+  font-size: calc(var(--carousel-button-size) * 0.5);
+  line-height: 1;
+  cursor: pointer;
+}
+
+[data-carousel] > .carousel-button-prev {
+  inset-inline-start: var(--carousel-button-inset);
+}
+
+[data-carousel] > .carousel-button-next {
+  inset-inline-end: var(--carousel-button-inset);
+}
+
+[data-carousel] > .carousel-button::before {
+  content: var(--carousel-button-content-prev);
+}
+
+[data-carousel] > .carousel-button-next::before {
+  content: var(--carousel-button-content-next);
+}
+
+[data-carousel] > .carousel-button:disabled {
+  opacity: var(--carousel-button-opacity-disabled);
+  cursor: default;
+}
