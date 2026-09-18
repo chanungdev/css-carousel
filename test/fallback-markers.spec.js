@@ -84,6 +84,34 @@ test('폴백 마커가 tablist로 노출된다', async ({ page }) => {
   expect(snapshot).toContain('tablist');
 });
 
+test('마커 그룹에 포커스가 있을 때 화살표 이동이 새 현재 마커로 포커스를 옮긴다', async ({ page }) => {
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+  await page.locator('#c1 .carousel-marker').first().focus();
+
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.index === 1);
+
+  const focused = await page.evaluate(() => {
+    const marker = document.querySelectorAll('#c1 .carousel-marker')[1];
+    return document.activeElement === marker;
+  });
+  expect(focused).toBe(true);
+});
+
+test('마커 그룹 밖에 포커스가 있으면 인덱스가 바뀌어도 포커스가 그대로 있다', async ({ page }) => {
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+  // prev 버튼은 index 0에서 disabled라 focus를 받을 수 없으므로 next를 쓴다
+  await page.locator('#c1 .carousel-button-next').focus();
+
+  await page.evaluate(() => document.querySelector('#c1').carousel.goTo(2, 'instant'));
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.index === 2);
+
+  const stillOnNextButton = await page.evaluate(
+    () => document.activeElement === document.querySelector('#c1 .carousel-button-next'),
+  );
+  expect(stillOnNextButton).toBe(true);
+});
+
 test('네이티브 마커가 tablist로 노출된다', async ({ page, context, browserName }) => {
   test.skip(browserName !== 'chromium', 'CDP는 Chromium 전용');
   test.skip(!(await isNative(page)), '네이티브 미지원 브라우저');

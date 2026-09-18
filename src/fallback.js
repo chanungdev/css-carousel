@@ -67,10 +67,16 @@ export function applyFallback(carousel) {
 
   const syncMarkers = () => {
     const current = carousel.index;
+    const hadFocus = markers.contains(document.activeElement);
+    let currentMarker = null;
     markers.querySelectorAll('.carousel-marker').forEach((marker, i) => {
       marker.setAttribute('aria-selected', String(i === current));
       marker.tabIndex = i === current ? 0 : -1;
+      if (i === current) currentMarker = marker;
     });
+    // roving tabindex는 focus가 마커 그룹 안에 있을 때만 따라간다(WAI-ARIA tab
+    // 패턴). 그 외에는 스크롤/자동재생만으로 포커스를 가로채면 안 된다.
+    if (hadFocus) currentMarker?.focus();
   };
   root.addEventListener('carousel:change', syncMarkers);
 

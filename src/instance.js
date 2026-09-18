@@ -80,7 +80,7 @@ export class Carousel {
       // 스크롤 끝에서는 남은 아이템이 정렬 지점에 도달할 수 없다.
       // 네이티브 ::scroll-marker도 마지막 마커를 현재로 잡으므로 동일하게 맞춘다.
       next = slides.length - 1;
-    } else if (position <= EDGE_TOLERANCE) {
+    } else if (max > EDGE_TOLERANCE && position <= EDGE_TOLERANCE) {
       next = 0;
     } else {
       const align = readVar(this.root, '--carousel-align', 'start');
