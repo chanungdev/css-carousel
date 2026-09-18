@@ -1,0 +1,37 @@
+/* css-carousel — 레이아웃 · 스냅 · 축 */
+
+[data-carousel] {
+  position: relative;
+
+  --carousel-items: 1;
+  --carousel-gap: 0px;
+  --carousel-align: start;
+  --carousel-snap: mandatory;
+  --carousel-scrollbar: auto;
+}
+
+[data-carousel] > [data-carousel-scroller] {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: var(--carousel-gap);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: inline var(--carousel-snap);
+  scrollbar-width: var(--carousel-scrollbar);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-carousel] > [data-carousel-scroller] > * {
+  flex: 0 0 calc((100% + var(--carousel-gap)) / var(--carousel-items) - var(--carousel-gap));
+  scroll-snap-align: var(--carousel-align);
+  scroll-snap-stop: always;
+}
+
+[data-carousel-axis='block'] > [data-carousel-scroller] {
+  flex-direction: column;
+  scroll-snap-type: block var(--carousel-snap);
+}

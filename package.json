@@ -1,0 +1,24 @@
+{
+  "name": "css-carousel",
+  "version": "0.0.0",
+  "description": "CSS-first carousel built on scroll-snap, ::scroll-button() and ::scroll-marker()",
+  "type": "module",
+  "license": "MIT",
+  "files": ["dist", "types"],
+  "main": "./dist/carousel.js",
+  "types": "./types/carousel.d.ts",
+  "exports": {
+    ".": { "types": "./types/carousel.d.ts", "default": "./dist/carousel.js" },
+    "./carousel.css": "./dist/carousel.css",
+    "./effects.css": "./dist/effects.css"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "build": "node scripts/build.js",
+    "size": "node scripts/size-check.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "esbuild": "^0.25.0"
+  }
+}

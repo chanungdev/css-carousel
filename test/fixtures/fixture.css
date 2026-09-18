@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+
+body { margin: 0; font: 16px/1.4 system-ui, sans-serif; }
+
+/* 계산 검증을 위해 폭을 고정한다 */
+.harness {
+  inline-size: 1000px;
+  --carousel-items: 3;
+  --carousel-gap: 20px;
+}
+
+[data-carousel-scroller] > li {
+  background: #cfe3ff;
+  block-size: 120px;
+  display: grid;
+  place-items: center;
+}
