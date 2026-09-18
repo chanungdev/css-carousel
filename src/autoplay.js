@@ -6,50 +6,48 @@ export function applyAutoplay(carousel) {
   if (!Number.isFinite(delay) || delay <= 0) return;
   if (prefersReducedMotion()) return;
 
-  let paused = false;
+  // 정지 사유를 각각 따로 추적한다. 하나의 boolean에 여러 사유를 쓰면 나중에
+  // 쓴 쪽이 앞선 사유를 덮어써서, hover 중인데도 재생되는 일이 생긴다.
+  let hovered = false;
+  let focused = false;
+  let visible = true;
   let stopped = false;
-  let programmatic = false;
 
   const advance = () => {
-    if (paused || stopped) return;
-    programmatic = true;
-    if (carousel.setSize) {
-      carousel.next();
-    } else if (carousel.index >= carousel.items.length - 1) {
-      carousel.goTo(0);
-    } else {
-      carousel.next();
-    }
-    // 우리가 일으킨 스크롤이 끝날 때까지 사용자 스크롤 감지를 유예한다
-    setTimeout(() => {
-      programmatic = false;
-    }, 700);
+    if (stopped || hovered || focused || !visible) return;
+    if (carousel.setSize || carousel.index < carousel.items.length - 1) carousel.next();
+    else carousel.goTo(0);
   };
 
   const timer = setInterval(advance, delay);
 
-  const pause = () => {
-    paused = true;
+  const onPointerEnter = () => {
+    hovered = true;
   };
-  const resume = () => {
-    paused = false;
+  const onPointerLeave = () => {
+    hovered = false;
+  };
+  const onFocusIn = () => {
+    focused = true;
+  };
+  const onFocusOut = () => {
+    focused = false;
   };
   const stop = () => {
-    if (programmatic) return;
     stopped = true;
     clearInterval(timer);
   };
 
-  root.addEventListener('pointerenter', pause);
-  root.addEventListener('pointerleave', resume);
-  root.addEventListener('focusin', pause);
-  root.addEventListener('focusout', resume);
+  root.addEventListener('pointerenter', onPointerEnter);
+  root.addEventListener('pointerleave', onPointerLeave);
+  root.addEventListener('focusin', onFocusIn);
+  root.addEventListener('focusout', onFocusOut);
   scroller.addEventListener('wheel', stop, { passive: true });
   scroller.addEventListener('pointerdown', stop);
 
   const io = new IntersectionObserver(
     ([entry]) => {
-      paused = !entry.isIntersecting;
+      visible = entry.isIntersecting;
     },
     { threshold: 0 },
   );
@@ -58,10 +56,10 @@ export function applyAutoplay(carousel) {
   carousel.onDestroy(() => {
     clearInterval(timer);
     io.disconnect();
-    root.removeEventListener('pointerenter', pause);
-    root.removeEventListener('pointerleave', resume);
-    root.removeEventListener('focusin', pause);
-    root.removeEventListener('focusout', resume);
+    root.removeEventListener('pointerenter', onPointerEnter);
+    root.removeEventListener('pointerleave', onPointerLeave);
+    root.removeEventListener('focusin', onFocusIn);
+    root.removeEventListener('focusout', onFocusOut);
     scroller.removeEventListener('wheel', stop);
     scroller.removeEventListener('pointerdown', stop);
   });
