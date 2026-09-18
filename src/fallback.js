@@ -16,6 +16,27 @@ function makeButton(carousel, dir) {
   return button;
 }
 
+function buildMarkers(carousel) {
+  const group = document.createElement('div');
+  group.className = 'carousel-markers';
+  group.setAttribute('role', 'tablist');
+  group.tabIndex = -1;
+
+  carousel.items.forEach((item, i) => {
+    const marker = document.createElement('button');
+    marker.type = 'button';
+    marker.className = 'carousel-marker';
+    marker.setAttribute('role', 'tab');
+    marker.setAttribute('aria-label', item.getAttribute('data-carousel-label') ?? String(i + 1));
+    marker.setAttribute('aria-selected', String(i === carousel.index));
+    marker.tabIndex = i === carousel.index ? 0 : -1;
+    marker.addEventListener('click', () => carousel.goTo(i));
+    group.append(marker);
+  });
+
+  return group;
+}
+
 export function applyFallback(carousel) {
   const { root, scroller } = carousel;
 
@@ -39,10 +60,44 @@ export function applyFallback(carousel) {
   resizeObserver.observe(scroller);
   syncDisabled();
 
+  const markers = buildMarkers(carousel);
+  const position = getComputedStyle(root).getPropertyValue('--carousel-marker-group-position').trim();
+  if (position === 'before') scroller.before(markers);
+  else scroller.after(markers);
+
+  const syncMarkers = () => {
+    const current = carousel.index;
+    markers.querySelectorAll('.carousel-marker').forEach((marker, i) => {
+      marker.setAttribute('aria-selected', String(i === current));
+      marker.tabIndex = i === current ? 0 : -1;
+    });
+  };
+  root.addEventListener('carousel:change', syncMarkers);
+
+  const onKeydown = (event) => {
+    if (event.target.closest('input, textarea, select')) return;
+
+    const inline = carousel.isInline;
+    const forward = inline ? 'ArrowRight' : 'ArrowDown';
+    const backward = inline ? 'ArrowLeft' : 'ArrowUp';
+
+    if (event.key === forward) carousel.scrollToSlide(carousel.slideIndex + 1);
+    else if (event.key === backward) carousel.scrollToSlide(carousel.slideIndex - 1);
+    else if (event.key === 'Home') carousel.goTo(0);
+    else if (event.key === 'End') carousel.goTo(carousel.items.length - 1);
+    else return;
+
+    event.preventDefault();
+  };
+  root.addEventListener('keydown', onKeydown);
+
   carousel.onDestroy(() => {
     scroller.removeEventListener('scroll', syncDisabled);
     resizeObserver.disconnect();
     prev.remove();
     next.remove();
+    root.removeEventListener('carousel:change', syncMarkers);
+    root.removeEventListener('keydown', onKeydown);
+    markers.remove();
   });
 }

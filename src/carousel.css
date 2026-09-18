@@ -161,3 +161,27 @@
   opacity: var(--carousel-button-opacity-disabled);
   cursor: default;
 }
+
+/* ── 폴백 경로: 마커 ──────────────────────────────
+   Task 2의 ::scroll-marker 규칙과 같은 변수를 읽는다. */
+
+[data-carousel] > .carousel-markers {
+  display: flex;
+  justify-content: center;
+  gap: var(--carousel-marker-gap);
+  padding-block: var(--carousel-marker-gap);
+}
+
+[data-carousel] > .carousel-markers > .carousel-marker {
+  inline-size: var(--carousel-marker-size);
+  block-size: var(--carousel-marker-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--carousel-marker-color);
+  cursor: pointer;
+}
+
+[data-carousel] > .carousel-markers > .carousel-marker[aria-selected='true'] {
+  background: var(--carousel-marker-color-current);
+}
