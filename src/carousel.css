@@ -35,3 +35,87 @@
   flex-direction: column;
   scroll-snap-type: block var(--carousel-snap);
 }
+
+/* ── 테마 변수 기본값 ─────────────────────────────── */
+
+[data-carousel] {
+  --carousel-button-content-prev: '\2039';
+  --carousel-button-content-next: '\203A';
+  --carousel-button-size: 2.5rem;
+  --carousel-button-inset: 0.5rem;
+  --carousel-button-color: #fff;
+  --carousel-button-bg: rgb(0 0 0 / 0.6);
+  --carousel-button-radius: 50%;
+  --carousel-button-opacity-disabled: 0.25;
+
+  --carousel-marker-content: '';
+  --carousel-marker-size: 0.6rem;
+  --carousel-marker-gap: 0.5rem;
+  --carousel-marker-color: rgb(0 0 0 / 0.25);
+  --carousel-marker-color-current: rgb(0 0 0 / 0.75);
+  --carousel-marker-group-position: after;
+}
+
+/* ── 네이티브 경로: 스크롤 버튼 ───────────────────────
+   쌍둥이 규칙의 절반. 폴백 절반은 Task 4에서 추가한다.
+   선택자 목록은 forgiving하지 않고 :is()는 pseudo-element를
+   받지 않으므로, 두 경로는 반드시 별도 규칙으로 유지한다. */
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(inline-start),
+[data-carousel] > [data-carousel-scroller]::scroll-button(inline-end) {
+  position: absolute;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  z-index: 1;
+
+  inline-size: var(--carousel-button-size);
+  block-size: var(--carousel-button-size);
+  border: 0;
+  border-radius: var(--carousel-button-radius);
+  color: var(--carousel-button-color);
+  background: var(--carousel-button-bg);
+  font-size: calc(var(--carousel-button-size) * 0.5);
+  line-height: 1;
+  cursor: pointer;
+}
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(inline-start) {
+  content: var(--carousel-button-content-prev);
+  inset-inline-start: var(--carousel-button-inset);
+}
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(inline-end) {
+  content: var(--carousel-button-content-next);
+  inset-inline-end: var(--carousel-button-inset);
+}
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(*):disabled {
+  opacity: var(--carousel-button-opacity-disabled);
+  cursor: default;
+}
+
+/* ── 네이티브 경로: 마커 ─────────────────────────── */
+
+[data-carousel] > [data-carousel-scroller] {
+  scroll-marker-group: var(--carousel-marker-group-position);
+}
+
+[data-carousel] > [data-carousel-scroller]::scroll-marker-group {
+  display: flex;
+  justify-content: center;
+  gap: var(--carousel-marker-gap);
+  padding-block: var(--carousel-marker-gap);
+}
+
+[data-carousel] > [data-carousel-scroller] > *::scroll-marker {
+  content: var(--carousel-marker-content);
+  inline-size: var(--carousel-marker-size);
+  block-size: var(--carousel-marker-size);
+  border-radius: 50%;
+  background: var(--carousel-marker-color);
+  cursor: pointer;
+}
+
+[data-carousel] > [data-carousel-scroller] > *::scroll-marker:target-current {
+  background: var(--carousel-marker-color-current);
+}
