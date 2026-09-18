@@ -5,6 +5,8 @@ const ready = async (page, url) => {
   await page.waitForFunction(() => document.querySelector('#c1')?.carousel?.setSize != null);
 };
 
+const isNative = (page) => page.evaluate(() => CSS.supports('selector(::scroll-marker)'));
+
 /**
  * 세 번째 세트로 점프한 뒤 recenter를 기다린다.
  * scrollToSlide(6, 'instant')는 동기적으로 scrollLeft를 옮기므로, 그 직후의
@@ -113,4 +115,42 @@ test('scrollend 미지원 브라우저에서도 idle 타이머로 재중심된�
   });
   expect(state.slideIndex).toBe(3);
   expect(state.index).toBe(0);
+});
+
+// ── 클론 결함 수정 ─────────────────────────────────
+
+// 마커는 pseudo-element라 셀렉터로 잡을 수 없다. fallback-markers.spec.js /
+// vertical.spec.js와 같은 CDP Accessibility.getFullAXTree로 tab role 수를 센다.
+test('네이티브: loop가 켜져도 마커는 복제본이 아니라 원본 수만큼만 노출된다', async ({
+  page,
+  context,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'CDP는 Chromium 전용');
+  await ready(page, '/test/fixtures/loop-markers.html');
+  test.skip(!(await isNative(page)), '네이티브 미지원 브라우저');
+
+  const session = await context.newCDPSession(page);
+  const { nodes } = await session.send('Accessibility.getFullAXTree');
+  await session.detach();
+
+  const tabs = nodes.map((node) => node.role?.value).filter((role) => role === 'tab');
+  expect(tabs).toHaveLength(6);
+});
+
+test('폴백: loop가 켜져도 마커는 원본(carousel.items) 수만큼만 생성된다', async ({ page }) => {
+  await ready(page, '/test/fixtures/loop-markers.html');
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+
+  await expect(page.locator('#c1 .carousel-marker')).toHaveCount(6);
+});
+
+test('복제본의 id는 제거되어 저자가 준 id가 중복되지 않는다', async ({ page }) => {
+  await ready(page, '/test/fixtures/loop.html');
+
+  const counts = await page.evaluate(() => ({
+    slide: document.querySelectorAll('#slide-2').length,
+    label: document.querySelectorAll('#slide-2-label').length,
+  }));
+  expect(counts).toEqual({ slide: 1, label: 1 });
 });

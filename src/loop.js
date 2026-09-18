@@ -46,6 +46,11 @@ export function applyLoop(carousel) {
     const clone = () =>
       originals.map((el) => {
         const copy = el.cloneNode(true);
+        // cloneNode(true)는 id를 그대로 복제한다. 복제본은 문서에서 유일할
+        // 필요가 없으므로(data-carousel-clone + aria-hidden으로 이미 식별됨)
+        // 저자가 쓴 id/getElementById/aria-labelledby가 깨지지 않게 지운다.
+        copy.removeAttribute('id');
+        copy.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
         copy.setAttribute('data-carousel-clone', '');
         copy.setAttribute('aria-hidden', 'true');
         return copy;
