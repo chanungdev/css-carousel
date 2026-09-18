@@ -60,6 +60,15 @@ test('화살표·Home·End 키가 동작한다', async ({ page }) => {
   expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(0);
 });
 
+test('스크롤 끝에서는 마지막 마커가 aria-selected=true다', async ({ page }) => {
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+  await page.evaluate(() => {
+    const s = document.querySelector('#c1 [data-carousel-scroller]');
+    s.scrollTo({ left: s.scrollWidth, behavior: 'instant' });
+  });
+  await expect(page.locator('#c1 .carousel-marker').last()).toHaveAttribute('aria-selected', 'true');
+});
+
 test('마커 그룹은 --carousel-marker-group-position 위치에 배치된다', async ({ page }) => {
   test.skip(await isNative(page), '네이티브 지원 브라우저');
   const after = await page.evaluate(() => {

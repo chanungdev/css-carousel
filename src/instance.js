@@ -1,6 +1,7 @@
 import { readVar, scrollBehavior } from './support.js';
 
 const THRESHOLDS = [0, 0.25, 0.5, 0.75, 1];
+const EDGE_TOLERANCE = 1;
 
 export class Carousel {
   constructor(root) {
@@ -68,28 +69,43 @@ export class Carousel {
     if (visible.length === 0) return;
 
     const inline = this.isInline;
-    const align = readVar(this.root, '--carousel-align', 'start');
+    const max = inline
+      ? this.scroller.scrollWidth - this.scroller.clientWidth
+      : this.scroller.scrollHeight - this.scroller.clientHeight;
+    // RTL에서 scrollLeft는 음수가 되므로 절댓값으로 비교한다
+    const position = Math.abs(inline ? this.scroller.scrollLeft : this.scroller.scrollTop);
 
-    // 정렬 기준점끼리의 거리로 현재 아이템을 정한다. 한 화면에 여러 아이템이
-    // 보일 때 교차 비율은 서브픽셀 렌더링 차이로 뒤집히지만, 기준점 거리는
-    // --carousel-align이 실제로 어디에 맞추는지를 그대로 따라간다.
-    const anchorOf = (rect) => {
-      const start = inline ? rect.left : rect.top;
-      const size = inline ? rect.width : rect.height;
-      if (align === 'center') return start + size / 2;
-      if (align === 'end') return start + size;
-      return start;
-    };
+    let next;
+    if (max > EDGE_TOLERANCE && position >= max - EDGE_TOLERANCE) {
+      // 스크롤 끝에서는 남은 아이템이 정렬 지점에 도달할 수 없다.
+      // 네이티브 ::scroll-marker도 마지막 마커를 현재로 잡으므로 동일하게 맞춘다.
+      next = slides.length - 1;
+    } else if (position <= EDGE_TOLERANCE) {
+      next = 0;
+    } else {
+      const align = readVar(this.root, '--carousel-align', 'start');
 
-    const target = anchorOf(this.scroller.getBoundingClientRect());
+      // 정렬 기준점끼리의 거리로 현재 아이템을 정한다. 한 화면에 여러 아이템이
+      // 보일 때 교차 비율은 서브픽셀 렌더링 차이로 뒤집히지만, 기준점 거리는
+      // --carousel-align이 실제로 어디에 맞추는지를 그대로 따라간다.
+      const anchorOf = (rect) => {
+        const start = inline ? rect.left : rect.top;
+        const size = inline ? rect.width : rect.height;
+        if (align === 'center') return start + size / 2;
+        if (align === 'end') return start + size;
+        return start;
+      };
 
-    let best = Infinity;
-    let next = this._slideIndex;
-    for (const i of visible) {
-      const distance = Math.abs(anchorOf(slides[i].getBoundingClientRect()) - target);
-      if (distance < best) {
-        best = distance;
-        next = i;
+      const target = anchorOf(this.scroller.getBoundingClientRect());
+
+      let best = Infinity;
+      next = this._slideIndex;
+      for (const i of visible) {
+        const distance = Math.abs(anchorOf(slides[i].getBoundingClientRect()) - target);
+        if (distance < best) {
+          best = distance;
+          next = i;
+        }
       }
     }
 

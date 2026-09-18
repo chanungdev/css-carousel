@@ -50,6 +50,18 @@ test('인덱스 변경 시 carousel:change가 발생한다', async ({ page }) =>
   expect(detail).toEqual({ index: 2, slideIndex: 2 });
 });
 
+test('스크롤 끝에서는 정렬 앵커가 닿지 못해도 마지막 아이템이 index가 된다', async ({ page }) => {
+  // 공유 fixture는 --carousel-items:3, 아이템 6개라 align:start로 도달 가능한
+  // 앵커 최대치는 index 3. 네이티브 ::scroll-marker는 스크롤 끝에서 마지막
+  // 아이템을 current로 잡으므로 폴백도 맞춰야 한다.
+  await page.evaluate(() => {
+    const s = document.querySelector('#c1 [data-carousel-scroller]');
+    s.scrollTo({ left: s.scrollWidth, behavior: 'instant' });
+  });
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.index === 5);
+  expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(5);
+});
+
 test('destroy가 인스턴스를 제거한다', async ({ page }) => {
   const gone = await page.evaluate(() => {
     const root = document.querySelector('#c1');
