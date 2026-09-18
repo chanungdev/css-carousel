@@ -185,3 +185,54 @@
 [data-carousel] > .carousel-markers > .carousel-marker[aria-selected='true'] {
   background: var(--carousel-marker-color-current);
 }
+
+/* ── 블록 축: 버튼을 위·아래로 배치 ───────────────── */
+
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(block-start),
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(block-end) {
+  position: absolute;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  z-index: 1;
+
+  inline-size: var(--carousel-button-size);
+  block-size: var(--carousel-button-size);
+  border: 0;
+  border-radius: var(--carousel-button-radius);
+  color: var(--carousel-button-color);
+  background: var(--carousel-button-bg);
+  font-size: calc(var(--carousel-button-size) * 0.5);
+  line-height: 1;
+  cursor: pointer;
+}
+
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(block-start) {
+  content: var(--carousel-button-content-prev);
+  inset-block-start: var(--carousel-button-inset);
+}
+
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(block-end) {
+  content: var(--carousel-button-content-next);
+  inset-block-end: var(--carousel-button-inset);
+}
+
+/* 블록 축에서는 인라인 축 버튼을 생성하지 않는다 */
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(inline-start),
+[data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(inline-end) {
+  content: none;
+}
+
+/* 폴백 버튼도 같은 배치를 따른다 */
+[data-carousel-axis='block'] > .carousel-button {
+  inset-block-start: auto;
+  inset-inline: 50% auto;
+  translate: -50% 0;
+}
+
+[data-carousel-axis='block'] > .carousel-button-prev {
+  inset-block-start: var(--carousel-button-inset);
+}
+
+[data-carousel-axis='block'] > .carousel-button-next {
+  inset-block-end: var(--carousel-button-inset);
+}
