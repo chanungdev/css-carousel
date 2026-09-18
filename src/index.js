@@ -15,8 +15,17 @@ export function init(root) {
   return carousel;
 }
 
+const initSafely = (root) => {
+  try {
+    init(root);
+  } catch (error) {
+    // 하나가 잘못 설정돼도 페이지의 나머지 carousel까지 멈추지 않는다.
+    console.error('css-carousel:', error);
+  }
+};
+
 export function initAll(scope = document) {
-  for (const root of scope.querySelectorAll(SELECTOR)) init(root);
+  for (const root of scope.querySelectorAll(SELECTOR)) initSafely(root);
 }
 
 const collect = (node, out) => {
@@ -54,7 +63,7 @@ export function observe() {
         // 같은 tick에서 wrapper와 그 안의 carousel이 각각 addedNodes로 들어오면
         // 여기서 두 번 push될 수 있지만 무해하다: init()은 root.carousel이 있으면
         // 즉시 반환한다.
-        if (root.isConnected) init(root);
+        if (root.isConnected) initSafely(root);
       }
     }, BATCH_MS);
   });

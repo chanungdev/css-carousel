@@ -1,4 +1,4 @@
-const EDGE_TOLERANCE = 1;
+import { EDGE_TOLERANCE } from './support.js';
 
 function makeButton(carousel, dir) {
   const button = document.createElement('button');

@@ -1,7 +1,6 @@
-import { readVar, scrollBehavior } from './support.js';
+import { readVar, scrollBehavior, EDGE_TOLERANCE } from './support.js';
 
 const THRESHOLDS = [0, 0.25, 0.5, 0.75, 1];
-const EDGE_TOLERANCE = 1;
 
 export class Carousel {
   constructor(root) {

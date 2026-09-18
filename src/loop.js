@@ -1,3 +1,5 @@
+import { EDGE_TOLERANCE } from './support.js';
+
 const IDLE_MS = 120;
 
 /** 한 세트가 차지하는 스크롤 거리를 실측한다 (gap 포함). */
@@ -59,6 +61,13 @@ export function applyLoop(carousel) {
     scroller.prepend(...clone());
     scroller.append(...clone());
     carousel.refresh();
+
+    carousel.onDestroy(() => {
+      // destroy()는 DOM에 남아있는 carousel에도 호출될 수 있다. 클론을 남겨두면
+      // 재초기화 시 이미 3세트인 걸 또 복제해 9세트가 된다.
+      scroller.querySelectorAll('[data-carousel-clone]').forEach((node) => node.remove());
+      carousel.setSize = null;
+    });
   }
 
   // 가운데 세트에서 시작한다
@@ -73,8 +82,8 @@ export function applyLoop(carousel) {
     const position = inline ? scroller.scrollLeft : scroller.scrollTop;
 
     let shift = 0;
-    if (position < extent - 1) shift = extent;
-    else if (position >= extent * 2 - 1) shift = -extent;
+    if (position < extent - EDGE_TOLERANCE) shift = extent;
+    else if (position >= extent * 2 - EDGE_TOLERANCE) shift = -extent;
     if (shift === 0) return;
 
     scroller.scrollTo({

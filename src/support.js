@@ -1,3 +1,6 @@
+/** 스크롤 끝/경계 판정에 쓰는 서브픽셀 오차 허용치(px). */
+export const EDGE_TOLERANCE = 1;
+
 export const supportsNative = () =>
   typeof CSS !== 'undefined' &&
   typeof CSS.supports === 'function' &&

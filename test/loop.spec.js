@@ -154,3 +154,53 @@ test('복제본의 id는 제거되어 저자가 준 id가 중복되지 않는다
   }));
   expect(counts).toEqual({ slide: 1, label: 1 });
 });
+
+// ── 격리·정리 수정 ─────────────────────────────────
+
+test('잘못 설정된 manual loop가 이후 carousel의 초기화를 막지 않는다', async ({ page }) => {
+  const errors = [];
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') errors.push(msg.text());
+  });
+
+  await page.goto('/test/fixtures/loop-cascade.html');
+  // DOM 순서상 잘못된 #bad가 먼저 처리되고 그 뒤에 #good이 처리된다.
+  // #good이 초기화됐다는 것 자체가 #bad의 throw가 initAll의 for 루프를
+  // 통째로 멈추지 않았다는 증거다.
+  await page.waitForFunction(() => !!document.querySelector('#good')?.carousel);
+
+  const state = await page.evaluate(() => ({
+    goodSlides: document.querySelector('#good').carousel.slides.length,
+    // #bad는 Carousel 생성자까지는 성공하지만(그래서 root.carousel은 존재한다)
+    // applyLoop의 throw로 setSize 할당 전에 멈추므로 setSize는 null로 남는다.
+    badSetSize: document.querySelector('#bad').carousel?.setSize ?? null,
+  }));
+  expect(state.goodSlides).toBe(3);
+  expect(state.badSetSize).toBeNull();
+
+  // 에러를 삼키지 않고 console.error로 드러냈는지 확인한다.
+  await expect.poll(() => errors.some((text) => text.includes('css-carousel'))).toBe(true);
+});
+
+test('destroy가 자동 복제본을 제거하고, 재초기화하면 다시 3세트가 된다', async ({ page }) => {
+  await ready(page, '/test/fixtures/loop.html');
+
+  const afterDestroy = await page.evaluate(() => {
+    const root = document.querySelector('#c1');
+    const carousel = root.carousel;
+    carousel.destroy();
+    return {
+      clones: root.querySelectorAll('[data-carousel-clone]').length,
+      slides: carousel.slides.length,
+    };
+  });
+  expect(afterDestroy).toEqual({ clones: 0, slides: 3 });
+
+  await page.evaluate(() => window.Carousel.init(document.querySelector('#c1')));
+  await page.waitForFunction(() => document.querySelector('#c1')?.carousel?.setSize != null);
+
+  const slidesAfterReinit = await page.evaluate(
+    () => document.querySelector('#c1').carousel.slides.length,
+  );
+  expect(slidesAfterReinit).toBe(9);
+});
