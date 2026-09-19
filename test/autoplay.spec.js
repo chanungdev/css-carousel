@@ -6,6 +6,7 @@ const ready = async (page) => {
 };
 
 const index = (page) => page.evaluate(() => document.querySelector('#c1').carousel.index);
+const isNative = (page) => page.evaluate(() => CSS.supports('selector(::scroll-marker)'));
 
 test('일정 간격으로 다음 아이템으로 넘어간다', async ({ page }) => {
   await ready(page);
@@ -99,6 +100,34 @@ test('회귀: 자동 전진 직후의 사용자 wheel도 영구히 멈춘다', a
   const after = await index(page);
   // 부재를 검증하는 테스트: 고정 대기로 확정한다. 900ms(=한 바퀴)는 피한다 —
   // 위 테스트와 같은 이유로 우연히 같은 인덱스로 돌아올 수 있다.
+  await page.waitForTimeout(500);
+  expect(await index(page)).toBe(after);
+});
+
+// 회귀 테스트: 폴백의 버튼·마커는 scroller의 자식이 아니라 형제(root의
+// 자식)다. 정지 리스너가 scroller에만 걸려 있으면 그 클릭이 닿지 않아
+// Chromium(네이티브)에서만 우연히 통과하고 폴백 브라우저에서는 계속
+// 자동재생됐다.
+test('폴백 화살표 버튼 클릭도 영구히 자동재생을 멈춘다', async ({ page }) => {
+  await ready(page);
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+
+  await page.locator('#c1 .carousel-button-next').click();
+  // 버튼 위에 포인터가 남아있으면 hover-pause와 섞여 "영구히" 멈췄는지
+  // wheel/pointerdown 정지 효과와 구분되지 않는다 — 포인터를 치운다.
+  await page.mouse.move(0, 2000);
+  // 클릭은 버튼에 포커스도 남긴다(Safari/WebKit 제외). focusin으로 인한
+  // 일시 정지와 stop()의 영구 정지를 구분해야 pointerdown 리스너가 실제로
+  // 동작했는지 검증한 것이 된다 — 포커스도 치운다.
+  await page.evaluate(() => document.activeElement?.blur());
+  // 클릭이 만든 smooth 스크롤과, 정지가 실패했을 때의 자동 전진 한 틱이
+  // 끝날 유예를 흡수한 값을 기준선으로 삼는다(위 hover 테스트와 같은 이유 —
+  // "언제 정착했는지"에 좌우되지 않게 한다).
+  await page.waitForTimeout(500);
+  const after = await index(page);
+  // 부재를 검증하는 테스트: 한 바퀴(900ms)와 겹치지 않는 500ms 고정 대기로
+  // 다시 확정한다. 아이템 3개·간격 300ms라 500ms 안에는 반드시 1틱은
+  // 일어나므로, 안 멈췄다면 이 값은 반드시 바뀐다.
   await page.waitForTimeout(500);
   expect(await index(page)).toBe(after);
 });

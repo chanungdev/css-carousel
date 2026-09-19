@@ -1,7 +1,7 @@
 import { prefersReducedMotion } from './support.js';
 
 export function applyAutoplay(carousel) {
-  const { root, scroller } = carousel;
+  const { root } = carousel;
   const delay = Number(root.getAttribute('data-carousel-autoplay'));
   if (!Number.isFinite(delay) || delay <= 0) return;
   if (prefersReducedMotion()) return;
@@ -43,8 +43,8 @@ export function applyAutoplay(carousel) {
     root.removeEventListener('pointerleave', onPointerLeave);
     root.removeEventListener('focusin', onFocusIn);
     root.removeEventListener('focusout', onFocusOut);
-    scroller.removeEventListener('wheel', stop);
-    scroller.removeEventListener('pointerdown', stop);
+    root.removeEventListener('wheel', stop);
+    root.removeEventListener('pointerdown', stop);
   };
   const stop = () => {
     stopped = true;
@@ -57,8 +57,11 @@ export function applyAutoplay(carousel) {
   root.addEventListener('pointerleave', onPointerLeave);
   root.addEventListener('focusin', onFocusIn);
   root.addEventListener('focusout', onFocusOut);
-  scroller.addEventListener('wheel', stop, { passive: true });
-  scroller.addEventListener('pointerdown', stop);
+  // 폴백의 버튼·마커는 scroller의 자식이 아니라 형제(root의 자식)다.
+  // scroller에만 걸면 그쪽 클릭이 이 리스너에 닿지 않아 정지하지 않는다.
+  // root에 걸면 scroller 위 wheel도 버블링으로 그대로 잡힌다.
+  root.addEventListener('wheel', stop, { passive: true });
+  root.addEventListener('pointerdown', stop);
 
   const io = new IntersectionObserver(
     ([entry]) => {

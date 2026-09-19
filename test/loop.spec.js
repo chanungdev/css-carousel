@@ -159,6 +159,22 @@ test('폴백: loop가 켜져도 마커는 원본(carousel.items) 수만큼만 �
   await expect(page.locator('#c1 .carousel-marker')).toHaveCount(6);
 });
 
+test('클론 안의 포커스 가능 요소는 tab으로 닿지 않는다 (inert)', async ({ page }) => {
+  await ready(page, '/test/fixtures/loop-focusable.html');
+
+  // 클론에 aria-hidden만 있고 inert가 없으면, 접근성 트리에서는 숨겨졌지만
+  // tab 순서에는 그대로 남는 링크가 생긴다(WCAG 4.1.2). 페이지를 여러 바퀴
+  // Tab으로 순회하며 activeElement가 클론 내부로 들어가는지 직접 확인한다.
+  // 클론은 prepend가 먼저이므로 앞쪽 몇 번의 Tab만으로도 걸린다.
+  for (let i = 0; i < 30; i += 1) {
+    await page.keyboard.press('Tab');
+    const insideClone = await page.evaluate(
+      () => document.activeElement?.closest('[data-carousel-clone]') != null,
+    );
+    expect(insideClone).toBe(false);
+  }
+});
+
 test('복제본의 id는 제거되어 저자가 준 id가 중복되지 않는다', async ({ page }) => {
   await ready(page, '/test/fixtures/loop.html');
 

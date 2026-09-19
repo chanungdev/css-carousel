@@ -8,7 +8,10 @@ export function applyThumbs(carousel, resolve) {
   if (!thumbs) return;
 
   const sync = () => {
-    const current = carousel.index;
+    // strip의 아이템 수가 main보다 적으면 carousel.index가 범위를 벗어날 수
+    // 있다. goTo()는 이미 clamp하므로(scrollToSlide), 하이라이트도 같은
+    // 기준으로 clamp해야 아무 썸네일도 선택되지 않는 상태를 피한다.
+    const current = Math.min(carousel.index, thumbs.items.length - 1);
     thumbs.items.forEach((item, i) => {
       item.classList.toggle(CURRENT_CLASS, i === current);
       if (i === current) item.setAttribute('aria-current', 'true');

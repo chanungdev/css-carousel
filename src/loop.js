@@ -55,6 +55,10 @@ export function applyLoop(carousel) {
         copy.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
         copy.setAttribute('data-carousel-clone', '');
         copy.setAttribute('aria-hidden', 'true');
+        // aria-hidden만으로는 안의 링크/버튼이 여전히 tab 순서에 남는다
+        // (WCAG 4.1.2 / axe aria-hidden-focus). 클론은 조작 대상이 아니므로
+        // inert로 포커스 자체를 막는다.
+        copy.setAttribute('inert', '');
         return copy;
       });
 
