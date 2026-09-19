@@ -62,3 +62,54 @@ test.describe('네이티브 CSS carousel (스크립트 없음)', () => {
     expect(markerContent).not.toBe('none');
   });
 });
+
+/**
+ * 스크롤러가 한 번 이동하는 동안 관측되는 서로 다른 scrollLeft 값의 개수.
+ * 즉시 이동이면 출발값과 도착값 2개뿐이고, 애니메이션되면 중간 프레임만큼 늘어난다.
+ */
+const distinctScrollSteps = (page, duration) =>
+  page.evaluate(async (ms) => {
+    const scroller = document.querySelector('#c1 [data-carousel-scroller]');
+    const seen = [];
+    const start = performance.now();
+    while (performance.now() - start < ms) {
+      seen.push(Math.round(scroller.scrollLeft));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return new Set(seen).size;
+  }, duration);
+
+const clickNextButton = async (page) => {
+  const box = await page.locator('#c1').boundingBox();
+  await page.mouse.click(box.x + box.width - 24, box.y + box.height / 2);
+};
+
+test.describe('스크롤 애니메이션', () => {
+  // 네이티브 ::scroll-button()과 ::scroll-marker 클릭은 스크롤러의 CSS
+  // scroll-behavior를 따른다. 폴백 경로는 JS가 behavior를 명시하므로,
+  // 이 선언이 없으면 Chromium만 즉시 점프해 두 경로가 어긋난다.
+  test('네이티브 스크롤 버튼이 부드럽게 이동한다', async ({ page }) => {
+    await page.goto('/test/fixtures/no-js.html');
+    test.skip(!(await nativeOnly(page)), 'native scroll button 미지원 브라우저');
+
+    const sampling = distinctScrollSteps(page, 900);
+    await clickNextButton(page);
+
+    // scroll-behavior: auto면 한 프레임에 목적지로 점프해 2개만 관측된다
+    expect(await sampling).toBeGreaterThan(4);
+  });
+
+  test.describe('모션 축소', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('reduced motion에서는 즉시 이동한다', async ({ page }) => {
+      await page.goto('/test/fixtures/no-js.html');
+      test.skip(!(await nativeOnly(page)), 'native scroll button 미지원 브라우저');
+
+      const sampling = distinctScrollSteps(page, 900);
+      await clickNextButton(page);
+
+      expect(await sampling).toBeLessThanOrEqual(2);
+    });
+  });
+});
