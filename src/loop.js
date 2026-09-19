@@ -78,16 +78,23 @@ export function applyLoop(carousel) {
     // 간격으로 scrollToSlide가 연달아 호출되면 아직 최신 위치를 반영하지 못한
     // 값일 수 있다. 실제 scrollLeft/Top을 기준으로 판단해야 이 경합을 피한다.
     const extent = measureSetExtent(carousel);
+    // RTL에서는 첫 세트가 오른쪽에 있어 extent가 음수다. 부호(dir)와 크기(span)를
+    // 분리해야 한다 — 부호를 버리고 Math.abs만 취하면 어느 쪽으로 밀어야 하는지
+    // 알 수 없어 경계 판정이 반대로 동작한다.
+    const dir = Math.sign(extent);
+    const span = Math.abs(extent);
     const inline = carousel.isInline;
-    const position = inline ? scroller.scrollLeft : scroller.scrollTop;
+    const raw = inline ? scroller.scrollLeft : scroller.scrollTop;
+    // RTL에서 scrollLeft는 음수가 되므로 절댓값으로 비교한다
+    const position = Math.abs(raw);
 
     let shift = 0;
-    if (position < extent - EDGE_TOLERANCE) shift = extent;
-    else if (position >= extent * 2 - EDGE_TOLERANCE) shift = -extent;
+    if (position < span - EDGE_TOLERANCE) shift = span;
+    else if (position >= span * 2 - EDGE_TOLERANCE) shift = -span;
     if (shift === 0) return;
 
     scroller.scrollTo({
-      [inline ? 'left' : 'top']: position + shift,
+      [inline ? 'left' : 'top']: raw + shift * dir,
       behavior: 'instant',
     });
   };

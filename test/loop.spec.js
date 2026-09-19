@@ -55,6 +55,20 @@ test('가운데 세트에서 시작한다', async ({ page }) => {
   expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(0);
 });
 
+test('RTL: 초기 정착 이후에도 가운데 세트를 유지한다 (복제본으로 튀지 않는다)', async ({ page }) => {
+  await ready(page, '/test/fixtures/loop-rtl.html');
+  // measureSetExtent()는 RTL에서 음수를 반환한다. recenter가 부호를 버리고
+  // 크기만 비교하면(Math.abs만 적용) 경계 판정이 뒤집혀서, 최초 scrollToSlide
+  // 이후 첫 settle에서 곧장 첫 번째 클론 세트(slideIndex 0)로 튀어버리고
+  // 거기서 멈춘다. 고치면 이 대기는 금방(가운데 세트 유지) 끝나고, 안 고치면
+  // slideIndex가 다시는 3이 되지 않아 타임아웃으로 실패한다.
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.slideIndex === 3, null, {
+    timeout: 5000,
+  });
+  expect(await page.evaluate(() => document.querySelector('#c1').carousel.slideIndex)).toBe(3);
+  expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(0);
+});
+
 test('수동 모드는 복제하지 않고 setSize만 계산한다', async ({ page }) => {
   await ready(page, '/test/fixtures/loop-manual.html');
   const state = await page.evaluate(() => {

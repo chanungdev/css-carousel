@@ -85,16 +85,20 @@ Carousel.initAll = initAll;
 
 export { Carousel };
 
-if (document.readyState === 'loading') {
-  document.addEventListener(
-    'DOMContentLoaded',
-    () => {
-      initAll();
-      observe();
-    },
-    { once: true },
-  );
-} else {
-  initAll();
-  observe();
+// SSR(Next.js App Router 등)에서는 이 모듈이 document 없이 평가된다.
+// document 접근은 브라우저에서만 한다.
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        initAll();
+        observe();
+      },
+      { once: true },
+    );
+  } else {
+    initAll();
+    observe();
+  }
 }
