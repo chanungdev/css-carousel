@@ -33,9 +33,24 @@ export function applyAutoplay(carousel) {
   const onFocusOut = () => {
     focused = false;
   };
+  // stop()과 onDestroy() 둘 다 같은 정리를 한다. clearInterval·disconnect·
+  // removeEventListener는 이미 멈춘/제거된 대상에 다시 불러도 아무 일도 안
+  // 하므로 두 번 호출해도 안전하다.
+  const cleanup = () => {
+    clearInterval(timer);
+    io.disconnect();
+    root.removeEventListener('pointerenter', onPointerEnter);
+    root.removeEventListener('pointerleave', onPointerLeave);
+    root.removeEventListener('focusin', onFocusIn);
+    root.removeEventListener('focusout', onFocusOut);
+    scroller.removeEventListener('wheel', stop);
+    scroller.removeEventListener('pointerdown', stop);
+  };
   const stop = () => {
     stopped = true;
-    clearInterval(timer);
+    // 영구 정지 이후로는 아무 신호도 다시 읽지 않으므로, 배터리·백그라운드
+    // 작업을 당장 놓아준다 — carousel이 destroy될 때까지 기다리지 않는다.
+    cleanup();
   };
 
   root.addEventListener('pointerenter', onPointerEnter);
@@ -53,14 +68,5 @@ export function applyAutoplay(carousel) {
   );
   io.observe(root);
 
-  carousel.onDestroy(() => {
-    clearInterval(timer);
-    io.disconnect();
-    root.removeEventListener('pointerenter', onPointerEnter);
-    root.removeEventListener('pointerleave', onPointerLeave);
-    root.removeEventListener('focusin', onFocusIn);
-    root.removeEventListener('focusout', onFocusOut);
-    scroller.removeEventListener('wheel', stop);
-    scroller.removeEventListener('pointerdown', stop);
-  });
+  carousel.onDestroy(cleanup);
 }

@@ -44,8 +44,12 @@ test('hover 중에는 멈춘다', async ({ page }) => {
 test('reduced motion이면 시작하지 않는다', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await ready(page);
-  // 위와 동일하게 부재(아무 일도 없음)를 검증하므로 고정 대기가 맞다.
-  await page.waitForTimeout(900);
+  // 부재를 검증하는 테스트: 고정 대기가 맞다. 900ms(=3틱, 한 바퀴)는 피한다 —
+  // 이 테스트는 정확히 "타이머가 아예 안 만들어지는지"를 검증하는데, 만약
+  // prefersReducedMotion() 가드가 깨져 타이머가 생겨도 900ms 뒤엔 한 바퀴 돌아
+  // 우연히 같은 인덱스(0)로 돌아와 버그를 숨긴다. 다른 테스트와 같은 이유로
+  // 500ms를 쓴다.
+  await page.waitForTimeout(500);
   expect(await index(page)).toBe(0);
 });
 
