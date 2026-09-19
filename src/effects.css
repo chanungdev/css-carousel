@@ -1,5 +1,10 @@
 /* css-carousel — 이펙트 프리셋과 marquee (전부 장식, JS 0바이트) */
 
+/* carousel.css와 같은 이유로 같은 이름의 레이어에 둔다 — 언레이어드 사용자
+   CSS가 항상 이기게 한다. 같은 레이어명이면 두 파일이 합쳐져도 라이브러리
+   내부 규칙 사이의 우선순위는 그대로다. */
+@layer css-carousel {
+
 [data-carousel] {
   --carousel-effect-perspective: 800px;
 }
@@ -59,6 +64,7 @@
   exit 100% { scale: 0.8; }
 }
 
+/* rotate에는 논리 축 개념이 없다 — y축 회전은 물리적 좌/우를 가정한다(RTL 미보정) */
 @keyframes carousel-coverflow {
   entry 0% { rotate: y 40deg; }
   entry 100% { rotate: y 0deg; }
@@ -113,6 +119,7 @@
   animation-play-state: paused;
 }
 
+/* translate에는 논리 축 개념이 없다 — 물리적 왼쪽으로 이동함을 가정한다(RTL 미보정) */
 @keyframes carousel-marquee {
   from { translate: 0 0; }
   /* 복제본이 정확히 한 벌이므로 절반만큼 이동하면 이어진다 */
@@ -124,3 +131,5 @@
     animation-play-state: paused;
   }
 }
+
+} /* @layer css-carousel */

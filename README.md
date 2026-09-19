@@ -18,6 +18,9 @@ import 'css-carousel/carousel.css';
 import 'css-carousel'; // optional — only needed for Firefox/Safari support and the JS API
 ```
 
+The package is ESM-only (`"type": "module"`, no CommonJS build). `require('css-carousel')` fails —
+use `import` or a dynamic `import()`.
+
 ## Markup
 
 Two elements, always:
@@ -56,17 +59,18 @@ Layout is CSS. Responsiveness is CSS. There is no JavaScript options object.
 | `--carousel-scrollbar` | `auto` | Set to `none` to hide the scrollbar |
 
 Button, marker and thumbnail appearance is themed through `--carousel-button-*`, `--carousel-marker-*`
-and `--carousel-thumb-*`. See `src/carousel.css` for the full list.
+and `--carousel-thumb-*`. See `dist/carousel.css` (the file this package actually publishes — `src/carousel.css`
+is not included in `files`) for the full list.
 
 | Attribute | Where | Purpose |
 |---|---|---|
 | `data-carousel-axis` | root | `inline` (default) or `block` |
 | `data-carousel-loop` | root | Infinite loop. Use `="manual"` when you pre-render exactly three sets yourself |
-| `data-carousel-autoplay="4000"` | root | Auto-advance in ms |
+| `data-carousel-autoplay="4000"` | root | Auto-advance in ms. Pauses on hover, focus and visibility loss; stops permanently on user input (wheel/pointerdown) |
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
 | `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth` or `curve` (needs `effects.css`, see below) |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
-| `data-carousel-label` | a slide | Accessible name for that slide's marker. Default is the slide's 1-based position |
+| `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
 
 ## JavaScript API
 
@@ -230,8 +234,17 @@ and Safari ship the primitives, more of your users move onto the native, zero-JS
 - `--carousel-snap: none` is not supported. Declare `scroll-snap-type: none` directly instead.
 - With several items per view, the trailing items can't become the aligned item mid-scroll. The library
   matches Chromium's native behavior by resolving to the first or last item at the scroll extremes.
-- RTL is expected to work — the library uses logical properties throughout — but it is not covered by
-  any test. Treat it as unverified, not unsupported.
+- Native `::scroll-marker`s cannot currently be given an accessible name. `data-carousel-label` is read
+  only by the fallback path; the native marker's name comes from CSS `content`, which defaults to `''`,
+  so Chromium exposes unnamed tabs.
+- RTL, `--carousel-align: start`/`end`, and several items per view together: the JS index tracking reads
+  the slide's physical `getBoundingClientRect().left`, while the CSS `scroll-snap-align` value stays
+  logical. The two disagree in RTL, so the tracked index and the actually-snapped item can differ.
+- RTL marquees (`data-carousel-marquee`) scroll in the physical direction the keyframes were written in,
+  not the logical (reading-order) direction — so a marquee under `dir="rtl"` moves the wrong way.
+- `refresh()` on a looping (`data-carousel-loop`) carousel does not recompute `setSize` or touch the
+  clone sets. If the slide count changes, call `carousel.destroy()` followed by `Carousel.init(root)`
+  instead.
 
 ## License
 

@@ -1,5 +1,12 @@
 /* css-carousel — 레이아웃 · 스냅 · 축 */
 
+/* 레이어 안에 두면 unlayered CSS가 항상 이긴다(레이어드 vs 언레이어드에서는
+   명시도·소스 순서와 무관하게 언레이어드가 우선한다). Tailwind v4는
+   @layer theme, base, components, utilities 안에서 전부 동작하므로, 이
+   레이어가 없으면 사용자가 @layer components에서 --carousel-items를
+   재정의해도 라이브러리 기본값에 조용히 덮인다. */
+@layer css-carousel {
+
 [data-carousel] {
   position: relative;
 
@@ -65,6 +72,7 @@
 [data-carousel] > [data-carousel-scroller]::scroll-button(inline-end) {
   position: absolute;
   inset-block-start: 50%;
+  /* translate에는 논리 축 개념이 없다 — 물리축(block축 세로 중앙 정렬)을 가정한다 */
   translate: 0 -50%;
   z-index: 1;
 
@@ -133,6 +141,7 @@
 [data-carousel] > .carousel-button {
   position: absolute;
   inset-block-start: 50%;
+  /* translate에는 논리 축 개념이 없다 — 물리축(block축 세로 중앙 정렬)을 가정한다 */
   translate: 0 -50%;
   z-index: 1;
 
@@ -198,6 +207,7 @@
 [data-carousel-axis='block'] > [data-carousel-scroller]::scroll-button(block-end) {
   position: absolute;
   inset-inline-start: 50%;
+  /* translate에는 논리 축 개념이 없다 — 물리축(inline축 가로 중앙 정렬)을 가정한다 */
   translate: -50% 0;
   z-index: 1;
 
@@ -232,6 +242,7 @@
 [data-carousel-axis='block'] > .carousel-button {
   inset-block-start: auto;
   inset-inline: 50% auto;
+  /* translate에는 논리 축 개념이 없다 — 물리축(inline축 가로 중앙 정렬)을 가정한다 */
   translate: -50% 0;
 }
 
@@ -253,3 +264,5 @@
 [data-carousel] > [data-carousel-scroller] > .carousel-thumb-current {
   opacity: var(--carousel-thumb-current-opacity);
 }
+
+} /* @layer css-carousel */
