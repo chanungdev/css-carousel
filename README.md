@@ -1,0 +1,234 @@
+# css-carousel
+
+A carousel built on the CSS carousel primitives — `scroll-snap`, `::scroll-button()` and `::scroll-marker()`.
+Zero JavaScript where the browser supports them. An optional script (measured under 8KB gzip) fills the
+gap everywhere else with matching buttons, markers, keyboard navigation and `tablist` accessibility.
+
+Works with React, Vue, Angular, Svelte or plain HTML. There is no framework wrapper to install,
+because there is nothing framework-specific to wrap.
+
+## Install
+
+```bash
+npm install css-carousel
+```
+
+```js
+import 'css-carousel/carousel.css';
+import 'css-carousel'; // optional — only needed for Firefox/Safari support and the JS API
+```
+
+## Markup
+
+Two elements, always:
+
+```html
+<div data-carousel>
+  <ul data-carousel-scroller>
+    <li>…</li>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+## Configuration
+
+Layout is CSS. Responsiveness is CSS. There is no JavaScript options object.
+
+```css
+.my-carousel {
+  --carousel-items: 2.5;   /* fractional values create a peek */
+  --carousel-gap: 1rem;
+  --carousel-align: center;
+}
+
+@container (min-width: 40em) {
+  .my-carousel { --carousel-items: 4; }
+}
+```
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `--carousel-items` | `1` | Items per view. Fractions allowed |
+| `--carousel-gap` | `0px` | Gap between items (unit required) |
+| `--carousel-align` | `start` | `scroll-snap-align` value |
+| `--carousel-snap` | `mandatory` | Snap strictness |
+| `--carousel-scrollbar` | `auto` | Set to `none` to hide the scrollbar |
+
+Button and marker appearance is themed through `--carousel-button-*` and `--carousel-marker-*`.
+See `src/carousel.css` for the full list.
+
+| Attribute | Where | Purpose |
+|---|---|---|
+| `data-carousel-axis` | root | `inline` (default) or `block` |
+| `data-carousel-loop` | root | Infinite loop. Use `="manual"` when you pre-render exactly three sets yourself |
+| `data-carousel-autoplay="4000"` | root | Auto-advance in ms |
+| `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
+| `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth` or `curve` (needs `effects.css`, see below) |
+| `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
+| `data-carousel-label` | a slide | Accessible name for that slide's marker. Default is the slide's 1-based position |
+
+## JavaScript API
+
+```js
+const carousel = document.querySelector('[data-carousel]').carousel;
+carousel.next();
+carousel.goTo(3);
+
+document.addEventListener('carousel:change', (e) => console.log(e.detail.index));
+```
+
+## Loop
+
+`data-carousel-loop` clones your slides into three sets and recenters the scroll position on
+`scrollend`, so the library owns the extra DOM nodes.
+
+If a framework owns the slide list (React, Vue, Angular re-rendering from state), clones fight the
+framework's reconciliation. Use `data-carousel-loop="manual"` instead and render exactly three copies
+of your item list yourself — the library only recenters, it never clones:
+
+```html
+<div data-carousel data-carousel-loop="manual">
+  <ul data-carousel-scroller>
+    <!-- set 1 --><li>1</li><li>2</li><li>3</li>
+    <!-- set 2 --><li>1</li><li>2</li><li>3</li>
+    <!-- set 3 --><li>1</li><li>2</li><li>3</li>
+  </ul>
+</div>
+```
+
+A slide count not divisible by three throws in manual mode.
+
+## Effects
+
+Five scroll-driven, decorative-only presets — `fade`, `scale`, `coverflow`, `depth`, `curve` — animate
+slides as they enter and leave the viewport using `animation-timeline: view()`. They are pure CSS: 0
+bytes of JavaScript, and the carousel works normally if the browser doesn't support scroll-driven
+animations.
+
+They live in `effects.css`, imported separately from the base layout:
+
+```js
+import 'css-carousel/carousel.css';
+import 'css-carousel/effects.css';
+```
+
+```html
+<div data-carousel data-carousel-effect="coverflow">
+  <ul data-carousel-scroller>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+Effects are disabled automatically under `prefers-reduced-motion: reduce`.
+
+## Marquee
+
+A marquee is not a carousel — there's no scroll container, no swipe, no snap, no buttons, no markers,
+no JS. It's a pure-CSS looping ticker that also ships in `effects.css`. Because there's no scroll
+container, the library can't clone anything for you; duplicate your items in markup once, with
+`aria-hidden="true"` on the copies:
+
+```js
+import 'css-carousel/effects.css';
+```
+
+```html
+<div data-carousel-marquee>
+  <ul data-carousel-marquee-track>
+    <li>A</li><li>B</li><li>C</li>
+    <li aria-hidden="true">A</li><li aria-hidden="true">B</li><li aria-hidden="true">C</li>
+  </ul>
+</div>
+```
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `--carousel-marquee-duration` | `20s` | Time for one full loop |
+| `--carousel-marquee-gap` | `1rem` | Gap between items |
+
+The animation pauses on hover and focus, and under `prefers-reduced-motion: reduce`.
+
+## Framework usage
+
+**React**
+
+```jsx
+import 'css-carousel/carousel.css';
+import 'css-carousel';
+
+export function Gallery({ items }) {
+  return (
+    <div data-carousel style={{ '--carousel-items': 2.5, '--carousel-gap': '1rem' }}>
+      <ul data-carousel-scroller>
+        {items.map((item) => <li key={item.id}>{item.title}</li>)}
+      </ul>
+    </div>
+  );
+}
+```
+
+**Vue**
+
+```vue
+<script setup>
+import 'css-carousel/carousel.css';
+import 'css-carousel';
+defineProps(['items']);
+</script>
+
+<template>
+  <div data-carousel :style="{ '--carousel-items': 2.5, '--carousel-gap': '1rem' }">
+    <ul data-carousel-scroller>
+      <li v-for="item in items" :key="item.id">{{ item.title }}</li>
+    </ul>
+  </div>
+</template>
+```
+
+**Angular**
+
+```ts
+@Component({
+  selector: 'app-gallery',
+  template: `
+    <div data-carousel [style]="{ '--carousel-items': 2.5, '--carousel-gap': '1rem' }">
+      <ul data-carousel-scroller>
+        <li *ngFor="let item of items">{{ item.title }}</li>
+      </ul>
+    </div>
+  `,
+})
+export class GalleryComponent {}
+```
+
+Import `css-carousel` once in your entry file. New carousels added to the DOM are picked up automatically.
+Dynamic item lists work as-is — except with `data-carousel-loop` (the default, cloning mode); see
+[Loop](#loop) above.
+
+## Browser support
+
+`::scroll-button()` and `::scroll-marker()` ship in Chromium 135+. There, the browser itself exposes the
+marker group as a `tablist` and handles keyboard navigation — the library never touches the DOM.
+Everywhere else, the optional script builds equivalent buttons and dots with matching `role="tablist"` /
+`role="tab"` and ARIA state. Swipe, snap and momentum are native scrolling in all browsers. As Firefox
+and Safari ship the primitives, more of your users move onto the native, zero-JS path with no code change.
+
+## Known limits
+
+- Peek is proportional (a fraction of `--carousel-items`), not a fixed pixel amount. Override
+  `flex-basis` on the items if you need pixels.
+- Switching axis per breakpoint needs a manual `flex-direction` / `scroll-snap-type` override —
+  `flex-direction` can't branch off a single custom property.
+- A block-axis carousel (`data-carousel-axis="block"`) needs a definite `block-size` on the scroller.
+  `flex-basis`'s `100%` resolves against the flex container's inner main size, which is otherwise auto.
+- `--carousel-snap: none` is not supported. Declare `scroll-snap-type: none` directly instead.
+- With several items per view, the trailing items can't become the aligned item mid-scroll. The library
+  matches Chromium's native behavior by resolving to the first or last item at the scroll extremes.
+- RTL is expected to work — the library uses logical properties throughout — but it is not covered by
+  any test. Treat it as unverified, not unsupported.
+
+## License
+
+MIT
