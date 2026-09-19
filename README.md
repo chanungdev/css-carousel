@@ -80,6 +80,7 @@ is not included in `files`) for the full list.
 | `data-carousel-axis` | root | `inline` (default) or `block` |
 | `data-carousel-loop` | root | Infinite loop. Use `="manual"` when you pre-render exactly three sets yourself |
 | `data-carousel-autoplay="4000"` | root | Auto-advance in ms. Pauses on hover, focus and visibility loss; stops permanently on user input (wheel/pointerdown) |
+| `data-carousel-autoplay-resume="5000"` | root | Resume that many ms after the last user input instead of stopping for good. Omit to keep the permanent stop |
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
 | `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth`, `curve` or `reveal` (needs `effects.css`, see below) |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
@@ -117,6 +118,27 @@ marks its own auto-generated clones, so assistive tech and tab order only ever s
 ```
 
 A slide count not divisible by three throws in manual mode.
+
+## Autoplay
+
+`data-carousel-autoplay="<ms>"` advances on an interval. It yields to the user by default: it pauses
+while the pointer is over the carousel, while focus is inside it, and while it is scrolled out of view,
+and it never starts at all under `prefers-reduced-motion: reduce`.
+
+Once the user actually takes over — a wheel gesture, a pointer press, an arrow button — autoplay stops
+permanently. That is the safe default: content the reader is interacting with should not start moving
+again under them.
+
+When a carousel is decorative rather than something to read, `data-carousel-autoplay-resume="<ms>"`
+turns that permanent stop into a pause. The countdown restarts on every further input, so it only
+resumes after the reader has been idle for the full interval:
+
+```html
+<div data-carousel data-carousel-autoplay="4000" data-carousel-autoplay-resume="8000">
+```
+
+Pick a resume delay comfortably longer than the autoplay interval. A short one produces a carousel that
+keeps wrestling the reader for control.
 
 ## Effects
 
