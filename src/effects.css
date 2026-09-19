@@ -1,0 +1,126 @@
+/* css-carousel — 이펙트 프리셋과 marquee (전부 장식, JS 0바이트) */
+
+[data-carousel] {
+  --carousel-effect-perspective: 800px;
+}
+
+/* ── scroll-driven 이펙트 프리셋 ─────────────────────
+   미지원 브라우저에서는 적용되지 않고 carousel은 정상 동작한다. */
+
+[data-carousel-effect] > [data-carousel-scroller] > * {
+  animation-timeline: view(inline);
+  animation-fill-mode: both;
+  animation-timing-function: linear;
+}
+
+[data-carousel-axis='block'][data-carousel-effect] > [data-carousel-scroller] > * {
+  animation-timeline: view(block);
+}
+
+[data-carousel-effect='fade'] > [data-carousel-scroller] > * {
+  animation-name: carousel-fade;
+}
+
+[data-carousel-effect='scale'] > [data-carousel-scroller] > * {
+  animation-name: carousel-scale;
+}
+
+[data-carousel-effect='coverflow'] > [data-carousel-scroller] {
+  perspective: var(--carousel-effect-perspective);
+}
+
+[data-carousel-effect='coverflow'] > [data-carousel-scroller] > * {
+  animation-name: carousel-coverflow;
+}
+
+[data-carousel-effect='depth'] > [data-carousel-scroller] {
+  perspective: var(--carousel-effect-perspective);
+}
+
+[data-carousel-effect='depth'] > [data-carousel-scroller] > * {
+  animation-name: carousel-depth;
+}
+
+[data-carousel-effect='curve'] > [data-carousel-scroller] > * {
+  animation-name: carousel-curve;
+}
+
+@keyframes carousel-fade {
+  entry 0% { opacity: 0; }
+  entry 100% { opacity: 1; }
+  exit 0% { opacity: 1; }
+  exit 100% { opacity: 0; }
+}
+
+@keyframes carousel-scale {
+  entry 0% { scale: 0.8; }
+  entry 100% { scale: 1; }
+  exit 0% { scale: 1; }
+  exit 100% { scale: 0.8; }
+}
+
+@keyframes carousel-coverflow {
+  entry 0% { rotate: y 40deg; }
+  entry 100% { rotate: y 0deg; }
+  exit 0% { rotate: y 0deg; }
+  exit 100% { rotate: y -40deg; }
+}
+
+@keyframes carousel-depth {
+  entry 0% { translate: 0 0 -300px; opacity: 0.4; }
+  entry 100% { translate: 0 0 0; opacity: 1; }
+  exit 0% { translate: 0 0 0; opacity: 1; }
+  exit 100% { translate: 0 0 -300px; opacity: 0.4; }
+}
+
+@keyframes carousel-curve {
+  entry 0% { translate: 0 30%; rotate: 8deg; }
+  entry 100% { translate: 0 0; rotate: 0deg; }
+  exit 0% { translate: 0 0; rotate: 0deg; }
+  exit 100% { translate: 0 30%; rotate: -8deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-carousel-effect] > [data-carousel-scroller] > * {
+    animation-name: none;
+  }
+}
+
+/* ── marquee ─────────────────────────────────────
+   carousel이 아니다. 스크롤 컨테이너가 아니고 상호작용도 없다.
+   아이템 복제는 사용자 마크업이 담당한다 (복제본에 aria-hidden="true"). */
+
+[data-carousel-marquee] {
+  --carousel-marquee-duration: 20s;
+  --carousel-marquee-gap: 1rem;
+
+  overflow: hidden;
+}
+
+[data-carousel-marquee] > [data-carousel-marquee-track] {
+  display: flex;
+  inline-size: max-content;
+  gap: var(--carousel-marquee-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  animation: carousel-marquee var(--carousel-marquee-duration) linear infinite;
+}
+
+[data-carousel-marquee]:hover > [data-carousel-marquee-track],
+[data-carousel-marquee]:focus-within > [data-carousel-marquee-track] {
+  animation-play-state: paused;
+}
+
+@keyframes carousel-marquee {
+  from { translate: 0 0; }
+  /* 복제본이 정확히 한 벌이므로 절반만큼 이동하면 이어진다 */
+  to { translate: calc(-50% - var(--carousel-marquee-gap) / 2) 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-carousel-marquee] > [data-carousel-marquee-track] {
+    animation-play-state: paused;
+  }
+}
