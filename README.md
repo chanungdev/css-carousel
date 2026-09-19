@@ -81,7 +81,7 @@ is not included in `files`) for the full list.
 | `data-carousel-loop` | root | Infinite loop. Use `="manual"` when you pre-render exactly three sets yourself |
 | `data-carousel-autoplay="4000"` | root | Auto-advance in ms. Pauses on hover, focus and visibility loss; stops permanently on user input (wheel/pointerdown) |
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
-| `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth` or `curve` (needs `effects.css`, see below) |
+| `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth`, `curve` or `reveal` (needs `effects.css`, see below) |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
 
@@ -120,10 +120,20 @@ A slide count not divisible by three throws in manual mode.
 
 ## Effects
 
-Five scroll-driven, decorative-only presets — `fade`, `scale`, `coverflow`, `depth`, `curve` — animate
-slides as they enter and leave the viewport using `animation-timeline: view()`. They are pure CSS: 0
-bytes of JavaScript, and the carousel works normally if the browser doesn't support scroll-driven
-animations.
+Six scroll-driven, decorative-only presets — `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` —
+animate slides as they enter and leave the viewport using `animation-timeline: view()`. They are pure
+CSS: 0 bytes of JavaScript, and the carousel works normally if the browser doesn't support
+scroll-driven animations.
+
+`reveal` is the only one that animates two elements. The slide's frame opens like a curtain
+(`clip-path`) while any `img`, `video`, `picture` or `svg` inside it shifts the opposite way, so the
+media looks anchored while the frame slides over it. A slide with no media still gets the wipe. Because
+`clip-path` insets and `translate` are physical, `reveal` is disabled on `data-carousel-axis="block"`
+rather than wiping across the scroll direction.
+
+`reveal` reads best at `--carousel-items: 1` with `--carousel-gap: 0`, which is what the curtain
+metaphor assumes. The library does not force either — a gap still works, it just shows the page
+background between frames, so the slides read as separate cards rather than one continuous strip.
 
 They live in `effects.css`, imported separately from the base layout:
 
