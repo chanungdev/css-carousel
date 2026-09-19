@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>thumbs</title>
+  <link rel="stylesheet" href="/src/carousel.css">
+  <link rel="stylesheet" href="/test/fixtures/fixture.css">
+  <style>
+    #main { --carousel-items: 1; --carousel-gap: 0px; }
+    #strip { --carousel-items: 4; --carousel-gap: 8px; }
+    #strip [data-carousel-scroller] > li { block-size: 60px; }
+  </style>
+</head>
+<body>
+  <div class="harness" data-carousel data-carousel-thumbs="#strip" id="main">
+    <ul data-carousel-scroller>
+      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li>
+    </ul>
+  </div>
+  <div class="harness" data-carousel id="strip">
+    <ul data-carousel-scroller>
+      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li>
+    </ul>
+  </div>
+  <script type="module">
+    import { Carousel } from '/src/index.js';
+    window.Carousel = Carousel;
+  </script>
+</body>
+</html>

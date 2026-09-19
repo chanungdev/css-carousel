@@ -242,3 +242,14 @@
 [data-carousel-axis='block'] > .carousel-button-next {
   inset-block-end: var(--carousel-button-inset);
 }
+
+/* ── 썸네일 연동 ─────────────────────────────────── */
+
+[data-carousel] {
+  --carousel-thumb-current-opacity: 1;
+  --carousel-thumb-opacity: 0.5;
+}
+
+[data-carousel] > [data-carousel-scroller] > .carousel-thumb-current {
+  opacity: var(--carousel-thumb-current-opacity);
+}

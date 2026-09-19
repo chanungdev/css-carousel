@@ -3,6 +3,7 @@ import { supportsNative } from './support.js';
 import { applyFallback } from './fallback.js';
 import { applyLoop } from './loop.js';
 import { applyAutoplay } from './autoplay.js';
+import { applyThumbs } from './thumbs.js';
 
 const SELECTOR = '[data-carousel]';
 const BATCH_MS = 50;
@@ -14,6 +15,12 @@ export function init(root) {
   if (root.hasAttribute('data-carousel-loop')) applyLoop(carousel);
   if (!supportsNative()) applyFallback(carousel);
   if (root.hasAttribute('data-carousel-autoplay')) applyAutoplay(carousel);
+  if (root.hasAttribute('data-carousel-thumbs')) {
+    applyThumbs(carousel, (selector) => {
+      const target = document.querySelector(selector);
+      return target ? init(target) : null;
+    });
+  }
   return carousel;
 }
 
