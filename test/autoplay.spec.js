@@ -176,3 +176,82 @@ test('회귀: hover 이후 visibility 콜백이 뒤늦게 와도 정지 사유�
   await page.waitForTimeout(500);
   expect(await index(page)).toBe(before);
 });
+
+test.describe('data-carousel-autoplay-resume', () => {
+  const readyResume = async (page) => {
+    await page.goto('/test/fixtures/autoplay-resume.html');
+    await page.waitForFunction(() => !!document.querySelector('#c1').carousel);
+  };
+
+  // 사용자 입력 후 마우스를 치우고 포커스를 푸는 이유는 위 영구 정지 테스트와
+  // 같다 — hover-pause나 focus-pause가 남아 있으면 "재시작하지 않는 것"이
+  // resume 로직 때문인지 다른 정지 사유 때문인지 구분되지 않는다.
+  // wheel로 인터럽트하면 폴백 경로에서 실제 스크롤이 일어나고, 스냅이 되돌아오는
+  // 동안 인덱스가 계속 바뀐다. 그러면 "멈춰 있다"가 깨진 이유가 autoplay인지
+  // 사용자 스크롤인지 구분되지 않는다. pointerdown은 같은 interrupt() 경로를
+  // 타면서 스크롤을 일으키지 않아 그 잡음이 없다. wheel 경로는 위의 영구 정지
+  // 테스트들이 덮는다.
+  const interruptAndRelease = async (page) => {
+    const box = await page.locator('#c1').boundingBox();
+    // 가장자리에는 폴백 버튼이 있어 누르면 goTo가 불린다 — 가운데를 누른다.
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.up();
+    await page.mouse.move(0, 2000);
+    await page.evaluate(() => document.activeElement?.blur?.());
+  };
+
+  test('사용자 입력 후 지정한 시간이 지나면 다시 돈다', async ({ page }) => {
+    await readyResume(page);
+    await interruptAndRelease(page);
+
+    const paused = await index(page);
+    // 재시작을 검증하는 테스트이므로 조건 대기를 쓴다. resume 지연(700ms)보다
+    // 넉넉한 타임아웃을 주되, 통과 조건은 "인덱스가 실제로 바뀐다"뿐이다.
+    await page.waitForFunction(
+      (before) => document.querySelector('#c1').carousel.index !== before,
+      paused,
+      { timeout: 4000 },
+    );
+  });
+
+  test('재시작 전까지는 멈춰 있다', async ({ page }) => {
+    await readyResume(page);
+    await interruptAndRelease(page);
+
+    const paused = await index(page);
+    // 부재를 검증하는 구간. resume 지연 700ms보다 짧고, 틱 주기 300ms의
+    // 배수가 아닌 값을 써서 "안 멈췄는데 우연히 같은 인덱스"를 배제한다.
+    await page.waitForTimeout(500);
+    expect(await index(page)).toBe(paused);
+  });
+
+  test('입력이 이어지면 재시작 카운트다운이 다시 시작된다', async ({ page }) => {
+    await readyResume(page);
+    await interruptAndRelease(page);
+    const paused = await index(page);
+
+    // 첫 입력으로부터 700ms가 지나기 전에 다시 입력하면 카운트다운이 리셋되어
+    // 그 시점부터 다시 700ms를 기다려야 한다.
+    await page.waitForTimeout(800);
+    await interruptAndRelease(page);
+
+    // 리셋이 없다면 첫 입력의 타이머가 1500ms에 풀린다. 단언 시점이 그보다
+    // 최소 한 틱(300ms) 뒤여야 "풀렸는데 아직 안 움직인" 상태와 구분된다.
+    await page.waitForTimeout(1300);
+    expect(await index(page)).toBe(paused);
+  });
+
+  test('속성이 없으면 기존대로 영구히 멈춘다', async ({ page }) => {
+    await ready(page);
+    await page.locator('#c1 [data-carousel-scroller]').hover();
+    await page.mouse.wheel(200, 0);
+    await page.waitForTimeout(500);
+    await page.mouse.move(0, 2000);
+    const after = await index(page);
+    // resume 지연으로 쓰는 700ms보다 충분히 긴 시간을 기다려도 재시작하지
+    // 않아야 한다 — 재시작 기능이 기본값을 바꾸지 않았음을 고정한다.
+    await page.waitForTimeout(1500);
+    expect(await index(page)).toBe(after);
+  });
+});
