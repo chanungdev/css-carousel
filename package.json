@@ -4,6 +4,7 @@
   "description": "CSS-first carousel built on scroll-snap, ::scroll-button() and ::scroll-marker()",
   "type": "module",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chanungdev/css-carousel.git"
@@ -34,10 +35,14 @@
     "test": "playwright test",
     "build": "node scripts/build.js",
     "size": "node scripts/size-check.js",
-    "prepublishOnly": "npm run build && npm run size && npm test"
+    "prepublishOnly": "node scripts/build.js && node scripts/size-check.js && playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
     "esbuild": "^0.25.0"
+  },
+  "pnpm": {
+    "//": "esbuild는 플랫폼 바이너리를 optionalDependencies로 배포하므로 postinstall 없이 동작한다",
+    "ignoredBuiltDependencies": ["esbuild"]
   }
 }

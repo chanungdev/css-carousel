@@ -4,3 +4,5 @@ test-results/
 playwright-report/
 .superpowers/
 docs/superpowers/
+package-lock.json
+yarn.lock

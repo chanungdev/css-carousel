@@ -11,7 +11,7 @@ because there is nothing framework-specific to wrap.
 
 ```bash
 git clone https://github.com/chanungdev/css-carousel.git && cd css-carousel
-npm install
+pnpm install            # this repo uses pnpm; `corepack enable` picks up the pinned version
 node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
