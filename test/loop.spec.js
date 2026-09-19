@@ -55,7 +55,7 @@ test('가운데 세트에서 시작한다', async ({ page }) => {
   expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(0);
 });
 
-test('RTL: 초기 정착 이후에도 가운데 세트를 유지한다 (복제본으로 튀지 않는다)', async ({ page }) => {
+test('RTL: 경계를 넘으면 가운데 세트로 되돌아온다 (복제본으로 튀지 않는다)', async ({ page }) => {
   await ready(page, '/test/fixtures/loop-rtl.html');
   // measureSetExtent()는 RTL에서 음수를 반환한다. recenter가 부호를 버리고
   // 크기만 비교하면(Math.abs만 적용) 경계 판정이 뒤집혀서, 최초 scrollToSlide
@@ -65,8 +65,19 @@ test('RTL: 초기 정착 이후에도 가운데 세트를 유지한다 (복제�
   await page.waitForFunction(() => document.querySelector('#c1').carousel.slideIndex === 3, null, {
     timeout: 5000,
   });
-  expect(await page.evaluate(() => document.querySelector('#c1').carousel.slideIndex)).toBe(3);
-  expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(0);
+
+  // 초기 정착 직후의 raw는 이미 -span 근방이라 recenter의 두 경계 분기
+  // (shift = ±span) 중 어느 쪽도 타지 않는다 — shift가 항상 0인 채로 통과해
+  // 버리는 약한 테스트가 된다. 세 번째 세트로 실제로 넘어가야 recenter가
+  // RTL의 dir(음수)을 적용해 가운데로 되돌리는 지점을 검증한 것이 된다.
+  await jumpToThirdSetAndWaitForRecenter(page);
+
+  const state = await page.evaluate(() => {
+    const c = document.querySelector('#c1').carousel;
+    return { slideIndex: c.slideIndex, index: c.index };
+  });
+  expect(state.slideIndex).toBe(3);
+  expect(state.index).toBe(0);
 });
 
 test('수동 모드는 복제하지 않고 setSize만 계산한다', async ({ page }) => {

@@ -89,14 +89,16 @@ document.addEventListener('carousel:change', (e) => console.log(e.detail.index))
 
 If a framework owns the slide list (React, Vue, Angular re-rendering from state), clones fight the
 framework's reconciliation. Use `data-carousel-loop="manual"` instead and render exactly three copies
-of your item list yourself — the library only recenters, it never clones:
+of your item list yourself — the library only recenters, it never clones. Only the middle set is real;
+mark the first and third as duplicates with `aria-hidden="true"` and `inert`, the same way the library
+marks its own auto-generated clones, so assistive tech and tab order only ever see one set:
 
 ```html
 <div data-carousel data-carousel-loop="manual">
   <ul data-carousel-scroller>
-    <!-- set 1 --><li>1</li><li>2</li><li>3</li>
-    <!-- set 2 --><li>1</li><li>2</li><li>3</li>
-    <!-- set 3 --><li>1</li><li>2</li><li>3</li>
+    <!-- set 1 (복제) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
+    <!-- set 2 (진짜) --><li>1</li><li>2</li><li>3</li>
+    <!-- set 3 (복제) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
   </ul>
 </div>
 ```
@@ -225,6 +227,8 @@ and Safari ship the primitives, more of your users move onto the native, zero-JS
 
 ## Known limits
 
+- RTL works in the default single-item-per-view configuration, including `data-carousel-loop`, which
+  is covered by a test. The limits below apply to the specific combinations listed, not to RTL generally.
 - Peek is proportional (a fraction of `--carousel-items`), not a fixed pixel amount. Override
   `flex-basis` on the items if you need pixels.
 - Switching axis per breakpoint needs a manual `flex-direction` / `scroll-snap-type` override —
