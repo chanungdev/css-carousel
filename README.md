@@ -55,8 +55,8 @@ Layout is CSS. Responsiveness is CSS. There is no JavaScript options object.
 | `--carousel-snap` | `mandatory` | Snap strictness |
 | `--carousel-scrollbar` | `auto` | Set to `none` to hide the scrollbar |
 
-Button and marker appearance is themed through `--carousel-button-*` and `--carousel-marker-*`.
-See `src/carousel.css` for the full list.
+Button, marker and thumbnail appearance is themed through `--carousel-button-*`, `--carousel-marker-*`
+and `--carousel-thumb-*`. See `src/carousel.css` for the full list.
 
 | Attribute | Where | Purpose |
 |---|---|---|
@@ -203,9 +203,13 @@ defineProps(['items']);
 export class GalleryComponent {}
 ```
 
-Import `css-carousel` once in your entry file. New carousels added to the DOM are picked up automatically.
-Dynamic item lists work as-is — except with `data-carousel-loop` (the default, cloning mode); see
-[Loop](#loop) above.
+Import `css-carousel` once in your entry file. New carousels added to the DOM are picked up
+automatically, and removed ones clean up their listeners — that part is tested. Changing the item
+list *inside* an already-mounted carousel is not automatic: call `carousel.refresh()` after the DOM
+settles so the current-index tracking picks up the new slides. If you're also using the JS fallback,
+note that its buttons/markers are built once at init and don't currently rebuild on `refresh()` — avoid
+changing item counts on an already-mounted fallback carousel, or call `carousel.destroy()` followed by
+`Carousel.init(root)` to rebuild it from scratch.
 
 ## Browser support
 
