@@ -7,6 +7,19 @@ gap everywhere else with matching buttons, markers, keyboard navigation and `tab
 Works with React, Vue, Angular, Svelte or plain HTML. There is no framework wrapper to install,
 because there is nothing framework-specific to wrap.
 
+## Demo
+
+```bash
+git clone https://github.com/chanungdev/css-carousel.git && cd css-carousel
+npm install
+node scripts/serve.js   # http://localhost:5173/demo/index.html
+```
+
+The demo loads `src/` directly, so there is nothing to build. It shows the responsive item count,
+fractional peek, loop, autoplay, thumbnail sync, the block axis, all five effect presets and the
+marquee. A badge at the top reports which path the browser took — open the same page in Chrome and in
+Safari to see the native and fallback paths side by side.
+
 ## Install
 
 ```bash
