@@ -32,6 +32,13 @@ test('마지막 아이템 다음에는 처음으로 돌아간다', async ({ page
 test('hover 중에는 멈춘다', async ({ page }) => {
   await ready(page);
   await page.locator('#c1').hover();
+  // hover()가 resolve됐다고 해서 pointerenter 핸들러가 이미 반영됐다는
+  // 보장은 없다 — 부하가 크면 hover 처리와 300ms 틱이 경합해 스냅샷을
+  // hover 반영 전에 찍을 수 있다. 그러면 "언제 hover가 반영되는지"에
+  // 테스트 결과가 좌우되는, 검증 대상과 무관한 이유로 실패하게 된다.
+  // 그래서 hover 직후 값과 비교하는 대신, 유예를 한 번 흡수한 뒤의 값을
+  // 기준으로 삼아 "hover가 걸린 동안은 안정적으로 멈춰 있는지"만 본다.
+  await page.waitForTimeout(500);
   const before = await index(page);
   // "아무 일도 일어나지 않는다"를 검증하는 테스트라 고정 대기가 맞다. 단,
   // 아이템이 3개·간격이 300ms라 900ms(=3틱)를 기다리면 멈추지 않았어도
@@ -57,7 +64,10 @@ test('사용자가 스크롤하면 영구히 멈춘다', async ({ page }) => {
   await ready(page);
   await page.locator('#c1 [data-carousel-scroller]').hover();
   await page.mouse.wheel(200, 0);
-  await page.waitForTimeout(200);
+  // wheel 처리(stop() 호출)가 실제로 반영될 유예를 흡수한다 — 이 대기가
+  // 없으면 "언제 stop()이 반영됐는지"에 좌우되는 스냅샷이 된다(위 hover
+  // 테스트와 같은 이유).
+  await page.waitForTimeout(500);
   // hover 자체가 아니라 wheel이 "영구히" 멈췄는지 검증하려면 hover를 풀어야
   // 한다. 마우스가 캐러셀 위에 계속 남아 있으면 hover-pause만으로도 멈춘
   // 것처럼 보여서 wheel의 정지 효과와 구분되지 않는다.
@@ -80,7 +90,9 @@ test('회귀: 자동 전진 직후의 사용자 wheel도 영구히 멈춘다', a
   await page.waitForFunction(() => document.querySelector('#c1').carousel.index > 0, null, { timeout: 3000 });
   await page.locator('#c1 [data-carousel-scroller]').hover();
   await page.mouse.wheel(200, 0);
-  await page.waitForTimeout(200);
+  // wheel 처리(stop() 호출)가 실제로 반영될 유예를 흡수한다(위 테스트와
+  // 같은 이유).
+  await page.waitForTimeout(500);
   // hover 자체가 아니라 wheel이 "영구히" 멈췄는지 검증하려면 hover를 풀어야
   // 한다(위 테스트와 같은 이유).
   await page.mouse.move(0, 2000);
@@ -118,13 +130,17 @@ test('회귀: hover 이후 visibility 콜백이 뒤늦게 와도 정지 사유�
   });
   await ready(page);
   await page.locator('#c1').hover();
-  const before = await index(page);
+  // hover 처리 유예를 흡수해 hovered=true가 확정된 뒤에 콜백을 흘려보낸다
+  // (위 hover 테스트와 같은 이유 — hover() resolve와 실제 반영 사이의
+  // 경합이 이 회귀 시나리오 자체와 뒤섞이지 않도록 분리한다).
+  await page.waitForTimeout(500);
 
   // hover보다 늦게 도착하는 visibility 콜백을 흉내낸다 (부하 상황 재현).
   await page.evaluate(() => {
     const cb = window.__autoplayIoCallbacks.at(-1);
     cb([{ isIntersecting: true, target: document.querySelector('#c1') }]);
   });
+  const before = await index(page);
 
   // 부재를 검증하는 테스트: 고정 대기로 확정한다. 900ms는 피한다 — 위와 같은
   // 이유로 멈추지 않았어도 한 바퀴 돌아 우연히 같은 값이 될 수 있다.
