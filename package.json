@@ -4,6 +4,24 @@
   "description": "CSS-first carousel built on scroll-snap, ::scroll-button() and ::scroll-marker()",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chanungdev/css-carousel.git"
+  },
+  "homepage": "https://github.com/chanungdev/css-carousel#readme",
+  "bugs": "https://github.com/chanungdev/css-carousel/issues",
+  "keywords": [
+    "carousel",
+    "slider",
+    "scroll-snap",
+    "scroll-marker",
+    "scroll-button",
+    "css",
+    "accessibility",
+    "react",
+    "vue",
+    "angular"
+  ],
   "files": ["dist", "types"],
   "main": "./dist/carousel.js",
   "types": "./types/carousel.d.ts",
