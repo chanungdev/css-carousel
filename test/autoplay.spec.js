@@ -255,3 +255,72 @@ test.describe('data-carousel-autoplay-resume', () => {
     expect(await index(page)).toBe(after);
   });
 });
+
+test.describe('포커스와 재시작', () => {
+  const readyResume = async (page) => {
+    await page.goto('/test/fixtures/autoplay-resume.html');
+    await page.waitForFunction(() => !!document.querySelector('#c1').carousel);
+  };
+
+  const scrollIdle = (page) =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          const el = document.querySelector('#c1 [data-carousel-scroller]');
+          let last = el.scrollLeft;
+          let quiet = 0;
+          const tick = () => {
+            if (el.scrollLeft !== last) {
+              last = el.scrollLeft;
+              quiet = 0;
+            } else {
+              quiet += 1;
+            }
+            if (quiet >= 20) return resolve();
+            requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
+
+  // 마우스로 버튼을 누르면 브라우저에 따라 포커스가 버튼에 남는다(Firefox).
+  // 그걸 일시정지 사유로 취급하면 포인터가 떠난 뒤에도 영영 재생되지 않아
+  // 재시작 옵션이 사실상 동작하지 않는다.
+  test('버튼을 마우스로 누른 뒤 포인터가 떠나면 재시작한다', async ({ page }) => {
+    await readyResume(page);
+    test.skip(await isNative(page), '폴백 버튼이 있는 브라우저 전용');
+
+    await page.locator('#c1 .carousel-button-next').click();
+    // blur()를 부르지 않는다 — 포커스가 버튼에 남아 있어도 재시작해야 한다.
+    await page.mouse.move(640, 650);
+    await scrollIdle(page);
+
+    const paused = await index(page);
+    await page.waitForFunction(
+      (before) => document.querySelector('#c1').carousel.index !== before,
+      paused,
+      { timeout: 5000 },
+    );
+  });
+
+  // 반대쪽 보장: 키보드로 들어온 포커스는 계속 정지 사유여야 한다.
+  // 읽고 있는 사람 밑에서 내용이 움직이면 안 된다.
+  test('키보드 포커스는 재시작 시간이 지나도 계속 멈춰 있다', async ({ page }) => {
+    await readyResume(page);
+
+    let inside = false;
+    for (let i = 0; i < 12 && !inside; i += 1) {
+      await page.keyboard.press('Tab');
+      inside = await page.evaluate(() =>
+        document.querySelector('#c1').contains(document.activeElement),
+      );
+    }
+    test.skip(!inside, '탭으로 도달 가능한 포커스 대상이 없는 브라우저');
+
+    await scrollIdle(page);
+    const paused = await index(page);
+    // 재시작 지연(1500ms)보다 충분히 길게 기다려도 움직이지 않아야 한다.
+    await page.waitForTimeout(2300);
+    expect(await index(page)).toBe(paused);
+  });
+});

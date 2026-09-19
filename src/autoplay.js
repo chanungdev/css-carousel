@@ -33,8 +33,17 @@ export function applyAutoplay(carousel) {
   const onPointerLeave = () => {
     hovered = false;
   };
-  const onFocusIn = () => {
-    focused = true;
+  const onFocusIn = (event) => {
+    const target = event.target;
+    // 마우스로 버튼·마커를 누르면 브라우저에 따라 포커스가 거기 남는다. 그것까지
+    // 정지 사유로 보면 포인터가 떠난 뒤에도 영영 재생되지 않는다. 우리가 만든
+    // 컨트롤에 한해 :focus-visible로 키보드 포커스만 골라낸다.
+    //
+    // 이 판정을 포커스 전반에 적용하면 안 된다 — Chromium은 Tab으로 스크롤
+    // 컨테이너에 포커스가 가도 :focus-visible을 주지 않아서, 읽고 있는 키보드
+    // 사용자 밑에서 내용이 계속 움직이게 된다.
+    const control = target instanceof Element && target.closest('.carousel-button, .carousel-markers');
+    focused = control ? target.matches(':focus-visible') : true;
   };
   const onFocusOut = () => {
     focused = false;

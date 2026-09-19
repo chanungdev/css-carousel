@@ -140,6 +140,12 @@ resumes after the reader has been idle for the full interval:
 Pick a resume delay comfortably longer than the autoplay interval. A short one produces a carousel that
 keeps wrestling the reader for control.
 
+Focus is treated as two different things on purpose. Keyboard focus anywhere inside the carousel
+pauses autoplay for as long as it stays there — someone reading with the keyboard should never have
+content move under them, resume delay or not. But a mouse click on an arrow or a dot leaves focus on
+that control in some browsers, and treating that as reading would mean autoplay never resumes. So for
+the library's own controls only, the pause follows `:focus-visible` rather than plain focus.
+
 ## Effects
 
 Six scroll-driven, decorative-only presets — `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` —
