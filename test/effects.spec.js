@@ -27,6 +27,62 @@ test('지원 브라우저에서 이펙트 애니메이션이 붙는다', async (
   expect(style.timeline).toBe('view(inline)');
 });
 
+test.describe('reveal 프리셋', () => {
+  const styles = (page) =>
+    page.evaluate(() => {
+      const slide = document.querySelector('#c1 [data-carousel-scroller] > li');
+      const media = slide.querySelector('img');
+      return {
+        slideName: getComputedStyle(slide).animationName,
+        slideTimeline: getComputedStyle(slide).animationTimeline,
+        slideOverflow: getComputedStyle(slide).overflowX,
+        mediaName: getComputedStyle(media).animationName,
+        mediaTimeline: getComputedStyle(media).animationTimeline,
+      };
+    });
+
+  test('슬라이드와 안쪽 미디어에 각각 애니메이션이 붙는다', async ({ page }) => {
+    await page.goto('/test/fixtures/effects-reveal.html');
+    test.skip(
+      !(await page.evaluate(() => CSS.supports('animation-timeline: view()'))),
+      'scroll-driven animation 미지원 브라우저',
+    );
+
+    const style = await styles(page);
+    expect(style.slideName).toBe('carousel-reveal');
+    expect(style.slideTimeline).toBe('view(inline)');
+    // 커튼이 열리는 동안 미디어가 프레임 밖으로 나가지 않아야 한다
+    expect(style.slideOverflow).toBe('clip');
+    // 미디어의 역방향 이동이 이 프리셋의 핵심 — 없으면 단순 와이프에 그친다
+    expect(style.mediaName).toBe('carousel-reveal-media');
+    expect(style.mediaTimeline).toBe('view(inline)');
+  });
+
+  test('블록 축에서는 비활성화된다', async ({ page }) => {
+    await page.goto('/test/fixtures/effects-reveal.html');
+    test.skip(
+      !(await page.evaluate(() => CSS.supports('animation-timeline: view()'))),
+      'scroll-driven animation 미지원 브라우저',
+    );
+
+    // clip-path와 translate는 물리 축이라 세로 스크롤에서는 방향이 어긋난다.
+    // 틀린 방향으로 움직이느니 아무 효과도 주지 않는 쪽이 낫다.
+    await page.locator('#c1').evaluate((el) => el.setAttribute('data-carousel-axis', 'block'));
+    const style = await styles(page);
+    expect(style.slideName).toBe('none');
+    expect(style.mediaName).toBe('none');
+  });
+
+  test('reduced motion에서는 슬라이드와 미디어 모두 멈춘다', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/test/fixtures/effects-reveal.html');
+
+    const style = await styles(page);
+    expect(style.slideName).toBe('none');
+    expect(style.mediaName).toBe('none');
+  });
+});
+
 test('marquee 트랙이 애니메이션된다', async ({ page }) => {
   await page.goto('/test/fixtures/marquee.html');
   const style = await page

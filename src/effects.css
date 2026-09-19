@@ -50,6 +50,32 @@
   animation-name: carousel-curve;
 }
 
+/* reveal: 슬라이드 프레임이 커튼처럼 열리는 동안 안쪽 미디어는 반대로 움직여
+   제자리에 있는 것처럼 보인다. 두 애니메이션이 함께 있어야 성립하고,
+   미디어가 없는 슬라이드에서는 와이프만 남는다. */
+[data-carousel-effect='reveal'] > [data-carousel-scroller] > * {
+  animation-name: carousel-reveal;
+  /* 역방향으로 밀린 미디어가 프레임 밖으로 새지 않게 한다 */
+  overflow: clip;
+}
+
+[data-carousel-effect='reveal'] > [data-carousel-scroller] > * :is(img, video, picture, svg) {
+  animation-name: carousel-reveal-media;
+  animation-timeline: view(inline);
+  animation-fill-mode: both;
+  animation-timing-function: linear;
+}
+
+/* clip-path의 inset과 translate는 물리 축이라 세로 스크롤에서는 와이프 방향이
+   스크롤 방향과 어긋난다. 틀린 방향으로 움직이느니 끄는 쪽이 낫다. */
+[data-carousel-axis='block'][data-carousel-effect='reveal'] > [data-carousel-scroller] > *,
+[data-carousel-axis='block'][data-carousel-effect='reveal']
+  > [data-carousel-scroller]
+  > *
+  :is(img, video, picture, svg) {
+  animation-name: none;
+}
+
 @keyframes carousel-fade {
   entry 0% { opacity: 0; }
   entry 100% { opacity: 1; }
@@ -86,8 +112,25 @@
   exit 100% { translate: 0 30%; rotate: -8deg; }
 }
 
+/* clip-path의 inset 방향은 물리적 좌/우를 가정한다(RTL 미보정) */
+@keyframes carousel-reveal {
+  entry 0% { clip-path: inset(0 100% 0 0); }
+  entry 100% { clip-path: inset(0); }
+  exit 0% { clip-path: inset(0); }
+  exit 100% { clip-path: inset(0 0 0 100%); }
+}
+
+/* 커튼이 열리는 만큼 반대로 밀어 미디어가 정지해 보이게 한다 */
+@keyframes carousel-reveal-media {
+  entry 0% { translate: -50%; }
+  entry 100% { translate: 0; }
+  exit 0% { translate: 0; }
+  exit 100% { translate: 50%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  [data-carousel-effect] > [data-carousel-scroller] > * {
+  [data-carousel-effect] > [data-carousel-scroller] > *,
+  [data-carousel-effect] > [data-carousel-scroller] > * :is(img, video, picture, svg) {
     animation-name: none;
   }
 }
