@@ -1,6 +1,9 @@
 import { EDGE_TOLERANCE } from './support.js';
+import type { Carousel } from './instance.js';
 
-function makeButton(carousel, dir) {
+type Direction = 'prev' | 'next';
+
+function makeButton(carousel: Carousel, dir: Direction): HTMLButtonElement {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = `carousel-button carousel-button-${dir}`;
@@ -16,7 +19,7 @@ function makeButton(carousel, dir) {
   return button;
 }
 
-function buildMarkers(carousel) {
+function buildMarkers(carousel: Carousel): HTMLDivElement {
   const group = document.createElement('div');
   group.className = 'carousel-markers';
   group.setAttribute('role', 'tablist');
@@ -37,7 +40,7 @@ function buildMarkers(carousel) {
   return group;
 }
 
-export function applyFallback(carousel) {
+export function applyFallback(carousel: Carousel): void {
   const { root, scroller } = carousel;
 
   const prev = makeButton(carousel, 'prev');
@@ -68,20 +71,21 @@ export function applyFallback(carousel) {
   const syncMarkers = () => {
     const current = carousel.index;
     const hadFocus = markers.contains(document.activeElement);
-    let currentMarker = null;
-    markers.querySelectorAll('.carousel-marker').forEach((marker, i) => {
+    const all = Array.from(markers.querySelectorAll<HTMLElement>('.carousel-marker'));
+    all.forEach((marker, i) => {
       marker.setAttribute('aria-selected', String(i === current));
       marker.tabIndex = i === current ? 0 : -1;
-      if (i === current) currentMarker = marker;
     });
+    const currentMarker = all[current] ?? null;
     // roving tabindex는 focus가 마커 그룹 안에 있을 때만 따라간다(WAI-ARIA tab
     // 패턴). 그 외에는 스크롤/자동재생만으로 포커스를 가로채면 안 된다.
     if (hadFocus) currentMarker?.focus();
   };
   root.addEventListener('carousel:change', syncMarkers);
 
-  const onKeydown = (event) => {
-    if (event.target.closest('input, textarea, select')) return;
+  const onKeydown = (event: KeyboardEvent): void => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('input, textarea, select')) return;
 
     const inline = carousel.isInline;
     const forward = inline ? 'ArrowRight' : 'ArrowDown';

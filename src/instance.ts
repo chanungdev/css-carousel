@@ -2,68 +2,89 @@ import { readVar, scrollBehavior, EDGE_TOLERANCE } from './support.js';
 
 const THRESHOLDS = [0, 0.25, 0.5, 0.75, 1];
 
+/** `carousel:change`가 싣고 오는 값. */
+export interface CarouselChangeDetail {
+  /** loop일 때는 한 세트 안에서의 논리 인덱스. */
+  index: number;
+  /** 복제본을 포함한 실제 슬라이드 인덱스. */
+  slideIndex: number;
+}
+
+export type CarouselAxis = 'inline' | 'block';
+
 export class Carousel {
-  constructor(root) {
-    const scroller = root.querySelector(':scope > [data-carousel-scroller]');
+  /** 진입점(index.ts)이 채운다. 여기 두면 소비자가 `Carousel.init(el)`로 쓸 수 있다. */
+  static init: (root: HTMLElement) => Carousel;
+  static initAll: (scope?: ParentNode) => void;
+
+  readonly root: HTMLElement;
+  readonly scroller: HTMLElement;
+  readonly axis: CarouselAxis;
+  /** loop 모듈이 설정한다. null이면 loop 비활성. */
+  setSize: number | null = null;
+
+  private slideIndexValue = 0;
+  private readonly ratios = new Map<Element, number>();
+  private readonly cleanups: Array<() => void> = [];
+  private observer: IntersectionObserver | null = null;
+
+  constructor(root: HTMLElement) {
+    const scroller = root.querySelector<HTMLElement>(':scope > [data-carousel-scroller]');
     if (!scroller) throw new Error('css-carousel: [data-carousel-scroller] 자식이 없습니다');
 
     this.root = root;
     this.scroller = scroller;
     this.axis = root.getAttribute('data-carousel-axis') === 'block' ? 'block' : 'inline';
-    /** loop 모듈이 설정한다. null이면 loop 비활성. */
-    this.setSize = null;
-
-    this._slideIndex = 0;
-    this._ratios = new Map();
-    this._cleanups = [];
-    this._io = null;
 
     this.refresh();
     root.carousel = this;
   }
 
-  get slides() {
-    return Array.from(this.scroller.children).filter((el) => el.nodeType === 1);
+  get slides(): HTMLElement[] {
+    return Array.from(this.scroller.children).filter(
+      (el): el is HTMLElement => el instanceof HTMLElement,
+    );
   }
 
   /** 마커·연동이 대상으로 삼는 논리 아이템. loop일 때는 가운데 세트. */
-  get items() {
+  get items(): HTMLElement[] {
     const slides = this.slides;
     return this.setSize ? slides.slice(this.setSize, this.setSize * 2) : slides;
   }
 
-  get index() {
-    return this.setSize ? this._slideIndex % this.setSize : this._slideIndex;
+  get index(): number {
+    return this.setSize ? this.slideIndexValue % this.setSize : this.slideIndexValue;
   }
 
-  get slideIndex() {
-    return this._slideIndex;
+  get slideIndex(): number {
+    return this.slideIndexValue;
   }
 
-  get isInline() {
+  get isInline(): boolean {
     return this.axis === 'inline';
   }
 
-  refresh() {
-    this._io?.disconnect();
-    this._ratios.clear();
-    this._io = new IntersectionObserver(
+  refresh(): void {
+    this.observer?.disconnect();
+    this.ratios.clear();
+    const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) this._ratios.set(entry.target, entry.intersectionRatio);
-        this._recompute();
+        for (const entry of entries) this.ratios.set(entry.target, entry.intersectionRatio);
+        this.recompute();
       },
       { root: this.scroller, threshold: THRESHOLDS },
     );
-    for (const slide of this.slides) this._io.observe(slide);
+    this.observer = observer;
+    for (const slide of this.slides) observer.observe(slide);
   }
 
-  _recompute() {
+  private recompute(): void {
     const slides = this.slides;
     if (slides.length === 0) return;
 
-    const visible = [];
+    const visible: number[] = [];
     for (let i = 0; i < slides.length; i += 1) {
-      if ((this._ratios.get(slides[i]) ?? 0) > 0) visible.push(i);
+      if ((this.ratios.get(slides[i]) ?? 0) > 0) visible.push(i);
     }
     if (visible.length === 0) return;
 
@@ -74,7 +95,7 @@ export class Carousel {
     // RTL에서 scrollLeft는 음수가 되므로 절댓값으로 비교한다
     const position = Math.abs(inline ? this.scroller.scrollLeft : this.scroller.scrollTop);
 
-    let next;
+    let next: number;
     if (max > EDGE_TOLERANCE && position >= max - EDGE_TOLERANCE) {
       // 스크롤 끝에서는 남은 아이템이 정렬 지점에 도달할 수 없다.
       // 네이티브 ::scroll-marker도 마지막 마커를 현재로 잡으므로 동일하게 맞춘다.
@@ -87,7 +108,7 @@ export class Carousel {
       // 정렬 기준점끼리의 거리로 현재 아이템을 정한다. 한 화면에 여러 아이템이
       // 보일 때 교차 비율은 서브픽셀 렌더링 차이로 뒤집히지만, 기준점 거리는
       // --carousel-align이 실제로 어디에 맞추는지를 그대로 따라간다.
-      const anchorOf = (rect) => {
+      const anchorOf = (rect: DOMRect): number => {
         const start = inline ? rect.left : rect.top;
         const size = inline ? rect.width : rect.height;
         if (align === 'center') return start + size / 2;
@@ -98,7 +119,7 @@ export class Carousel {
       const target = anchorOf(this.scroller.getBoundingClientRect());
 
       let best = Infinity;
-      next = this._slideIndex;
+      next = this.slideIndexValue;
       for (const i of visible) {
         const distance = Math.abs(anchorOf(slides[i].getBoundingClientRect()) - target);
         if (distance < best) {
@@ -108,17 +129,17 @@ export class Carousel {
       }
     }
 
-    if (next === this._slideIndex) return;
-    this._slideIndex = next;
+    if (next === this.slideIndexValue) return;
+    this.slideIndexValue = next;
     this.root.dispatchEvent(
-      new CustomEvent('carousel:change', {
+      new CustomEvent<CarouselChangeDetail>('carousel:change', {
         bubbles: true,
-        detail: { index: this.index, slideIndex: this._slideIndex },
+        detail: { index: this.index, slideIndex: this.slideIndexValue },
       }),
     );
   }
 
-  scrollToSlide(i, behavior = scrollBehavior()) {
+  scrollToSlide(i: number, behavior: ScrollBehavior = scrollBehavior()): void {
     const slides = this.slides;
     if (slides.length === 0) return;
     const target = slides[Math.max(0, Math.min(i, slides.length - 1))];
@@ -140,26 +161,26 @@ export class Carousel {
     this.scroller.scrollTo({ [inline ? 'left' : 'top']: current + delta - offset, behavior });
   }
 
-  next(behavior) {
-    this.scrollToSlide(this._slideIndex + 1, behavior);
+  next(behavior?: ScrollBehavior): void {
+    this.scrollToSlide(this.slideIndexValue + 1, behavior);
   }
 
-  prev(behavior) {
-    this.scrollToSlide(this._slideIndex - 1, behavior);
+  prev(behavior?: ScrollBehavior): void {
+    this.scrollToSlide(this.slideIndexValue - 1, behavior);
   }
 
-  goTo(i, behavior) {
+  goTo(i: number, behavior?: ScrollBehavior): void {
     this.scrollToSlide((this.setSize ?? 0) + i, behavior);
   }
 
-  onDestroy(fn) {
-    this._cleanups.push(fn);
+  onDestroy(fn: () => void): void {
+    this.cleanups.push(fn);
   }
 
-  destroy() {
-    this._io?.disconnect();
-    this._io = null;
-    for (const fn of this._cleanups.splice(0)) fn();
+  destroy(): void {
+    this.observer?.disconnect();
+    this.observer = null;
+    for (const fn of this.cleanups.splice(0)) fn();
     delete this.root.carousel;
   }
 }

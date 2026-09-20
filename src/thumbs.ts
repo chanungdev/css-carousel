@@ -1,6 +1,11 @@
+import type { Carousel } from './instance.js';
+
 const CURRENT_CLASS = 'carousel-thumb-current';
 
-export function applyThumbs(carousel, resolve) {
+/** 셀렉터를 실제 carousel 인스턴스로 바꿔주는 콜백. 순환 import를 피하려고 주입받는다. */
+export type ResolveCarousel = (selector: string) => Carousel | null;
+
+export function applyThumbs(carousel: Carousel, resolve: ResolveCarousel): void {
   const selector = carousel.root.getAttribute('data-carousel-thumbs');
   if (!selector) return;
 
@@ -20,8 +25,10 @@ export function applyThumbs(carousel, resolve) {
     thumbs.goTo(current);
   };
 
-  const onThumbClick = (event) => {
-    const item = event.target.closest('[data-carousel-scroller] > *');
+  const onThumbClick = (event: Event): void => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const item = target.closest<HTMLElement>('[data-carousel-scroller] > *');
     if (!item) return;
     const i = thumbs.items.indexOf(item);
     if (i >= 0) carousel.goTo(i);

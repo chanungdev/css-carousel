@@ -23,26 +23,36 @@
     "vue",
     "angular"
   ],
-  "files": ["dist", "types"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/carousel.js",
-  "types": "./types/carousel.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./types/carousel.d.ts", "default": "./dist/carousel.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/carousel.js"
+    },
     "./carousel.css": "./dist/carousel.css",
     "./effects.css": "./dist/effects.css"
   },
   "scripts": {
     "test": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "typecheck:dist": "node scripts/build.js && tsc --project test/types/tsconfig.json",
     "build": "node scripts/build.js",
     "size": "node scripts/size-check.js",
-    "prepublishOnly": "node scripts/build.js && node scripts/size-check.js && playwright test"
+    "prepublishOnly": "node scripts/build.js && node scripts/size-check.js && tsc --project test/types/tsconfig.json && playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "typescript": "^7.0.2"
   },
   "pnpm": {
-    "//": "esbuild는 플랫폼 바이너리를 optionalDependencies로 배포하므로 postinstall 없이 동작한다",
-    "ignoredBuiltDependencies": ["esbuild"]
+    "//": "esbuild\ub294 \ud50c\ub7ab\ud3fc \ubc14\uc774\ub108\ub9ac\ub97c optionalDependencies\ub85c \ubc30\ud3ec\ud558\ubbc0\ub85c postinstall \uc5c6\uc774 \ub3d9\uc791\ud55c\ub2e4",
+    "ignoredBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

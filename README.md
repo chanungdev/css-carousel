@@ -15,7 +15,8 @@ pnpm install            # this repo uses pnpm; `corepack enable` picks up the pi
 node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
-The demo loads `src/` directly, so there is nothing to build. It shows the responsive item count,
+The demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is nothing
+to build and no watch process to keep running. It shows the responsive item count,
 fractional peek, loop, autoplay, thumbnail sync, the block axis, all five effect presets and the
 marquee. A badge at the top reports which path the browser took — open the same page in Chrome and in
 Safari to see the native and fallback paths side by side.
@@ -33,6 +34,28 @@ import 'css-carousel'; // optional — only needed for Firefox/Safari support an
 
 The package is ESM-only (`"type": "module"`, no CommonJS build). `require('css-carousel')` fails —
 use `import` or a dynamic `import()`.
+
+## TypeScript
+
+The library is written in TypeScript and ships its own declarations — nothing to install from
+DefinitelyTyped. Importing it also registers two global augmentations, so the DOM knows about the
+carousel without any casting:
+
+```ts
+import { Carousel } from 'css-carousel';
+
+const root = document.querySelector<HTMLElement>('[data-carousel]');
+
+// auto-init attaches the instance; the property is typed as Carousel | undefined
+root?.carousel?.goTo(2);
+
+// the event's detail is typed, on an element or on document
+document.addEventListener('carousel:change', (event) => {
+  console.log(event.detail.index, event.detail.slideIndex);
+});
+```
+
+Exported types: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `ResolveCarousel`.
 
 ## Markup
 

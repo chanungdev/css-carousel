@@ -6,3 +6,4 @@ playwright-report/
 docs/superpowers/
 package-lock.json
 yarn.lock
+*.swp

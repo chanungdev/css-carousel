@@ -1,16 +1,18 @@
 import { EDGE_TOLERANCE } from './support.js';
+import type { Carousel } from './instance.js';
 
 const IDLE_MS = 120;
 
 /** 한 세트가 차지하는 스크롤 거리를 실측한다 (gap 포함). */
-function measureSetExtent(carousel) {
+function measureSetExtent(carousel: Carousel): number {
   const slides = carousel.slides;
   const first = slides[0].getBoundingClientRect();
-  const nextSet = slides[carousel.setSize].getBoundingClientRect();
+  // setSize는 applyLoop이 먼저 채운다 — 이 함수는 그 뒤에만 불린다.
+  const nextSet = slides[carousel.setSize as number].getBoundingClientRect();
   return carousel.isInline ? nextSet.left - first.left : nextSet.top - first.top;
 }
 
-function onSettled(carousel, handler) {
+function onSettled(carousel: Carousel, handler: () => void): () => void {
   const { scroller } = carousel;
 
   if ('onscrollend' in window) {
@@ -19,7 +21,7 @@ function onSettled(carousel, handler) {
   }
 
   // scrollend 미지원: 스크롤이 멎은 뒤 IDLE_MS가 지나면 처리한다
-  let timer = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const onScroll = () => {
     clearTimeout(timer);
     timer = setTimeout(handler, IDLE_MS);
@@ -31,7 +33,7 @@ function onSettled(carousel, handler) {
   };
 }
 
-export function applyLoop(carousel) {
+export function applyLoop(carousel: Carousel): void {
   const { root, scroller } = carousel;
   const mode = root.getAttribute('data-carousel-loop');
 
@@ -47,12 +49,12 @@ export function applyLoop(carousel) {
 
     const clone = () =>
       originals.map((el) => {
-        const copy = el.cloneNode(true);
+        const copy = el.cloneNode(true) as HTMLElement;
         // cloneNode(true)는 id를 그대로 복제한다. 복제본은 문서에서 유일할
         // 필요가 없으므로(data-carousel-clone + aria-hidden으로 이미 식별됨)
         // 저자가 쓴 id/getElementById/aria-labelledby가 깨지지 않게 지운다.
         copy.removeAttribute('id');
-        copy.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
+        copy.querySelectorAll('[id]').forEach((node: Element) => node.removeAttribute('id'));
         copy.setAttribute('data-carousel-clone', '');
         copy.setAttribute('aria-hidden', 'true');
         // aria-hidden만으로는 안의 링크/버튼이 여전히 tab 순서에 남는다

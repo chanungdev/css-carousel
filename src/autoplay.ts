@@ -1,6 +1,7 @@
 import { prefersReducedMotion } from './support.js';
+import type { Carousel } from './instance.js';
 
-export function applyAutoplay(carousel) {
+export function applyAutoplay(carousel: Carousel): void {
   const { root } = carousel;
   const delay = Number(root.getAttribute('data-carousel-autoplay'));
   if (!Number.isFinite(delay) || delay <= 0) return;
@@ -17,7 +18,7 @@ export function applyAutoplay(carousel) {
   let visible = true;
   let stopped = false;
   let interrupted = false;
-  let resumeTimer = null;
+  let resumeTimer: ReturnType<typeof setTimeout> | undefined;
 
   const advance = () => {
     if (stopped || interrupted || hovered || focused || !visible) return;
@@ -33,7 +34,7 @@ export function applyAutoplay(carousel) {
   const onPointerLeave = () => {
     hovered = false;
   };
-  const onFocusIn = (event) => {
+  const onFocusIn = (event: FocusEvent): void => {
     const target = event.target;
     // 마우스로 버튼·마커를 누르면 브라우저에 따라 포커스가 거기 남는다. 그것까지
     // 정지 사유로 보면 포인터가 떠난 뒤에도 영영 재생되지 않는다. 우리가 만든
