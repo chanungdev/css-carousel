@@ -175,6 +175,47 @@
   button.ui:hover { border-color: var(--accent); color: var(--accent); }
   button.ui[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
 
+  /* ── 코드 보기 ─────────────────────────────────
+     details/summary라서 토글에 JS가 0줄이다. 키보드 조작과 스크린리더
+     노출도 브라우저가 처리한다. */
+
+  .code {
+    margin-block-start: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    overflow: clip;
+  }
+
+  .code > summary {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .code > summary:hover { color: var(--accent); }
+  .code > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .code[open] > summary { border-block-end: 1px solid var(--line); }
+
+  .code-lang {
+    padding: 0.5rem 0.75rem 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .code pre {
+    margin: 0;
+    padding: 0.5rem 0.75rem 0.75rem;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    tab-size: 2;
+  }
+
   .log {
     margin-block-start: 0.75rem;
     padding: 0.5rem 0.75rem;
@@ -213,6 +254,30 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2364748b'/%3E%3Cstop offset='1' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23e2e8f0' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23e2e8f0' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E08%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — 기본 + 반응형</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel class=&quot;gallery&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>.gallery {
+  container-type: inline-size;
+  --carousel-items: 1.2;
+  --carousel-gap: 0.75rem;
+}
+
+/* container-type이 걸린 요소는 자기 자신의 컨테이너가 될 수 없다.
+   변수는 자손(스크롤러)에 선언하고 아이템이 상속받게 한다. */
+@container (min-width: 30rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 2.5; }
+}
+@container (min-width: 45rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 4; }
+}</code></pre>
+    </details>
   </section>
 
   <section>
@@ -232,6 +297,20 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — reveal</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-effect=&quot;reveal&quot; class=&quot;reveal&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;&lt;img alt=&quot;&quot; src=&quot;photo.jpg&quot;&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;   /* 프리셋은 별도 파일 */
+
+/* 커튼 은유가 전제하는 설정: 한 화면 한 장, 간격 없음 */
+.reveal { --carousel-items: 1; --carousel-gap: 0px; }</code></pre>
+    </details>
   </section>
 
   <section>
@@ -260,6 +339,15 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — peek</summary>
+      <div class="code-lang">CSS</div>
+      <pre><code>/* 소수가 peek을 만든다. peek 전용 변수는 없다. */
+.peek { --carousel-items: 2.5; }
+
+/* center 정렬이면 같은 값이 앞뒤 대칭 peek이 된다 */
+.centered { --carousel-items: 2.5; --carousel-align: center; }</code></pre>
+    </details>
   </section>
 
   <section>
@@ -286,6 +374,20 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — loop + autoplay</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div
+  data-carousel
+  data-carousel-loop
+  data-carousel-autoplay=&quot;2600&quot;
+  data-carousel-autoplay-resume=&quot;5000&quot;
+&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+    </details>
   </section>
 
   <section>
@@ -313,6 +415,27 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — 썸네일 연동</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-thumbs=&quot;#strip&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div data-carousel id=&quot;strip&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>#strip { --carousel-items: 5; --carousel-gap: 0.5rem; }
+
+/* 현재 썸네일에 라이브러리가 붙여주는 클래스 */
+#strip [data-carousel-scroller] &gt; li { opacity: 0.4; }
+#strip [data-carousel-scroller] &gt; .carousel-thumb-current { opacity: 1; }</code></pre>
+    </details>
   </section>
 
   <section>
@@ -331,6 +454,21 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — 수직 축</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-axis=&quot;block&quot; class=&quot;vertical&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>.vertical { --carousel-items: 2; }
+
+/* 블록 축은 스크롤러에 확정된 block-size가 필요하다 —
+   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */
+.vertical [data-carousel-scroller] { block-size: 19.5rem; }</code></pre>
+    </details>
   </section>
 
   <section>
@@ -342,15 +480,15 @@
       프레임이 커튼처럼 열리는 동안 안쪽 미디어는 반대로 움직여 제자리에 있는 것처럼 보인다.
     </p>
     <div class="controls" id="fx-controls">
-      <button class="ui" data-fx="" aria-pressed="true">없음</button>
+      <button class="ui" data-fx="">없음</button>
       <button class="ui" data-fx="fade">fade</button>
       <button class="ui" data-fx="scale">scale</button>
-      <button class="ui" data-fx="coverflow">coverflow</button>
+      <button class="ui" data-fx="coverflow" aria-pressed="true">coverflow</button>
       <button class="ui" data-fx="depth">depth</button>
       <button class="ui" data-fx="curve">curve</button>
       <button class="ui" data-fx="reveal">reveal</button>
     </div>
-    <div class="demo media effects" data-carousel id="fx" style="margin-block-start:1rem">
+    <div class="demo media effects" data-carousel data-carousel-effect="coverflow" id="fx" style="margin-block-start:1rem">
       <ul data-carousel-scroller>
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
@@ -360,6 +498,19 @@
         <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — 이펙트 프리셋</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-effect=&quot;coverflow&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;
+
+/* fade · scale · coverflow · depth · curve · reveal */</code></pre>
+    </details>
   </section>
 
   <section>
@@ -373,6 +524,20 @@
       <button class="ui" id="goto">goTo(4)</button>
     </div>
     <p class="log mono" id="log">carousel:change 이벤트가 여기 표시됨</p>
+    <details class="code">
+      <summary>코드 보기 — JavaScript API</summary>
+      <div class="code-lang">TypeScript</div>
+      <pre><code>// carousel 속성은 HTMLElement에 선언돼 있다 —
+// querySelector&lt;HTMLElement&gt;로 받아야 타입이 붙는다.
+const root = document.querySelector&lt;HTMLElement&gt;(&#x27;[data-carousel]&#x27;);
+
+root?.carousel?.next();
+root?.carousel?.goTo(4);
+
+document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
+  console.log(event.detail.index, event.detail.slideIndex);
+});</code></pre>
+    </details>
   </section>
 
   <section>
@@ -391,6 +556,23 @@
         <li aria-hidden="true">animation-timeline: view()</li>
       </ul>
     </div>
+    <details class="code">
+      <summary>코드 보기 — marquee</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;!-- CSS는 DOM을 복제할 수 없다. 사본은 직접 넣고 aria-hidden을 붙인다. --&gt;
+&lt;div data-carousel-marquee&gt;
+  &lt;ul data-carousel-marquee-track&gt;
+    &lt;li&gt;A&lt;/li&gt;&lt;li&gt;B&lt;/li&gt;&lt;li&gt;C&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;A&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;B&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;C&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;
+
+[data-carousel-marquee] { --carousel-marquee-duration: 18s; }</code></pre>
+    </details>
   </section>
 </main>
 
