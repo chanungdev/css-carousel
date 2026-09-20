@@ -17,7 +17,7 @@ node scripts/serve.js   # http://localhost:5173/demo/index.html
 
 The demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is nothing
 to build and no watch process to keep running. It shows the responsive item count,
-fractional peek, loop, autoplay, thumbnail sync, the block axis, all five effect presets and the
+fractional peek, loop, autoplay, thumbnail sync, the block axis, all six effect presets and the
 marquee. A badge at the top reports which path the browser took — open the same page in Chrome and in
 Safari to see the native and fallback paths side by side.
 
@@ -27,9 +27,9 @@ Safari to see the native and fallback paths side by side.
 npm install css-carousel
 ```
 
-```js
+```ts
 import 'css-carousel/carousel.css';
-import 'css-carousel'; // optional — only needed for Firefox/Safari support and the JS API
+import 'css-carousel'; // optional — only for Firefox/Safari support and the imperative API
 ```
 
 The package is ESM-only (`"type": "module"`, no CommonJS build). `require('css-carousel')` fails —
@@ -56,6 +56,15 @@ document.addEventListener('carousel:change', (event) => {
 ```
 
 Exported types: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `ResolveCarousel`.
+
+One friction point worth knowing before you hit it: CSS custom properties are not part of React's
+`CSSProperties` or Vue's inline-style types, so setting `--carousel-items` inline needs a cast. The
+framework snippets below show it. Setting the variables in a stylesheet instead avoids the cast
+entirely, and is the better default anyway — that is where the responsive rules live.
+
+The repo itself typechecks in two passes: `pnpm typecheck` for the sources, and `pnpm typecheck:dist`
+which builds and then compiles `test/types/consumer.ts` against the emitted declarations. The second
+one is what catches a public type that only breaks for people installing from npm.
 
 ## Markup
 
@@ -109,15 +118,45 @@ is not included in `files`) for the full list.
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
 
-## JavaScript API
+## Imperative API
 
-```js
-const carousel = document.querySelector('[data-carousel]').carousel;
-carousel.next();
-carousel.goTo(3);
+The instance auto-init attaches is the whole surface. There is no options object — layout comes from
+CSS, behaviour from `data-*` attributes.
 
-document.addEventListener('carousel:change', (e) => console.log(e.detail.index));
+```ts
+import type { Carousel } from 'css-carousel';
+
+// querySelector<HTMLElement> matters: the `carousel` property is declared on HTMLElement,
+// and plain querySelector returns Element.
+const root = document.querySelector<HTMLElement>('[data-carousel]');
+const carousel: Carousel | undefined = root?.carousel;
+
+carousel?.next();
+carousel?.goTo(3);
+carousel?.goTo(3, 'instant'); // behavior is optional, defaults to smooth
+
+document.addEventListener('carousel:change', (event) => {
+  console.log(event.detail.index, event.detail.slideIndex);
+});
 ```
+
+| Member | Type | Notes |
+|---|---|---|
+| `root` / `scroller` | `HTMLElement` | The two elements of the markup contract |
+| `axis` | `'inline' \| 'block'` | From `data-carousel-axis` |
+| `isInline` | `boolean` | |
+| `slides` | `HTMLElement[]` | Every child, loop clones included |
+| `items` | `HTMLElement[]` | Logical items — the middle set when looping |
+| `index` | `number` | Logical index within one set |
+| `slideIndex` | `number` | Raw index into `slides` |
+| `setSize` | `number \| null` | Items per set when looping, else `null` |
+| `next` / `prev` | `(behavior?: ScrollBehavior) => void` | Clamps at the ends; looping wraps because the clones exist |
+| `goTo` | `(i: number, behavior?: ScrollBehavior) => void` | Logical index |
+| `scrollToSlide` | `(i: number, behavior?: ScrollBehavior) => void` | Raw index |
+| `refresh` | `() => void` | Re-observe after the slide list changes |
+| `destroy` / `onDestroy` | `() => void` / `(fn: () => void) => void` | |
+| `Carousel.init` | `(root: HTMLElement) => Carousel` | Idempotent — returns the existing instance |
+| `Carousel.initAll` | `(scope?: ParentNode) => void` | |
 
 ## Loop
 
@@ -133,9 +172,9 @@ marks its own auto-generated clones, so assistive tech and tab order only ever s
 ```html
 <div data-carousel data-carousel-loop="manual">
   <ul data-carousel-scroller>
-    <!-- set 1 (복제) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
-    <!-- set 2 (진짜) --><li>1</li><li>2</li><li>3</li>
-    <!-- set 3 (복제) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
+    <!-- set 1 (duplicate) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
+    <!-- set 2 (the real one) --><li>1</li><li>2</li><li>3</li>
+    <!-- set 3 (duplicate) --><li aria-hidden="true" inert>1</li><li aria-hidden="true" inert>2</li><li aria-hidden="true" inert>3</li>
   </ul>
 </div>
 ```
@@ -188,7 +227,7 @@ background between frames, so the slides read as separate cards rather than one 
 
 They live in `effects.css`, imported separately from the base layout:
 
-```js
+```ts
 import 'css-carousel/carousel.css';
 import 'css-carousel/effects.css';
 ```
@@ -210,7 +249,7 @@ no JS. It's a pure-CSS looping ticker that also ships in `effects.css`. Because 
 container, the library can't clone anything for you; duplicate your items in markup once, with
 `aria-hidden="true"` on the copies:
 
-```js
+```ts
 import 'css-carousel/effects.css';
 ```
 
@@ -234,15 +273,26 @@ The animation pauses on hover and focus, and under `prefers-reduced-motion: redu
 
 **React**
 
-```jsx
+```tsx
+import type { CSSProperties } from 'react';
 import 'css-carousel/carousel.css';
 import 'css-carousel';
 
-export function Gallery({ items }) {
+interface Item {
+  id: string;
+  title: string;
+}
+
+// Custom properties aren't in CSSProperties, so an inline style object needs a cast.
+const layout = { '--carousel-items': 2.5, '--carousel-gap': '1rem' } as CSSProperties;
+
+export function Gallery({ items }: { items: Item[] }) {
   return (
-    <div data-carousel style={{ '--carousel-items': 2.5, '--carousel-gap': '1rem' }}>
+    <div data-carousel style={layout}>
       <ul data-carousel-scroller>
-        {items.map((item) => <li key={item.id}>{item.title}</li>)}
+        {items.map((item) => (
+          <li key={item.id}>{item.title}</li>
+        ))}
       </ul>
     </div>
   );
@@ -252,10 +302,11 @@ export function Gallery({ items }) {
 **Vue**
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import 'css-carousel/carousel.css';
 import 'css-carousel';
-defineProps(['items']);
+
+defineProps<{ items: { id: string; title: string }[] }>();
 </script>
 
 <template>
@@ -280,7 +331,9 @@ defineProps(['items']);
     </div>
   `,
 })
-export class GalleryComponent {}
+export class GalleryComponent {
+  items: { id: string; title: string }[] = [];
+}
 ```
 
 Import `css-carousel` once in your entry file. New carousels added to the DOM are picked up
