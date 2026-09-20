@@ -34,7 +34,8 @@
       "default": "./dist/carousel.js"
     },
     "./carousel.css": "./dist/carousel.css",
-    "./effects.css": "./dist/effects.css"
+    "./effects.css": "./dist/effects.css",
+    "./themes/basic.css": "./dist/themes/basic.css"
   },
   "scripts": {
     "test": "playwright test",

@@ -1,0 +1,126 @@
+/* css-carousel — basic 테마
+ *
+ * carousel.css는 구조와 중립적인 기본값만 갖는다. 이 파일은 그 위에 올리는
+ * 하나의 완성된 모양이고, 직접 테마를 만들 때의 출발점이기도 하다.
+ *
+ *   import 'css-carousel/carousel.css';
+ *   import 'css-carousel/themes/basic.css';
+ *
+ * carousel.css와 같은 레이어에 둔다. 사용자의 언레이어드 CSS가 항상 이기고,
+ * 라이브러리 안에서는 나중에 import된 이 파일이 기본값을 덮는다.
+ */
+@layer css-carousel {
+
+/* ── 변수 ────────────────────────────────────────
+   직접 테마를 만든다면 대개 이 블록만 바꾸면 된다. */
+
+[data-carousel] {
+  --carousel-button-size: 2.75rem;
+  --carousel-button-inset: 0.75rem;
+  --carousel-button-color: #fff;
+  --carousel-button-bg: rgb(15 18 25 / 0.55);
+  --carousel-button-bg-hover: rgb(15 18 25 / 0.8);
+  --carousel-button-radius: 50%;
+  --carousel-button-opacity-disabled: 0;
+
+  /* 마커는 미디어 위에 올라간다. 밝은 사진 위에서도 어두운 사진 위에서도
+     읽혀야 하므로 흰 점에 어두운 테두리를 같이 준다. */
+  --carousel-marker-size: 0.5rem;
+  --carousel-marker-gap: 0.45rem;
+  --carousel-marker-color: rgb(255 255 255 / 0.45);
+  --carousel-marker-color-current: #fff;
+  --carousel-marker-ring: 0 0 0 1px rgb(0 0 0 / 0.35);
+  --carousel-marker-inset: 0.75rem;
+
+  --carousel-thumb-current-opacity: 1;
+  --carousel-thumb-opacity: 0.45;
+}
+
+/* ── 마커를 오버레이로 ─────────────────────────────
+   기본값에서는 마커 그룹이 스크롤러 아래 흐름에 놓인다. 그러면 wrapper가
+   그만큼 높아지고, wrapper 기준 50%로 배치되는 좌/우 버튼이 카드 중심보다
+   아래로 내려간다. 마커를 흐름에서 빼면 wrapper 높이가 스크롤러와 같아져
+   버튼이 정확히 카드 중앙에 온다 — 네이티브 경로와 폴백 경로 모두.
+
+   블록 축은 아래쪽 오버레이가 어울리지 않으므로 기본 흐름 그대로 둔다.
+
+   두 경로를 한 선택자 목록으로 묶으면 안 된다. ::scroll-marker-group을 모르는
+   브라우저는 그 목록이 들어간 규칙 전체를 버려서, 폴백 쪽까지 같이 죽는다. */
+
+[data-carousel]:not([data-carousel-axis='block']) > [data-carousel-scroller]::scroll-marker-group {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: var(--carousel-marker-inset);
+  z-index: 1;
+  padding-block: 0;
+}
+
+[data-carousel]:not([data-carousel-axis='block']) > .carousel-markers {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: var(--carousel-marker-inset);
+  z-index: 1;
+  padding-block: 0;
+}
+
+/* ── 마커 ────────────────────────────────────────
+   쌍둥이 규칙: 네이티브 pseudo와 폴백 클래스는 한 선택자로 합칠 수 없다
+   (unknown pseudo는 규칙 전체를 무효화하고 :is()는 pseudo-element를 안 받는다). */
+
+[data-carousel] > [data-carousel-scroller] > *::scroll-marker {
+  box-shadow: var(--carousel-marker-ring);
+  transition: background-color 150ms, scale 150ms;
+}
+
+[data-carousel] > [data-carousel-scroller] > *::scroll-marker:target-current {
+  scale: 1.15;
+}
+
+[data-carousel] > .carousel-markers > .carousel-marker {
+  box-shadow: var(--carousel-marker-ring);
+  transition: background-color 150ms, scale 150ms;
+}
+
+[data-carousel] > .carousel-markers > .carousel-marker[aria-selected='true'] {
+  scale: 1.15;
+}
+
+/* ── 버튼 ────────────────────────────────────────
+   기본값은 비활성 버튼을 흐리게만 두지만, 여기서는 완전히 숨긴다
+   (--carousel-button-opacity-disabled: 0). 끝에 닿았다는 걸 더 분명히 보여준다. */
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(*) {
+  backdrop-filter: blur(6px);
+  transition: background-color 150ms, opacity 150ms, scale 150ms;
+}
+
+[data-carousel] > [data-carousel-scroller]::scroll-button(*):hover:not(:disabled) {
+  background: var(--carousel-button-bg-hover);
+  scale: 1.06;
+}
+
+[data-carousel] > .carousel-button {
+  backdrop-filter: blur(6px);
+  transition: background-color 150ms, opacity 150ms, scale 150ms;
+}
+
+[data-carousel] > .carousel-button:hover:not(:disabled) {
+  background: var(--carousel-button-bg-hover);
+  scale: 1.06;
+}
+
+/* 비활성 버튼은 보이지 않더라도 클릭을 먹지 않아야 한다 */
+[data-carousel] > .carousel-button:disabled {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-carousel] > [data-carousel-scroller] > *::scroll-marker,
+  [data-carousel] > .carousel-markers > .carousel-marker,
+  [data-carousel] > [data-carousel-scroller]::scroll-button(*),
+  [data-carousel] > .carousel-button {
+    transition: none;
+  }
+}
+
+} /* @layer css-carousel */

@@ -29,6 +29,7 @@ npm install css-carousel
 
 ```ts
 import 'css-carousel/carousel.css';
+import 'css-carousel/themes/basic.css'; // optional — a finished look, see Themes below
 import 'css-carousel'; // optional — only for Firefox/Safari support and the imperative API
 ```
 
@@ -117,6 +118,52 @@ is not included in `files`) for the full list.
 | `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth`, `curve` or `reveal` (needs `effects.css`, see below) |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
+
+## Themes
+
+`carousel.css` is structure plus neutral defaults — it lays the carousel out and gives the buttons and
+markers a shape, nothing more. A theme is a second stylesheet that turns that into a finished look.
+One ships with the library:
+
+```ts
+import 'css-carousel/carousel.css';
+import 'css-carousel/themes/basic.css'; // optional
+```
+
+`basic` does three things the defaults deliberately don't:
+
+- **Lifts the markers out of flow**, overlaying them on the bottom of the media. This is also what puts
+  the arrows on the vertical centre of the card: by default the marker row sits below the scroller, so
+  the wrapper is taller than the media and the arrows — placed at 50% of the wrapper — land below the
+  card's middle. With the markers overlaid, wrapper and media are the same box.
+- **Makes the markers readable on real images** — white dots with a dark ring, rather than the default
+  translucent black that disappears on dark media.
+- **Hides disabled arrows entirely** instead of fading them, and adds hover and blur treatments.
+
+Writing your own theme is the same exercise. Copy `dist/themes/basic.css`, change the variable block at
+the top, and import yours instead. Two rules worth knowing before you do:
+
+**Stay in the layer, or don't.** The library's stylesheets live in `@layer css-carousel`. A theme in the
+same layer beats `carousel.css` by source order — import it second. Your application CSS, being
+unlayered, beats both regardless, so you never have to fight the library with specificity.
+
+**Never group a native pseudo-element with its fallback class.** These two look like they belong
+together and cannot be:
+
+```css
+/* ✗ Firefox and Safari drop this whole rule — they don't know ::scroll-marker-group,
+      and one unknown pseudo-element invalidates the entire selector list. */
+[data-carousel] > [data-carousel-scroller]::scroll-marker-group,
+[data-carousel] > .carousel-markers { position: absolute; }
+
+/* ✓ Two rules. Each browser applies the one it understands. */
+[data-carousel] > [data-carousel-scroller]::scroll-marker-group { position: absolute; }
+[data-carousel] > .carousel-markers { position: absolute; }
+```
+
+`:is()` does not rescue this — it refuses pseudo-elements outright. This is why the library keeps every
+button and marker rule as a twin pair reading the same custom properties: theme through the variables
+and the duplication stays the library's problem, not yours.
 
 ## Imperative API
 
