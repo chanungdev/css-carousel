@@ -23,11 +23,56 @@ test('현재 마커만 aria-selected=true다', async ({ page }) => {
   await expect(page.locator('#c1 .carousel-marker').nth(2)).toHaveAttribute('aria-selected', 'true');
 });
 
+// 스크롤이 멎을 때까지 기다린 뒤에 판정한다. 스무스 스크롤 도중에는 목표를
+// 스쳐 지나가므로, 중간 상태를 잡으면 부하에 따라 결과가 갈린다.
+const scrollIdle = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        const el = document.querySelector('#c1 [data-carousel-scroller]');
+        let last = el.scrollLeft;
+        let quiet = 0;
+        const tick = () => {
+          if (el.scrollLeft !== last) {
+            last = el.scrollLeft;
+            quiet = 0;
+          } else {
+            quiet += 1;
+          }
+          if (quiet >= 20) return resolve();
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
+
 test('마커 클릭이 해당 아이템으로 이동시킨다', async ({ page }) => {
   test.skip(await isNative(page), '네이티브 지원 브라우저');
-  await page.locator('#c1 .carousel-marker').nth(3).click();
-  await page.waitForFunction(() => document.querySelector('#c1').carousel.index === 3);
-  expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(3);
+
+  // 픽스처는 한 화면 3개·전체 6개라 도달 가능한 최대 정렬 인덱스는 3이고,
+  // 그 위치는 스크롤 최대치와 같아 끝 규칙에 따라 마지막 아이템으로 해석된다.
+  // 그래서 중간에 있는 마커로 확인한다.
+  await page.locator('#c1 .carousel-marker').nth(1).click();
+  await scrollIdle(page);
+  expect(await page.evaluate(() => document.querySelector('#c1').carousel.index)).toBe(1);
+});
+
+// 끝 규칙 자체도 고정해둔다: 마지막 마커를 누르면 스크롤 끝에 닿고,
+// 그때는 마지막 아이템이 현재가 된다(네이티브 ::scroll-marker와 같은 동작).
+test('마지막 마커를 누르면 스크롤 끝에서 마지막 아이템이 현재가 된다', async ({ page }) => {
+  test.skip(await isNative(page), '네이티브 지원 브라우저');
+
+  const last = await page.evaluate(() => document.querySelector('#c1').carousel.items.length - 1);
+  await page.locator('#c1 .carousel-marker').nth(last).click();
+  await scrollIdle(page);
+
+  const state = await page.evaluate(() => {
+    const c = document.querySelector('#c1').carousel;
+    const s = c.scroller;
+    return { index: c.index, atEnd: Math.abs(s.scrollLeft - (s.scrollWidth - s.clientWidth)) <= 1 };
+  });
+  expect(state.atEnd).toBe(true);
+  expect(state.index).toBe(last);
 });
 
 test('roving tabindex가 현재 마커에만 붙는다', async ({ page }) => {
