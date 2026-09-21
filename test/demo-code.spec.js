@@ -15,7 +15,8 @@ test('모든 섹션이 코드 블록을 갖고, 기본적으로 접혀 있다', 
     const sections = [...document.querySelectorAll('section')];
     return {
       sections: sections.length,
-      withCode: sections.filter((s) => s.querySelector('details.code')).length,
+      // playground는 생성된 코드를 항상 펼쳐 보여주므로 토글이 아니다.
+      withCode: sections.filter((s) => s.querySelector('details.code, .code-live')).length,
       open: [...document.querySelectorAll('details.code')].filter((d) => d.open).length,
     };
   });
@@ -63,4 +64,58 @@ test('코드에 적힌 data-carousel-* 속성이 실제 섹션에 존재한다',
   });
 
   expect(mismatches).toEqual([]);
+});
+
+test.describe('playground', () => {
+  const state = (page) =>
+    page.evaluate(() => {
+      const root = document.querySelector('#pg');
+      return {
+        html: document.querySelector('#pg-html').textContent ?? '',
+        css: document.querySelector('#pg-css').textContent ?? '',
+        items: getComputedStyle(root).getPropertyValue('--carousel-items').trim(),
+        hasInstance: !!root.carousel,
+        attrs: root.getAttributeNames().filter((a) => a.startsWith('data-carousel')),
+      };
+    });
+
+  test('초기 상태에서 코드가 실제 적용값과 일치한다', async ({ page }) => {
+    await ready(page);
+    const s = await state(page);
+    expect(s.hasInstance).toBe(true);
+    expect(s.css).toContain(`--carousel-items: ${s.items}`);
+  });
+
+  // 모듈은 init() 시점에 배선된다. 속성만 바꾸면 붙지 않으므로 playground는
+  // destroy() 후 다시 만든다 — 그게 실제로 되는지 확인한다.
+  test('loop을 켜면 인스턴스가 다시 만들어지고 setSize가 붙는다', async ({ page }) => {
+    await ready(page);
+    expect(await page.evaluate(() => document.querySelector('#pg').carousel.setSize)).toBeNull();
+
+    await page.locator('#pg-loop').check();
+    await page.waitForFunction(() => document.querySelector('#pg')?.carousel?.setSize != null);
+
+    const s = await state(page);
+    expect(s.attrs).toContain('data-carousel-loop');
+    expect(s.html).toContain('data-carousel-loop');
+  });
+
+  test('컨트롤을 바꾸면 코드가 따라 바뀐다', async ({ page }) => {
+    await ready(page);
+    await page.locator('#pg-align').selectOption('center');
+    await page.locator('#pg-effect').selectOption('fade');
+
+    const s = await state(page);
+    expect(s.css).toContain('--carousel-align: center');
+    expect(s.html).toContain('data-carousel-effect="fade"');
+    expect(s.attrs).toContain('data-carousel-effect');
+  });
+
+  // 기본값과 같은 선언은 적지 않는다 — 붙여넣을 코드가 짧아야 쓸모가 있다.
+  test('기본값과 같은 설정은 코드에 적지 않는다', async ({ page }) => {
+    await ready(page);
+    const s = await state(page);
+    expect(s.css).not.toContain('--carousel-align');
+    expect(s.css).not.toContain('--carousel-snap');
+  });
 });
