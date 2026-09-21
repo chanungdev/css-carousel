@@ -1,3 +1,7 @@
+<p align="center">
+  <b>English</b> | <a href="README_ko.md">한국어</a>
+</p>
+
 # snapstrip
 
 A carousel built on the CSS carousel primitives — `scroll-snap`, `::scroll-button()` and `::scroll-marker()`.
