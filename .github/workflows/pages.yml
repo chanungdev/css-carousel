@@ -24,9 +24,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
+      # 로컬 개발 버전과 맞춘다
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
