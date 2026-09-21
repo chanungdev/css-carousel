@@ -1,0 +1,52 @@
+name: Deploy demo to Pages
+
+on:
+  push:
+    branches: [main]
+  # 배포가 깨졌을 때 코드 변경 없이 다시 돌릴 수 있게 해둔다
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 밀린 실행은 최신 것만 남기되 진행 중인 건 끊지 않는다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 데모는 src/를 그대로 번들한다. 타입이 깨진 상태가 배포되지 않도록
+      # 빌드 전에 먼저 검사한다.
+      - run: pnpm typecheck
+
+      - run: pnpm build:demo
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-demo
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

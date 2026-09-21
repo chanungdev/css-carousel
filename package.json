@@ -44,7 +44,8 @@
     "build": "node scripts/build.js",
     "size": "node scripts/size-check.js",
     "prepublishOnly": "node scripts/check-readme.js && node scripts/build.js && node scripts/size-check.js && tsc --project test/types/tsconfig.json && playwright test",
-    "check:readme": "node scripts/check-readme.js"
+    "check:readme": "node scripts/check-readme.js",
+    "build:demo": "node scripts/build-demo.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",

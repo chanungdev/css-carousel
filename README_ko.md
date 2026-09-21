@@ -13,13 +13,17 @@ React, Vue, Angular, Svelte, 순수 HTML 어디서나 동작한다. 설치할 �
 
 ## 데모
 
+**[라이브 데모](https://chanungdev.github.io/snapstrip/)** — main에 푸시할 때마다 자동 배포된다.
+
+로컬에서 띄우려면:
+
 ```bash
 git clone https://github.com/chanungdev/snapstrip.git && cd snapstrip
 pnpm install            # 이 저장소는 pnpm을 쓴다. `corepack enable`이 고정된 버전을 잡아준다
 node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
-데모는 `src/`를 직접 불러온다 — 개발 서버가 TypeScript를 즉석에서 변환하므로 빌드할 것도, 계속 띄워둘
+로컬 데모는 `src/`를 직접 불러온다 — 개발 서버가 TypeScript를 즉석에서 변환하므로 빌드할 것도, 계속 띄워둘
 감시 프로세스도 없다. 반응형 아이템 수, 소수 peek, loop, autoplay, 썸네일 연동, 블록 축, 이펙트 프리셋
 6종, marquee를 보여준다. 상단 배지가 현재 브라우저가 어느 경로를 탔는지 알려준다 — 같은 페이지를 Chrome과
 Safari에서 열어보면 네이티브 경로와 폴백 경로를 나란히 비교할 수 있다.

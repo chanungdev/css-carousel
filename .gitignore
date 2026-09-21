@@ -7,3 +7,4 @@ docs/superpowers/
 package-lock.json
 yarn.lock
 *.swp
+dist-demo/

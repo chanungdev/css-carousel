@@ -13,14 +13,18 @@ because there is nothing framework-specific to wrap.
 
 ## Demo
 
+**[Live demo](https://chanungdev.github.io/snapstrip/)** — deployed from `main` on every push.
+
+To run it locally instead:
+
 ```bash
 git clone https://github.com/chanungdev/snapstrip.git && cd snapstrip
 pnpm install            # this repo uses pnpm; `corepack enable` picks up the pinned version
 node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
-The demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is nothing
-to build and no watch process to keep running. It shows the responsive item count,
+The local demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is
+nothing to build and no watch process to keep running. It shows the responsive item count,
 fractional peek, loop, autoplay, thumbnail sync, the block axis, all six effect presets and the
 marquee. A badge at the top reports which path the browser took — open the same page in Chrome and in
 Safari to see the native and fallback paths side by side.
