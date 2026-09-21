@@ -1,5 +1,5 @@
 {
-  "name": "css-carousel",
+  "name": "snapstrip",
   "version": "0.0.0",
   "description": "CSS-first carousel built on scroll-snap, ::scroll-button() and ::scroll-marker()",
   "type": "module",
@@ -7,10 +7,10 @@
   "packageManager": "pnpm@10.33.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chanungdev/css-carousel.git"
+    "url": "git+https://github.com/chanungdev/snapstrip.git"
   },
-  "homepage": "https://github.com/chanungdev/css-carousel#readme",
-  "bugs": "https://github.com/chanungdev/css-carousel/issues",
+  "homepage": "https://github.com/chanungdev/snapstrip#readme",
+  "bugs": "https://github.com/chanungdev/snapstrip/issues",
   "keywords": [
     "carousel",
     "slider",

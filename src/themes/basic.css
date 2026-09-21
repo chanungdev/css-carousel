@@ -1,15 +1,15 @@
-/* css-carousel — basic 테마
+/* snapstrip — basic 테마
  *
  * carousel.css는 구조와 중립적인 기본값만 갖는다. 이 파일은 그 위에 올리는
  * 하나의 완성된 모양이고, 직접 테마를 만들 때의 출발점이기도 하다.
  *
- *   import 'css-carousel/carousel.css';
- *   import 'css-carousel/themes/basic.css';
+ *   import 'snapstrip/carousel.css';
+ *   import 'snapstrip/themes/basic.css';
  *
  * carousel.css와 같은 레이어에 둔다. 사용자의 언레이어드 CSS가 항상 이기고,
  * 라이브러리 안에서는 나중에 import된 이 파일이 기본값을 덮는다.
  */
-@layer css-carousel {
+@layer snapstrip {
 
 /* ── 변수 ────────────────────────────────────────
    직접 테마를 만든다면 대개 이 블록만 바꾸면 된다. */
@@ -123,4 +123,4 @@
   }
 }
 
-} /* @layer css-carousel */
+} /* @layer snapstrip */

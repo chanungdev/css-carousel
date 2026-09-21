@@ -30,7 +30,7 @@ export class Carousel {
 
   constructor(root: HTMLElement) {
     const scroller = root.querySelector<HTMLElement>(':scope > [data-carousel-scroller]');
-    if (!scroller) throw new Error('css-carousel: [data-carousel-scroller] 자식이 없습니다');
+    if (!scroller) throw new Error('snapstrip: [data-carousel-scroller] 자식이 없습니다');
 
     this.root = root;
     this.scroller = scroller;

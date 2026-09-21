@@ -40,7 +40,7 @@ export function applyLoop(carousel: Carousel): void {
   if (mode === 'manual') {
     const total = carousel.slides.length;
     if (total % 3 !== 0) {
-      throw new Error('css-carousel: manual loop는 아이템을 정확히 3세트로 렌더해야 합니다');
+      throw new Error('snapstrip: manual loop는 아이템을 정확히 3세트로 렌더해야 합니다');
     }
     carousel.setSize = total / 3;
   } else {

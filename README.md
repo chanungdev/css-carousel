@@ -1,4 +1,4 @@
-# css-carousel
+# snapstrip
 
 A carousel built on the CSS carousel primitives — `scroll-snap`, `::scroll-button()` and `::scroll-marker()`.
 Zero JavaScript where the browser supports them. An optional script (measured under 8KB gzip) fills the
@@ -10,7 +10,7 @@ because there is nothing framework-specific to wrap.
 ## Demo
 
 ```bash
-git clone https://github.com/chanungdev/css-carousel.git && cd css-carousel
+git clone https://github.com/chanungdev/snapstrip.git && cd snapstrip
 pnpm install            # this repo uses pnpm; `corepack enable` picks up the pinned version
 node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
@@ -24,16 +24,16 @@ Safari to see the native and fallback paths side by side.
 ## Install
 
 ```bash
-npm install css-carousel
+npm install snapstrip
 ```
 
 ```ts
-import 'css-carousel/carousel.css';
-import 'css-carousel/themes/basic.css'; // optional — a finished look, see Themes below
-import 'css-carousel'; // optional — only for Firefox/Safari support and the imperative API
+import 'snapstrip/carousel.css';
+import 'snapstrip/themes/basic.css'; // optional — a finished look, see Themes below
+import 'snapstrip'; // optional — only for Firefox/Safari support and the imperative API
 ```
 
-The package is ESM-only (`"type": "module"`, no CommonJS build). `require('css-carousel')` fails —
+The package is ESM-only (`"type": "module"`, no CommonJS build). `require('snapstrip')` fails —
 use `import` or a dynamic `import()`.
 
 ## TypeScript
@@ -43,7 +43,7 @@ DefinitelyTyped. Importing it also registers two global augmentations, so the DO
 carousel without any casting:
 
 ```ts
-import { Carousel } from 'css-carousel';
+import { Carousel } from 'snapstrip';
 
 const root = document.querySelector<HTMLElement>('[data-carousel]');
 
@@ -126,8 +126,8 @@ markers a shape, nothing more. A theme is a second stylesheet that turns that in
 One ships with the library:
 
 ```ts
-import 'css-carousel/carousel.css';
-import 'css-carousel/themes/basic.css'; // optional
+import 'snapstrip/carousel.css';
+import 'snapstrip/themes/basic.css'; // optional
 ```
 
 `basic` does three things the defaults deliberately don't:
@@ -143,7 +143,7 @@ import 'css-carousel/themes/basic.css'; // optional
 Writing your own theme is the same exercise. Copy `dist/themes/basic.css`, change the variable block at
 the top, and import yours instead. Two rules worth knowing before you do:
 
-**Stay in the layer, or don't.** The library's stylesheets live in `@layer css-carousel`. A theme in the
+**Stay in the layer, or don't.** The library's stylesheets live in `@layer snapstrip`. A theme in the
 same layer beats `carousel.css` by source order — import it second. Your application CSS, being
 unlayered, beats both regardless, so you never have to fight the library with specificity.
 
@@ -171,7 +171,7 @@ The instance auto-init attaches is the whole surface. There is no options object
 CSS, behaviour from `data-*` attributes.
 
 ```ts
-import type { Carousel } from 'css-carousel';
+import type { Carousel } from 'snapstrip';
 
 // querySelector<HTMLElement> matters: the `carousel` property is declared on HTMLElement,
 // and plain querySelector returns Element.
@@ -275,8 +275,8 @@ background between frames, so the slides read as separate cards rather than one 
 They live in `effects.css`, imported separately from the base layout:
 
 ```ts
-import 'css-carousel/carousel.css';
-import 'css-carousel/effects.css';
+import 'snapstrip/carousel.css';
+import 'snapstrip/effects.css';
 ```
 
 ```html
@@ -297,7 +297,7 @@ container, the library can't clone anything for you; duplicate your items in mar
 `aria-hidden="true"` on the copies:
 
 ```ts
-import 'css-carousel/effects.css';
+import 'snapstrip/effects.css';
 ```
 
 ```html
@@ -322,8 +322,8 @@ The animation pauses on hover and focus, and under `prefers-reduced-motion: redu
 
 ```tsx
 import type { CSSProperties } from 'react';
-import 'css-carousel/carousel.css';
-import 'css-carousel';
+import 'snapstrip/carousel.css';
+import 'snapstrip';
 
 interface Item {
   id: string;
@@ -350,8 +350,8 @@ export function Gallery({ items }: { items: Item[] }) {
 
 ```vue
 <script setup lang="ts">
-import 'css-carousel/carousel.css';
-import 'css-carousel';
+import 'snapstrip/carousel.css';
+import 'snapstrip';
 
 defineProps<{ items: { id: string; title: string }[] }>();
 </script>
@@ -383,7 +383,7 @@ export class GalleryComponent {
 }
 ```
 
-Import `css-carousel` once in your entry file. New carousels added to the DOM are picked up
+Import `snapstrip` once in your entry file. New carousels added to the DOM are picked up
 automatically, and removed ones clean up their listeners — that part is tested. Changing the item
 list *inside* an already-mounted carousel is not automatic: call `carousel.refresh()` after the DOM
 settles so the current-index tracking picks up the new slides. If you're also using the JS fallback,

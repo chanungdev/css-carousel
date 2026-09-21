@@ -220,7 +220,7 @@ test('잘못 설정된 manual loop가 이후 carousel의 초기화를 막지 않
   expect(state.badSetSize).toBeNull();
 
   // 에러를 삼키지 않고 console.error로 드러냈는지 확인한다.
-  await expect.poll(() => errors.some((text) => text.includes('css-carousel'))).toBe(true);
+  await expect.poll(() => errors.some((text) => text.includes('snapstrip'))).toBe(true);
 });
 
 test('destroy가 자동 복제본을 제거하고, 재초기화하면 다시 3세트가 된다', async ({ page }) => {

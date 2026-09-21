@@ -1,11 +1,11 @@
-/* css-carousel — 레이아웃 · 스냅 · 축 */
+/* snapstrip — 레이아웃 · 스냅 · 축 */
 
 /* 레이어 안에 두면 unlayered CSS가 항상 이긴다(레이어드 vs 언레이어드에서는
    명시도·소스 순서와 무관하게 언레이어드가 우선한다). Tailwind v4는
    @layer theme, base, components, utilities 안에서 전부 동작하므로, 이
    레이어가 없으면 사용자가 @layer components에서 --carousel-items를
    재정의해도 라이브러리 기본값에 조용히 덮인다. */
-@layer css-carousel {
+@layer snapstrip {
 
 [data-carousel] {
   position: relative;
@@ -279,4 +279,4 @@
   }
 }
 
-} /* @layer css-carousel */
+} /* @layer snapstrip */

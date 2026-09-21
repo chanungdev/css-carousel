@@ -47,7 +47,7 @@ const initSafely = (root: HTMLElement): void => {
     init(root);
   } catch (error) {
     // 하나가 잘못 설정돼도 페이지의 나머지 carousel까지 멈추지 않는다.
-    console.error('css-carousel:', error);
+    console.error('snapstrip:', error);
   }
 };
 

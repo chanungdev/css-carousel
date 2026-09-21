@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>css-carousel — demo</title>
+<title>snapstrip — demo</title>
 <link rel="stylesheet" href="/src/carousel.css">
 <link rel="stylesheet" href="/src/effects.css">
 <link rel="stylesheet" href="/src/themes/basic.css">
@@ -291,7 +291,7 @@
 </head>
 <body>
 <main>
-  <h1>css-carousel</h1>
+  <h1>snapstrip</h1>
   <p class="lede">
     <code>scroll-snap</code>, <code>::scroll-button()</code>, <code>::scroll-marker()</code> 위에 만든 carousel.
     스와이프·관성·스냅은 전부 네이티브 스크롤이다.
@@ -369,7 +369,7 @@
   &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
       <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;   /* 프리셋은 별도 파일 */
+      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;   /* 프리셋은 별도 파일 */
 
 /* 커튼 은유가 전제하는 설정: 한 화면 한 장, 간격 없음 */
 .reveal { --carousel-items: 1; --carousel-gap: 0px; }</code></pre>
@@ -570,7 +570,7 @@
   &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
       <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;
+      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;
 
 /* fade · scale · coverflow · depth · curve · reveal */</code></pre>
     </details>
@@ -632,7 +632,7 @@ document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
   &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
       <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;css-carousel/effects.css&#x27;;
+      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;
 
 [data-carousel-marquee] { --carousel-marquee-duration: 18s; }</code></pre>
     </details>
@@ -819,7 +819,7 @@ document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
         '   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */\n' +
         '.gallery [data-carousel-scroller] { block-size: 22rem; }';
     }
-    if (s.effect) css = `@import 'css-carousel/effects.css';\n\n${css}`;
+    if (s.effect) css = `@import 'snapstrip/effects.css';\n\n${css}`;
     pgEl('pg-css').textContent = css;
   };
 
