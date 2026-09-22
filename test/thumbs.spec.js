@@ -36,7 +36,9 @@ test('썸네일 클릭이 메인을 이동시킨다', async ({ page }) => {
 // strip이 main보다 슬라이드가 적으면 carousel.index가 strip.items 범위를
 // 벗어날 수 있다. goTo()는 이미 clamp하는데 하이라이트만 clamp하지 않으면,
 // main이 strip 범위 밖 인덱스로 가는 순간부터 어떤 썸네일도 강조되지 않는다.
-test('strip이 main보다 슬라이드가 적으면 마지막 썸네일에서 하이라이트가 clamp된다', async ({ page }) => {
+test('strip이 main보다 슬라이드가 적으면 마지막 썸네일에서 하이라이트가 clamp된다', async ({
+  page,
+}) => {
   await page.goto('/test/fixtures/thumbs-fewer.html');
   await page.waitForFunction(() => !!document.querySelector('#strip')?.carousel);
 

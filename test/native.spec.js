@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const nativeOnly = async (page) =>
-  page.evaluate(() => CSS.supports('selector(::scroll-marker)'));
+const nativeOnly = async (page) => page.evaluate(() => CSS.supports('selector(::scroll-marker)'));
 
 test.describe('네이티브 CSS carousel (스크립트 없음)', () => {
   test('스크롤 버튼이 생성되고 스크롤을 이동시킨다', async ({ page }) => {

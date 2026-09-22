@@ -1,28 +1,53 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>effects reveal</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/src/effects.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>
-    .harness { --carousel-items: 1; --carousel-gap: 0px; }
-    [data-carousel-scroller] > li { block-size: auto; }
-    [data-carousel-scroller] img { display: block; inline-size: 100%; block-size: 120px; object-fit: cover; }
-  </style>
-</head>
-<body>
-  <div class="harness" data-carousel data-carousel-effect="reveal" id="c1">
-    <ul data-carousel-scroller>
-      <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%234a90d9'/%3E%3C/svg%3E"></li>
-      <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%23d94a7a'/%3E%3C/svg%3E"></li>
-      <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%234ad98c'/%3E%3C/svg%3E"></li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>effects reveal</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/src/effects.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        --carousel-items: 1;
+        --carousel-gap: 0px;
+      }
+      [data-carousel-scroller] > li {
+        block-size: auto;
+      }
+      [data-carousel-scroller] img {
+        display: block;
+        inline-size: 100%;
+        block-size: 120px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="harness" data-carousel data-carousel-effect="reveal" id="c1">
+      <ul data-carousel-scroller>
+        <li>
+          <img
+            alt=""
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%234a90d9'/%3E%3C/svg%3E"
+          />
+        </li>
+        <li>
+          <img
+            alt=""
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%23d94a7a'/%3E%3C/svg%3E"
+          />
+        </li>
+        <li>
+          <img
+            alt=""
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%234ad98c'/%3E%3C/svg%3E"
+          />
+        </li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

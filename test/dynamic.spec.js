@@ -7,7 +7,9 @@ test.beforeEach(async ({ page }) => {
 
 test('나중에 추가된 carousel이 자동 초기화된다', async ({ page }) => {
   await page.evaluate(() => window.addCarousel('late'));
-  await page.waitForFunction(() => !!document.querySelector('#late')?.carousel, null, { timeout: 2000 });
+  await page.waitForFunction(() => !!document.querySelector('#late')?.carousel, null, {
+    timeout: 2000,
+  });
   expect(await page.evaluate(() => document.querySelector('#late').carousel.items.length)).toBe(6);
 });
 

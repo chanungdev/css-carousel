@@ -8,12 +8,20 @@ import { cards } from '../lib/cards';
 </div>
 
 <div class="api-controls">
-  <button type="button" data-api="prev">prev()</button>
-  <button type="button" data-api="next">next()</button>
-  <button type="button" data-api="goto">goTo(4)</button>
+  <button type="button" data-api="prev">
+    prev()
+  </button>
+  <button type="button" data-api="next">
+    next()
+  </button>
+  <button type="button" data-api="goto">
+    goTo(4)
+  </button>
 </div>
 
-<p class="api-log" id="api-log">carousel:change 이벤트가 여기 표시된다</p>
+<p class="api-log" id="api-log">
+  carousel:change 이벤트가 여기 표시된다
+</p>
 
 <script>
   const root = document.querySelector<HTMLElement>('#api-demo');

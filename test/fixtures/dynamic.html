@@ -1,25 +1,25 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>dynamic</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-</head>
-<body>
-  <div id="host"></div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-    window.addCarousel = (id) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'harness';
-      wrapper.id = id;
-      wrapper.setAttribute('data-carousel', '');
-      wrapper.innerHTML =
-        '<ul data-carousel-scroller><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>';
-      document.querySelector('#host').append(wrapper);
-    };
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>dynamic</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+  </head>
+  <body>
+    <div id="host"></div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+      window.addCarousel = (id) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'harness';
+        wrapper.id = id;
+        wrapper.setAttribute('data-carousel', '');
+        wrapper.innerHTML =
+          '<ul data-carousel-scroller><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>';
+        document.querySelector('#host').append(wrapper);
+      };
+    </script>
+  </body>
 </html>

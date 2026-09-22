@@ -1,47 +1,81 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>counter</title>
-  <!-- 테마 없이 core만. 카운터가 테마에 딸린 기능이 아님을 이 구성이 보여준다.
+  <head>
+    <meta charset="utf-8" />
+    <title>counter</title>
+    <!-- 테마 없이 core만. 카운터가 테마에 딸린 기능이 아님을 이 구성이 보여준다.
        effects.css를 carousel.css '뒤에' 두는 것이 중요하다 — 실제 사용 순서이고,
        이 순서에서도 카운터가 이펙트에 지워지지 않아야 한다. -->
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/src/effects.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>.harness { --carousel-items: 1; --carousel-gap: 0px; }</style>
-</head>
-<body>
-  <div class="harness" data-carousel data-carousel-counter id="on">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
-    </ul>
-  </div>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/src/effects.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        --carousel-items: 1;
+        --carousel-gap: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="harness" data-carousel data-carousel-counter id="on">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+      </ul>
+    </div>
 
-  <div class="harness" data-carousel id="off">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
-    </ul>
-  </div>
+    <div class="harness" data-carousel id="off">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+      </ul>
+    </div>
 
-  <div class="harness" data-carousel data-carousel-counter data-carousel-effect="fade" id="fx">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
-    </ul>
-  </div>
+    <div class="harness" data-carousel data-carousel-counter data-carousel-effect="fade" id="fx">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+      </ul>
+    </div>
 
-  <!-- 루트에 container-type을 건 구성. README가 반응형 아이템 수에 권하는 방법이라
+    <!-- 루트에 container-type을 건 구성. README가 반응형 아이템 수에 권하는 방법이라
        카운터가 여기서 깨지면 안 된다. 슬라이드를 12장 둔 건 total이 두 자리라
        "0 / 0"과 폭으로 구분되기 때문이다. -->
-  <div class="harness" data-carousel data-carousel-counter id="contained" style="container-type: inline-size">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li>
-    </ul>
-  </div>
+    <div
+      class="harness"
+      data-carousel
+      data-carousel-counter
+      id="contained"
+      style="container-type: inline-size"
+    >
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+        <li>11</li>
+        <li>12</li>
+      </ul>
+    </div>
 
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

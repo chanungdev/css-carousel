@@ -32,8 +32,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # 문서 사이트는 src/를 그대로 번들한다. 타입이 깨진 상태가 배포되지 않도록
+      # 문서 사이트는 src/를 그대로 번들한다. 깨진 상태가 배포되지 않도록
       # 빌드 전에 먼저 검사한다.
+      - run: pnpm lint
+
+      - run: pnpm format:check
+
       - run: pnpm typecheck
 
       - run: pnpm docs:build

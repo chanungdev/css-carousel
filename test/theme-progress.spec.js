@@ -50,7 +50,10 @@ test.describe('현재 마커 채움 (스크롤 타임라인 없는 경로)', () 
     page.evaluate((i) => {
       const root = document.querySelector('#c1');
       const style = CSS.supports('selector(::scroll-marker)')
-        ? getComputedStyle(root.querySelectorAll('[data-carousel-scroller] > li')[i], '::scroll-marker')
+        ? getComputedStyle(
+            root.querySelectorAll('[data-carousel-scroller] > li')[i],
+            '::scroll-marker',
+          )
         : getComputedStyle(root.querySelectorAll('.carousel-marker')[i]);
       return { fill: parseFloat(style.backgroundPosition), image: style.backgroundImage };
     }, index);

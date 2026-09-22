@@ -85,12 +85,10 @@ test.describe('reveal 프리셋', () => {
 
 test('marquee 트랙이 애니메이션된다', async ({ page }) => {
   await page.goto('/test/fixtures/marquee.html');
-  const style = await page
-    .locator('#m1 [data-carousel-marquee-track]')
-    .evaluate((el) => ({
-      name: getComputedStyle(el).animationName,
-      state: getComputedStyle(el).animationPlayState,
-    }));
+  const style = await page.locator('#m1 [data-carousel-marquee-track]').evaluate((el) => ({
+    name: getComputedStyle(el).animationName,
+    state: getComputedStyle(el).animationPlayState,
+  }));
   expect(style.name).toBe('carousel-marquee');
   expect(style.state).toBe('running');
 });

@@ -1,31 +1,46 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>thumbs fewer</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>
-    #main { --carousel-items: 1; --carousel-gap: 0px; }
-    #strip { --carousel-items: 3; --carousel-gap: 8px; }
-    #strip [data-carousel-scroller] > li { block-size: 60px; }
-  </style>
-</head>
-<body>
-  <!-- main이 strip보다 슬라이드가 많다: strip 쪽 하이라이트가 clamp되는지 검증 -->
-  <div class="harness" data-carousel data-carousel-thumbs="#strip" id="main">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li>
-    </ul>
-  </div>
-  <div class="harness" data-carousel id="strip">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>thumbs fewer</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      #main {
+        --carousel-items: 1;
+        --carousel-gap: 0px;
+      }
+      #strip {
+        --carousel-items: 3;
+        --carousel-gap: 8px;
+      }
+      #strip [data-carousel-scroller] > li {
+        block-size: 60px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- main이 strip보다 슬라이드가 많다: strip 쪽 하이라이트가 clamp되는지 검증 -->
+    <div class="harness" data-carousel data-carousel-thumbs="#strip" id="main">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+      </ul>
+    </div>
+    <div class="harness" data-carousel id="strip">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

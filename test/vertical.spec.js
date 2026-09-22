@@ -32,7 +32,9 @@ test('goTo가 블록 축으로 스크롤한다', async ({ page }) => {
   await page.waitForFunction(
     () => document.querySelector('#c1 [data-carousel-scroller]').scrollTop > 0,
   );
-  const scrollTop = await page.locator('#c1 [data-carousel-scroller]').evaluate((el) => el.scrollTop);
+  const scrollTop = await page
+    .locator('#c1 [data-carousel-scroller]')
+    .evaluate((el) => el.scrollTop);
   expect(scrollTop).toBeGreaterThan(0);
 });
 
@@ -82,7 +84,9 @@ test('네이티브: 블록 축에서는 인라인 축 버튼이 생성되지 않
 
   const content = await page
     .locator('#c1 [data-carousel-scroller]')
-    .evaluate((el) => getComputedStyle(el, '::scroll-button(inline-start)').getPropertyValue('content'));
+    .evaluate((el) =>
+      getComputedStyle(el, '::scroll-button(inline-start)').getPropertyValue('content'),
+    );
   expect(content).toBe('normal');
 });
 

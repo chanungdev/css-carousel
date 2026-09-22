@@ -20,7 +20,10 @@ test('현재 마커만 aria-selected=true다', async ({ page }) => {
 
   await page.evaluate(() => document.querySelector('#c1').carousel.goTo(2, 'instant'));
 
-  await expect(page.locator('#c1 .carousel-marker').nth(2)).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#c1 .carousel-marker').nth(2)).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 });
 
 // 스크롤이 멎을 때까지 기다린 뒤에 판정한다. 스무스 스크롤 도중에는 목표를
@@ -111,7 +114,10 @@ test('스크롤 끝에서는 마지막 마커가 aria-selected=true다', async (
     const s = document.querySelector('#c1 [data-carousel-scroller]');
     s.scrollTo({ left: s.scrollWidth, behavior: 'instant' });
   });
-  await expect(page.locator('#c1 .carousel-marker').last()).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#c1 .carousel-marker').last()).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 });
 
 test('마커 그룹은 --carousel-marker-group-position 위치에 배치된다', async ({ page }) => {
@@ -129,7 +135,9 @@ test('폴백 마커가 tablist로 노출된다', async ({ page }) => {
   expect(snapshot).toContain('tablist');
 });
 
-test('마커 그룹에 포커스가 있을 때 화살표 이동이 새 현재 마커로 포커스를 옮긴다', async ({ page }) => {
+test('마커 그룹에 포커스가 있을 때 화살표 이동이 새 현재 마커로 포커스를 옮긴다', async ({
+  page,
+}) => {
   test.skip(await isNative(page), '네이티브 지원 브라우저');
   await page.locator('#c1 .carousel-marker').first().focus();
 

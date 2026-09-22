@@ -43,7 +43,8 @@ export function applyAutoplay(carousel: Carousel): void {
     // 이 판정을 포커스 전반에 적용하면 안 된다 — Chromium은 Tab으로 스크롤
     // 컨테이너에 포커스가 가도 :focus-visible을 주지 않아서, 읽고 있는 키보드
     // 사용자 밑에서 내용이 계속 움직이게 된다.
-    const control = target instanceof Element && target.closest('.carousel-button, .carousel-markers');
+    const control =
+      target instanceof Element && target.closest('.carousel-button, .carousel-markers');
     focused = control ? target.matches(':focus-visible') : true;
   };
   const onFocusOut = () => {

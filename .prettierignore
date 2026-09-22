@@ -1,0 +1,18 @@
+dist/
+site/dist/
+site/.astro/
+node_modules/
+_workspace/
+pnpm-lock.yaml
+
+# 마크다운은 손대지 않는다. 두 가지 이유가 있다.
+#  1. MDX의 css={`…`} 템플릿 리터럴을 마크다운으로 읽어 /* */ 를 /_ _/ 로 바꾸고
+#     들여쓰기를 지운다 — 사이트 CSS가 깨진다.
+#  2. 표를 글자 수로 패딩하는데 한글은 2배 폭이라 오히려 어긋난다.
+*.md
+*.mdx
+
+# CSS는 stylelint이 본다. Prettier에 맡기면 @layer 안을 전부 들여써서
+# 약 1,000줄이 바뀌고 긴 선택자가 줄바꿈된다 — 정확성은 그대로인데
+# git blame만 사라진다. 뒤집으려면 이 두 줄을 지우면 된다.
+*.css

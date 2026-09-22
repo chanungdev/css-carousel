@@ -23,7 +23,8 @@ export default defineConfig({
     snapstripRuntime,
     starlight({
       title: 'snapstrip',
-      description: 'scroll-snap · ::scroll-button() · ::scroll-marker() 위에 만든 CSS 우선 carousel',
+      description:
+        'scroll-snap · ::scroll-button() · ::scroll-marker() 위에 만든 CSS 우선 carousel',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/chanungdev/snapstrip' },
       ],

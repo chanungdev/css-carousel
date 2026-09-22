@@ -12,7 +12,9 @@ test('일정 간격으로 다음 아이템으로 넘어간다', async ({ page })
   await ready(page);
   expect(await index(page)).toBe(0);
   // 전진을 검증하는 테스트이므로 고정 대기 대신 상태 변화를 조건 대기한다.
-  await page.waitForFunction(() => document.querySelector('#c1').carousel.index > 0, null, { timeout: 3000 });
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.index > 0, null, {
+    timeout: 3000,
+  });
   expect(await index(page)).toBeGreaterThan(0);
 });
 
@@ -88,7 +90,9 @@ test('사용자가 스크롤하면 영구히 멈춘다', async ({ page }) => {
 test('회귀: 자동 전진 직후의 사용자 wheel도 영구히 멈춘다', async ({ page }) => {
   await ready(page);
   // 첫 전진(t≈300ms) 직후 = 예전 코드에서 programmatic이 true였던 700ms 창의 시작
-  await page.waitForFunction(() => document.querySelector('#c1').carousel.index > 0, null, { timeout: 3000 });
+  await page.waitForFunction(() => document.querySelector('#c1').carousel.index > 0, null, {
+    timeout: 3000,
+  });
   await page.locator('#c1 [data-carousel-scroller]').hover();
   await page.mouse.wheel(200, 0);
   // wheel 처리(stop() 호출)가 실제로 반영될 유예를 흡수한다(위 테스트와
@@ -137,7 +141,9 @@ test('폴백 화살표 버튼 클릭도 영구히 자동재생을 멈춘다', as
 // 공유했다. hover 이후에 "화면에 보인다"는 콜백이 뒤늦게 도착하면 hover
 // 정지가 지워졌다 — 부하가 큰 환경에서 실제로 관찰된 1/9 webkit 플레이크의
 // 원인이다.
-test('회귀: hover 이후 visibility 콜백이 뒤늦게 와도 정지 사유가 지워지지 않는다', async ({ page }) => {
+test('회귀: hover 이후 visibility 콜백이 뒤늦게 와도 정지 사유가 지워지지 않는다', async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     window.__autoplayIoCallbacks = [];
     const Native = window.IntersectionObserver;

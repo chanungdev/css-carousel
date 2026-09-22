@@ -1,22 +1,32 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>theme basic</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/src/themes/basic.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>.harness { --carousel-items: 2; --carousel-gap: 10px; }</style>
-</head>
-<body>
-  <div class="harness" data-carousel id="c1">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>theme basic</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/src/themes/basic.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        --carousel-items: 2;
+        --carousel-gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="harness" data-carousel id="c1">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

@@ -1,27 +1,37 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>loop cascade</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>.harness { --carousel-items: 1; --carousel-gap: 0px; }</style>
-</head>
-<body>
-  <!-- 4개 아이템은 3으로 나눠떨어지지 않아 manual loop 검증에서 throw한다 -->
-  <div class="harness" data-carousel data-carousel-loop="manual" id="bad">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li>
-    </ul>
-  </div>
-  <div class="harness" data-carousel id="good">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>loop cascade</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        --carousel-items: 1;
+        --carousel-gap: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 4개 아이템은 3으로 나눠떨어지지 않아 manual loop 검증에서 throw한다 -->
+    <div class="harness" data-carousel data-carousel-loop="manual" id="bad">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+      </ul>
+    </div>
+    <div class="harness" data-carousel id="good">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

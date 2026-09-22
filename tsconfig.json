@@ -6,6 +6,12 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
 
     "strict": true,
+    // typescript-eslint가 TS 7을 아직 지원하지 않는다. 린터가 TS에서 잡아줄 것
+    // (미사용 지역변수·인자, 빠진 return)은 컴파일러 플래그로 대신한다 —
+    // TypeScript를 하나 더 깔지 않아도 된다.
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
 

@@ -26,7 +26,10 @@ const jumpToThirdSetAndWaitForRecenter = async (page) => {
     c.scrollToSlide(6, 'instant'); // 세 번째 세트 진입
     return c.scroller.scrollLeft;
   });
-  await page.waitForFunction((from) => document.querySelector('#c1').carousel.scroller.scrollLeft !== from, jumped);
+  await page.waitForFunction(
+    (from) => document.querySelector('#c1').carousel.scroller.scrollLeft !== from,
+    jumped,
+  );
   await page.waitForFunction(() => document.querySelector('#c1').carousel.slideIndex === 3);
 };
 
@@ -43,7 +46,10 @@ test('복제본은 aria-hidden 처리된다', async ({ page }) => {
   await ready(page, '/test/fixtures/loop.html');
   const clones = await page.locator('#c1 [data-carousel-clone]').count();
   expect(clones).toBe(6);
-  await expect(page.locator('#c1 [data-carousel-clone]').first()).toHaveAttribute('aria-hidden', 'true');
+  await expect(page.locator('#c1 [data-carousel-clone]').first()).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
 });
 
 test('가운데 세트에서 시작한다', async ({ page }) => {
@@ -84,7 +90,11 @@ test('수동 모드는 복제하지 않고 setSize만 계산한다', async ({ pa
   await ready(page, '/test/fixtures/loop-manual.html');
   const state = await page.evaluate(() => {
     const c = document.querySelector('#c1').carousel;
-    return { slides: c.slides.length, setSize: c.setSize, clones: c.root.querySelectorAll('[data-carousel-clone]').length };
+    return {
+      slides: c.slides.length,
+      setSize: c.setSize,
+      clones: c.root.querySelectorAll('[data-carousel-clone]').length,
+    };
   });
   expect(state).toEqual({ slides: 9, setSize: 3, clones: 0 });
 });

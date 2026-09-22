@@ -10,7 +10,10 @@ function makeButton(carousel: Carousel, dir: Direction): HTMLButtonElement {
   button.dataset.carouselButton = dir;
 
   const attr = dir === 'prev' ? 'data-carousel-label-prev' : 'data-carousel-label-next';
-  button.setAttribute('aria-label', carousel.root.getAttribute(attr) ?? (dir === 'prev' ? 'Previous' : 'Next'));
+  button.setAttribute(
+    'aria-label',
+    carousel.root.getAttribute(attr) ?? (dir === 'prev' ? 'Previous' : 'Next'),
+  );
 
   button.addEventListener('click', () => {
     carousel.scrollToSlide(carousel.slideIndex + (dir === 'prev' ? -1 : 1));
@@ -64,7 +67,9 @@ export function applyFallback(carousel: Carousel): void {
   syncDisabled();
 
   const markers = buildMarkers(carousel);
-  const position = getComputedStyle(root).getPropertyValue('--carousel-marker-group-position').trim();
+  const position = getComputedStyle(root)
+    .getPropertyValue('--carousel-marker-group-position')
+    .trim();
   if (position === 'before') scroller.before(markers);
   else scroller.after(markers);
 

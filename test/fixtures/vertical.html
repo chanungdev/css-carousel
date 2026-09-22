@@ -1,26 +1,39 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <title>vertical</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>
-    .harness { inline-size: 400px; --carousel-items: 2; --carousel-gap: 10px; }
-    /* 블록 축에서는 스크롤러의 block-size가 확정되어야 한다 */
-    [data-carousel-scroller] { block-size: 410px; }
-    [data-carousel-scroller] > li { block-size: auto; }
-  </style>
-</head>
-<body>
-  <div class="harness" data-carousel data-carousel-axis="block" id="c1">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>vertical</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        inline-size: 400px;
+        --carousel-items: 2;
+        --carousel-gap: 10px;
+      }
+      /* 블록 축에서는 스크롤러의 block-size가 확정되어야 한다 */
+      [data-carousel-scroller] {
+        block-size: 410px;
+      }
+      [data-carousel-scroller] > li {
+        block-size: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="harness" data-carousel data-carousel-axis="block" id="c1">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>

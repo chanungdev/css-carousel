@@ -6,7 +6,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('auto-init이 인스턴스를 붙인다', async ({ page }) => {
-  const ok = await page.evaluate(() => document.querySelector('#c1').carousel instanceof window.Carousel);
+  const ok = await page.evaluate(
+    () => document.querySelector('#c1').carousel instanceof window.Carousel,
+  );
   expect(ok).toBe(true);
 });
 

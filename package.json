@@ -44,15 +44,26 @@
     "typecheck:dist": "node scripts/build.js && tsc --project test/types/tsconfig.json",
     "build": "node scripts/build.js",
     "size": "node scripts/size-check.js",
-    "prepublishOnly": "node scripts/check-readme.js && node scripts/build.js && node scripts/size-check.js && tsc --project test/types/tsconfig.json && playwright test",
+    "prepublishOnly": "node scripts/check-readme.js && pnpm lint && pnpm format:check && node scripts/build.js && node scripts/size-check.js && tsc --project test/types/tsconfig.json && playwright test",
     "check:readme": "node scripts/check-readme.js",
     "check:demo": "node scripts/check-site.js",
     "docs:dev": "pnpm --filter @snapstrip/site dev",
-    "docs:build": "node scripts/check-site.js && pnpm --filter @snapstrip/site build"
+    "docs:build": "node scripts/check-site.js && pnpm --filter @snapstrip/site build",
+    "lint": "eslint . && stylelint \"src/**/*.css\" \"site/src/**/*.css\"",
+    "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" \"site/src/**/*.css\" --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.50.0",
     "esbuild": "^0.25.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.8",
+    "prettier-plugin-astro": "^1.0.1",
+    "stylelint": "^17.15.0",
+    "stylelint-config-standard": "^40.0.0",
     "typescript": "^7.0.2"
   },
   "pnpm": {

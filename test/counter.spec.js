@@ -14,15 +14,18 @@ const ready = async (page) => {
 // 규칙이 적용됐는지(content가 none이 아닌지)로 본다.
 const counterShown = (page, id) =>
   page.evaluate(
-    (target) => getComputedStyle(document.querySelector(target + ' [data-carousel-scroller]'), '::after').content !== 'none',
+    (target) =>
+      getComputedStyle(document.querySelector(target + ' [data-carousel-scroller]'), '::after')
+        .content !== 'none',
     '#' + id,
   );
 
 const animationOf = (page, id) =>
   page.evaluate(
     (target) =>
-      getComputedStyle(document.querySelector(target).querySelector('[data-carousel-scroller] > li'))
-        .animationName,
+      getComputedStyle(
+        document.querySelector(target).querySelector('[data-carousel-scroller] > li'),
+      ).animationName,
     '#' + id,
   );
 
@@ -56,7 +59,9 @@ test('카운터 알약 배경이 칠해진다', async ({ page }) => {
   test.skip(!(await supportsView(page)), 'scroll-driven animation 미지원 브라우저');
 
   const background = await page.evaluate(
-    () => getComputedStyle(document.querySelector('#on [data-carousel-scroller]'), '::after').backgroundColor,
+    () =>
+      getComputedStyle(document.querySelector('#on [data-carousel-scroller]'), '::after')
+        .backgroundColor,
   );
   expect(background).not.toBe('rgba(0, 0, 0, 0)');
 });

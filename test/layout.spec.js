@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 const widthOf = (page, nth) =>
-  page.locator(`#c1 [data-carousel-scroller] > li`).nth(nth).evaluate((el) => el.getBoundingClientRect().width);
+  page
+    .locator(`#c1 [data-carousel-scroller] > li`)
+    .nth(nth)
+    .evaluate((el) => el.getBoundingClientRect().width);
 
 test('정수 items는 컨테이너를 정확히 채운다', async ({ page }) => {
   await page.goto('/test/fixtures/basic.html');

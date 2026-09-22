@@ -26,7 +26,7 @@ const { html, css, title = '코드' } = Astro.props;
 
 <div class="demo" set:html={html} />
 
-{css && <style is:inline set:html={css} />}
+{css && <style is:inline set:html={css}></style>}
 
 <details class="demo-code">
   <summary>{title}</summary>

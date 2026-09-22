@@ -1,21 +1,28 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <title>loop rtl</title>
-  <link rel="stylesheet" href="/src/carousel.css">
-  <link rel="stylesheet" href="/test/fixtures/fixture.css">
-  <style>.harness { --carousel-items: 1; --carousel-gap: 0px; }</style>
-</head>
-<body>
-  <div class="harness" data-carousel data-carousel-loop dir="rtl" id="c1">
-    <ul data-carousel-scroller>
-      <li>1</li><li>2</li><li>3</li>
-    </ul>
-  </div>
-  <script type="module">
-    import { Carousel } from '/src/index.js';
-    window.Carousel = Carousel;
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>loop rtl</title>
+    <link rel="stylesheet" href="/src/carousel.css" />
+    <link rel="stylesheet" href="/test/fixtures/fixture.css" />
+    <style>
+      .harness {
+        --carousel-items: 1;
+        --carousel-gap: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="harness" data-carousel data-carousel-loop dir="rtl" id="c1">
+      <ul data-carousel-scroller>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+      </ul>
+    </div>
+    <script type="module">
+      import { Carousel } from '/src/index.js';
+      window.Carousel = Carousel;
+    </script>
+  </body>
 </html>
