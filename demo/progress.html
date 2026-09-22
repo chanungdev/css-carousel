@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>snapstrip — progress 테마</title>
+<link rel="stylesheet" href="/src/carousel.css">
+<link rel="stylesheet" href="/src/effects.css">
+<link rel="stylesheet" href="/src/themes/progress.css">
+<link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+<nav class="nav" aria-label="데모 탐색">
+  <div class="nav-inner">
+    <ul class="nav-themes">
+      <li><a href="./index.html">basic</a></li>
+      <li><a href="./progress.html" aria-current="page">progress</a></li>
+    </ul>
+    <ul class="nav-sections">
+      <li><a href="#playground">playground</a></li>
+      <li><a href="#basics">기본</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <h1>snapstrip — progress</h1>
+  <p class="lede">
+    화살표는 포인터를 올렸을 때만 나타나고, 마커는 점 대신 하나의 진행 바이며,
+    지원 브라우저에서는 <code>n / total</code> 카운터가 붙는다.
+    테마는 <code>[data-carousel]</code>을 전역으로 겨냥하므로 basic과 한 페이지에 둘 수 없다 — 그래서 페이지가 나뉘어 있다.
+  </p>
+
+  <p class="path"><span class="dot"></span> 현재 경로: <b id="path">확인 중…</b></p>
+
+  <section id="playground">
+    <h2>1. playground — 설정을 직접 바꿔보기</h2>
+    <p class="note">
+      설정 표면이 CSS 변수와 <code>data-*</code> 속성뿐이라 컨트롤이 그대로 대응된다.
+      아래 코드는 화면에 적용된 실제 상태에서 만들어진다 — 손으로 쓴 게 아니라서 어긋날 수 없다.
+      <code>loop</code>·<code>autoplay</code>·<code>effect</code>는 <code>init()</code> 시점에 배선되므로,
+      바꿀 때마다 <code>destroy()</code> 후 <code>Carousel.init()</code>으로 다시 만든다.
+    </p>
+
+    <div class="pg-controls">
+      <label>items <output id="pg-items-out">2.5</output>
+        <input type="range" id="pg-items" min="1" max="5" step="0.5" value="2.5">
+      </label>
+      <label>gap <output id="pg-gap-out">0.75rem</output>
+        <input type="range" id="pg-gap" min="0" max="2" step="0.25" value="0.75">
+      </label>
+      <label>align
+        <select id="pg-align">
+          <option value="start" selected>start</option>
+          <option value="center">center</option>
+          <option value="end">end</option>
+        </select>
+      </label>
+      <label>snap
+        <select id="pg-snap">
+          <option value="mandatory" selected>mandatory</option>
+          <option value="proximity">proximity</option>
+        </select>
+      </label>
+      <label>scrollbar
+        <select id="pg-scrollbar">
+          <option value="none" selected>none</option>
+          <option value="auto">auto</option>
+        </select>
+      </label>
+      <label>axis
+        <select id="pg-axis">
+          <option value="inline" selected>inline</option>
+          <option value="block">block</option>
+        </select>
+      </label>
+      <label>effect
+        <select id="pg-effect">
+          <option value="" selected>없음</option>
+          <option value="fade">fade</option>
+          <option value="scale">scale</option>
+          <option value="coverflow">coverflow</option>
+          <option value="depth">depth</option>
+          <option value="curve">curve</option>
+          <option value="reveal">reveal</option>
+        </select>
+      </label>
+      <label class="pg-check"><input type="checkbox" id="pg-loop"> loop</label>
+      <label class="pg-check"><input type="checkbox" id="pg-autoplay"> autoplay (2.6s)</label>
+      <label class="pg-check"><input type="checkbox" id="pg-resume"> resume (5s)</label>
+      <label class="pg-check"><input type="checkbox" id="pg-counter"> counter</label>
+    </div>
+
+    <div class="demo media pg-demo" data-carousel id="pg">
+      <ul data-carousel-scroller>
+        <li></li><li></li><li></li><li></li><li></li><li></li>
+      </ul>
+    </div>
+
+    <div class="code code-live">
+      <div class="code-lang">HTML</div>
+      <pre><code id="pg-html"></code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code id="pg-css"></code></pre>
+    </div>
+  </section>
+  <section id="basics">
+    <h2>2. 기본 + 반응형</h2>
+    <p class="note">
+      한 화면 아이템 수는 <code>--carousel-items</code> 하나. 브레이크포인트는 <code>@container</code>가 처리하고
+      JS는 관여하지 않는다. 창 너비를 줄여보면 1.2 → 2.5 → 4로 바뀐다.
+    </p>
+    <div class="demo media responsive" data-carousel data-carousel-counter id="basic">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+        <li><img alt="" src="./cards/07.svg"></li>
+        <li><img alt="" src="./cards/08.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — 기본 + 반응형</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel class=&quot;gallery&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>.gallery {
+  container-type: inline-size;
+  --carousel-items: 1.2;
+  --carousel-gap: 0.75rem;
+}
+
+/* container-type이 걸린 요소는 자기 자신의 컨테이너가 될 수 없다.
+   변수는 자손(스크롤러)에 선언하고 아이템이 상속받게 한다. */
+@container (min-width: 30rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 2.5; }
+}
+@container (min-width: 45rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 4; }
+}</code></pre>
+    </details>
+  </section>
+</main>
+
+<script type="module" src="./demo.js"></script>
+</body>
+</html>

@@ -24,10 +24,15 @@ node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
 The local demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is
-nothing to build and no watch process to keep running. It shows the responsive item count,
-fractional peek, loop, autoplay, thumbnail sync, the block axis, all six effect presets and the
-marquee. A badge at the top reports which path the browser took — open the same page in Chrome and in
-Safari to see the native and fallback paths side by side.
+nothing to build and no watch process to keep running. It opens on a playground where every setting,
+including all six effect presets, is live and the corresponding HTML and CSS are generated from the
+state on screen; below it are the responsive item count, fractional peek, loop, autoplay, thumbnail
+sync, the block axis and the marquee.
+
+The menu has two rows. The first switches themes, and each theme is its own page — a theme targets
+`[data-carousel]` globally, so two of them cannot share one. The second jumps between sections of the
+current page. A badge near the top reports which path the browser took: open the same page in Chrome
+and in Safari to see the native and fallback paths side by side.
 
 ## Install
 
@@ -124,6 +129,7 @@ is not included in `files`) for the full list.
 | `data-carousel-autoplay-resume="5000"` | root | Resume that many ms after the last user input instead of stopping for good. Omit to keep the permanent stop |
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
 | `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth`, `curve` or `reveal` (needs `effects.css`, see below) |
+| `data-carousel-counter` | root | Show an `n / total` counter in the corner. See below |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
 
@@ -136,7 +142,12 @@ One ships with the library:
 ```ts
 import 'snapstrip/carousel.css';
 import 'snapstrip/themes/basic.css'; // optional
+// or: import 'snapstrip/themes/progress.css';
 ```
+
+Two themes ship with the library. `basic` is the finished look; `progress` strips the chrome back.
+
+### basic
 
 `basic` does three things the defaults deliberately don't:
 
@@ -147,6 +158,35 @@ import 'snapstrip/themes/basic.css'; // optional
 - **Makes the markers readable on real images** — white dots with a dark ring, rather than the default
   translucent black that disappears on dark media.
 - **Hides disabled arrows entirely** instead of fading them, and adds hover and blur treatments.
+
+### progress
+
+`progress` suits a touch-first layout where the arrows are chrome you'd rather not see:
+
+- **Arrows appear on hover** rather than sitting there permanently — and on `:focus-within`, so a
+  keyboard user tabbing to one still sees it. The whole rule lives inside `@media (hover: hover)`:
+  on a touch device there is no hover, and an invisible-but-tappable button is worse than a visible one.
+- **Markers form one wide progress track** instead of dots. The track runs from the inset edge to
+  just short of the counter, the segments share it evenly with no gap between them, and everything up
+  to and including the current slide is filled, growing continuously as you swipe.
+
+  There is no CSS way to select "the markers before the current one": `:has()` cannot contain a
+  pseudo-element, and `:target-current` attaches to the marker rather than to the slide. So the fill
+  lives on the marker *group* instead, its width bound to scroll progress by a named scroll timeline —
+  `timeline-scope` carries the name out to the fallback group, which sits outside the scroller. The
+  keyframes start at `--carousel-progress-min` rather than at zero, so the first slide still shows
+  where you are instead of an empty track.
+
+  The track and the counter share a row of fixed height (`--carousel-footer-block`) anchored to the
+  same edge, which is what lines their centres up; `--carousel-counter-reserve` is the width held back
+  at the end of the track for the counter to sit in.
+
+  Firefox has no scroll timelines. Without the `@supports` guard the keyframes would run on the
+  document timeline and park the bar at 100%, so there the theme falls back to filling only the current
+  segment, wiped across by a `background-position` transition. `:dir(rtl)` flips both directions.
+- **Seats the `n / total` counter at the end of the track**, sharing that row so their centres line
+  up. The counter itself is not part of the theme — it is a core opt-in, so add
+  `data-carousel-counter` to turn it on. See [Counter](#counter).
 
 Writing your own theme is the same exercise. Copy `dist/themes/basic.css`, change the variable block at
 the top, and import yours instead. Two rules worth knowing before you do:
@@ -296,6 +336,45 @@ import 'snapstrip/effects.css';
 ```
 
 Effects are disabled automatically under `prefers-reduced-motion: reduce`.
+
+## Counter
+
+Add `data-carousel-counter` and the carousel gets an `n / total` badge. It is built from CSS counters
+plus a scroll-driven animation, so it costs no JavaScript and no extra stylesheet — it lives in
+`carousel.css` and is off until you ask for it.
+
+```html
+<div data-carousel data-carousel-counter>
+  <ul data-carousel-scroller>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+Style it through `--carousel-counter-inset`, `--carousel-counter-color` and `--carousel-counter-bg`,
+or reposition it by overriding `[data-carousel-counter] > [data-carousel-scroller]::after`. The
+`progress` theme does exactly that to seat it at the end of its track.
+
+That selector targets the scroller rather than the root on purpose. `container-type: inline-size` —
+the recommended way to make the item count responsive — implies `contain: style`, which scopes the
+slides' `counter-increment` away from the root, so a counter rendered on the root would read `0 / 0`.
+Keeping the reset, the increments and the output all inside the scroller puts them in one scope. The
+badge is absolutely positioned against the root, so it is neither clipped nor scrolled by the
+scroller's overflow.
+
+Two details worth knowing:
+
+**It counts a slide once that slide has fully entered the scrollport**, not at the halfway mark.
+Counting at halfway overcounts whenever `--carousel-items` is above 1 — the slide peeking in at the
+edge would be counted before you reached it, so a leading card of `04` would read `5 / 6`.
+
+**Firefox shows nothing.** Without `animation-timeline` support the animation has no timeline, fills
+immediately, and every slide counts itself: you'd get `5 / 5` on the first slide. A wrong number is
+worse than no number, so the whole thing sits behind `@supports (animation-timeline: view())`.
+
+The counter and the effect presets both animate the slides, which is the same `animation-name` slot.
+`carousel.css` loads before `effects.css`, so the rules that keep both alive carry the
+`[data-carousel-counter]` gate as extra specificity rather than relying on import order.
 
 ## Marquee
 

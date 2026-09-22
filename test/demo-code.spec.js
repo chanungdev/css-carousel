@@ -6,7 +6,8 @@ import { test, expect } from '@playwright/test';
 
 const ready = async (page) => {
   await page.goto('/demo/index.html');
-  await page.waitForFunction(() => !!document.querySelector('#fx')?.carousel);
+  // playground는 모든 데모 페이지에 있고, 초기화가 끝나야 코드 패널이 채워진다
+  await page.waitForFunction(() => !!document.querySelector('#pg')?.carousel);
 };
 
 test('모든 섹션이 코드 블록을 갖고, 기본적으로 접혀 있다', async ({ page }) => {

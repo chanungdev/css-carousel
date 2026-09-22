@@ -1,0 +1,367 @@
+/* snapstrip 데모 페이지 스타일. 라이브러리 CSS가 아니라 데모 전용이다. */
+
+:root {
+  color-scheme: light dark;
+  --ink: #16181d;
+  --muted: #6b7280;
+  --line: #e4e6eb;
+  --bg: #fbfbfc;
+  --accent: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8eaf0;
+    --muted: #9aa1ad;
+    --line: #2a2e37;
+    --bg: #14161a;
+    --accent: #7aa2ff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 1.5rem 6rem;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main { max-inline-size: 60rem; margin-inline: auto; padding-block-start: 2.5rem; }
+
+h1 { font-size: 1.75rem; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+h2 { font-size: 1rem; margin: 0 0 0.25rem; letter-spacing: -0.01em; }
+
+.lede { color: var(--muted); margin: 0 0 2rem; }
+
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+
+/* 현재 실행 경로 배지 — 이 라이브러리의 핵심 주장을 그대로 보여준다 */
+.path {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  margin-block-end: 2.5rem;
+}
+.path b { font-weight: 600; }
+.dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--accent); }
+
+/* ── 상단 메뉴 ──────────────────────────────────────
+   1단은 테마별 페이지 라우팅, 2단은 페이지 안 앵커 이동.
+   두 줄 모두 스크롤을 따라다닌다. */
+
+/* 스크립트가 실측값으로 덮어쓴다 — 이건 스크립트가 없을 때의 근삿값이다 */
+:root { --nav-block: 5.75rem; }
+
+.nav {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  /* body의 좌우 패딩 밖까지 덮는다 — 안 그러면 메뉴 양옆으로 콘텐츠가 비쳐 지나간다 */
+  margin-inline: -1.5rem;
+  padding-inline: 1.5rem;
+  background: var(--bg);
+  border-block-end: 1px solid var(--line);
+}
+
+.nav-inner {
+  max-inline-size: 60rem;
+  margin-inline: auto;
+  padding-block: 0.5rem;
+}
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: block;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav-themes {
+  margin-block-end: 0.4rem !important;
+  padding-block-end: 0.4rem !important;
+  border-block-end: 1px solid var(--line);
+}
+
+.nav-themes a {
+  padding: 0.2rem 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.nav-themes a[aria-current='page'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-sections a {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+
+.nav a:hover,
+.nav a:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nav-themes a[aria-current='page']:hover {
+  color: #fff;
+}
+
+/* 앵커로 뛸 때 sticky 메뉴에 제목이 가리지 않게 한다 */
+html {
+  scroll-padding-block-start: calc(var(--nav-block) + 1rem);
+}
+
+section {
+  padding-block: 2rem;
+  border-block-start: 1px solid var(--line);
+}
+
+.note { color: var(--muted); margin: 0 0 1.25rem; }
+
+/* ── carousel 공통 데모 스타일 ──────────────────────── */
+
+.demo {
+  --carousel-items: 1;
+  --carousel-gap: 0.75rem;
+  --carousel-scrollbar: none;
+  container-type: inline-size;
+}
+
+.demo [data-carousel-scroller] > li {
+  display: grid;
+  place-items: center;
+  block-size: 9rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(145deg, hsl(calc(var(--i) * 42) 62% 58%), hsl(calc(var(--i) * 42 + 28) 62% 46%));
+  color: #fff;
+  font: 600 1.5rem/1 ui-monospace, monospace;
+  user-select: none;
+}
+
+/* 반응형은 전부 CSS — JS breakpoint 로직 없음.
+   container-type이 걸린 요소 자신은 자기 컨테이너가 될 수 없으므로
+   변수는 자손(스크롤러)에 선언한다. 아이템이 상속받는다. */
+.responsive { --carousel-items: 1.2; }
+@container (min-width: 30rem) {
+  .responsive [data-carousel-scroller] { --carousel-items: 2.5; }
+}
+@container (min-width: 45rem) {
+  .responsive [data-carousel-scroller] { --carousel-items: 4; }
+}
+
+.peek { --carousel-items: 2.5; }
+.centered { --carousel-items: 2.5; --carousel-align: center; }
+
+/* 수직 축: 스크롤러에 확정된 block-size가 필요하다 (README 알려진 한계) */
+.vertical { --carousel-items: 2; inline-size: min(20rem, 100%); }
+.vertical [data-carousel-scroller] { block-size: 19.5rem; }
+.vertical [data-carousel-scroller] > li { block-size: auto; }
+
+/* 썸네일 스트립 */
+.strip { --carousel-items: 5; --carousel-gap: 0.5rem; margin-block-start: 0.5rem; }
+.strip [data-carousel-scroller] > li {
+  block-size: 3.25rem;
+  font-size: 0.9rem;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+.strip [data-carousel-scroller] > .carousel-thumb-current { opacity: 1; }
+
+/* 카드는 전부 동일한 4:3 이미지다. reveal은 안쪽 미디어를 따로 움직이므로
+   기준점이 있는 실제 이미지여야 효과가 보인다. */
+.media [data-carousel-scroller] > li { background: none; padding: 0; block-size: auto; }
+.media [data-carousel-scroller] img {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.6rem;
+}
+
+/* 블록 축과 썸네일 스트립은 높이를 flex-basis나 고정값이 정한다.
+   그 위에 aspect-ratio를 얹으면 서로 싸우므로 높이를 그대로 채우게 한다. */
+.vertical [data-carousel-scroller] img,
+.strip [data-carousel-scroller] img {
+  aspect-ratio: auto;
+  block-size: 100%;
+}
+
+/* 커튼이 열리는 동안 gap이 배경을 드러내면 연속된 필름이 아니라
+   분리된 카드처럼 읽힌다. reveal은 gap 없이 전폭일 때 가장 잘 보인다. */
+.reveal-demo { --carousel-items: 1; --carousel-gap: 0px; }
+/* 라운드는 슬라이드마다가 아니라 스크롤러에 건다. 슬라이드마다 걸면
+   이음매에 둥근 모서리가 생겨 연속된 필름처럼 안 보인다. */
+.reveal-demo [data-carousel-scroller] { border-radius: 0.6rem; }
+.reveal-demo [data-carousel-scroller] > li,
+.reveal-demo [data-carousel-scroller] img { border-radius: 0; }
+.effects { --carousel-items: 1.6; --carousel-align: center; }
+
+/* ── marquee ─────────────────────────────────────── */
+
+[data-carousel-marquee] { --carousel-marquee-duration: 18s; }
+[data-carousel-marquee-track] > li {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ── 컨트롤 ─────────────────────────────────────── */
+
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-start: 1rem; }
+
+button.ui {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+button.ui:hover { border-color: var(--accent); color: var(--accent); }
+button.ui[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
+
+/* ── 코드 보기 ─────────────────────────────────
+   details/summary라서 토글에 JS가 0줄이다. 키보드 조작과 스크린리더
+   노출도 브라우저가 처리한다. */
+
+.code {
+  margin-block-start: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  overflow: clip;
+}
+
+.code > summary {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.code > summary:hover { color: var(--accent); }
+.code > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.code[open] > summary { border-block-end: 1px solid var(--line); }
+
+.code-lang {
+  padding: 0.5rem 0.75rem 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.code pre {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.75rem;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+/* ── playground ───────────────────────────────── */
+
+.pg-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin-block-end: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+
+.pg-controls label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pg-controls output {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+}
+
+.pg-controls input[type='range'] { inline-size: 100%; accent-color: var(--accent); }
+
+.pg-controls select {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--ink);
+}
+
+/* .pg-controls label(0,1,1)이 더 구체적이라 그냥 .pg-check로는 안 이긴다 */
+.pg-controls .pg-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: end;
+  color: var(--ink);
+}
+
+.pg-controls .pg-check input { accent-color: var(--accent); inline-size: auto; }
+
+.code-live {
+  margin-block-start: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  overflow: clip;
+}
+
+.code-live pre {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.75rem;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.pg-frame {
+  inline-size: 100%;
+  block-size: 26rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: transparent;
+}
+
+.log {
+  margin-block-start: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--muted);
+  min-block-size: 2.25rem;
+}

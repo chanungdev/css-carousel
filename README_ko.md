@@ -24,9 +24,14 @@ node scripts/serve.js   # http://localhost:5173/demo/index.html
 ```
 
 로컬 데모는 `src/`를 직접 불러온다 — 개발 서버가 TypeScript를 즉석에서 변환하므로 빌드할 것도, 계속 띄워둘
-감시 프로세스도 없다. 반응형 아이템 수, 소수 peek, loop, autoplay, 썸네일 연동, 블록 축, 이펙트 프리셋
-6종, marquee를 보여준다. 상단 배지가 현재 브라우저가 어느 경로를 탔는지 알려준다 — 같은 페이지를 Chrome과
-Safari에서 열어보면 네이티브 경로와 폴백 경로를 나란히 비교할 수 있다.
+감시 프로세스도 없다. 첫 화면은 playground다. 이펙트 프리셋 6종을 포함한 모든 설정을 그 자리에서 바꿔볼 수
+있고, 화면에 적용된 상태에서 HTML·CSS가 만들어진다. 그 아래로 반응형 아이템 수, 소수 peek, loop,
+autoplay, 썸네일 연동, 블록 축, marquee가 이어진다.
+
+메뉴는 2단이다. 1단은 테마 전환이고 테마마다 페이지가 따로 있다 — 테마가 `[data-carousel]`을 전역으로
+겨냥하므로 둘을 한 페이지에 둘 수 없기 때문이다. 2단은 현재 페이지 안의 섹션 이동이다. 상단 배지가 현재
+브라우저가 어느 경로를 탔는지 알려준다 — 같은 페이지를 Chrome과 Safari에서 열어보면 네이티브 경로와 폴백
+경로를 나란히 비교할 수 있다.
 
 ## 설치
 
@@ -122,6 +127,7 @@ export하는 타입: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `Resolv
 | `data-carousel-autoplay-resume="5000"` | 루트 | 영구 정지 대신 마지막 입력으로부터 그만큼 지나면 재시작. 생략하면 영구 정지 유지 |
 | `data-carousel-thumbs="#strip"` | 루트 | 썸네일 carousel과 연동 |
 | `data-carousel-effect` | 루트 | `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` (`effects.css` 필요, 아래 참고) |
+| `data-carousel-counter` | 루트 | 모서리에 `n / total` 카운터 표시. 아래 참고 |
 | `data-carousel-label-prev` / `-next` | 루트 | 폴백 버튼의 접근 이름. 기본값 `Previous` / `Next` |
 | `data-carousel-label` | 슬라이드 | 폴백 경로 전용. 해당 슬라이드 마커의 접근 이름. 기본값은 1부터 세는 순번 |
 
@@ -133,7 +139,12 @@ export하는 타입: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `Resolv
 ```ts
 import 'snapstrip/carousel.css';
 import 'snapstrip/themes/basic.css'; // 선택
+// 또는: import 'snapstrip/themes/progress.css';
 ```
+
+테마는 두 개가 함께 배포된다. `basic`은 완성된 모양이고, `progress`은 크롬을 걷어낸 구성이다.
+
+### basic
 
 `basic`은 기본값이 의도적으로 하지 않는 세 가지를 한다:
 
@@ -143,6 +154,34 @@ import 'snapstrip/themes/basic.css'; // 선택
 - **실제 이미지 위에서도 마커가 읽히게** 한다 — 어두운 미디어에서 사라지는 기본값(반투명 검정) 대신
   어두운 테두리를 두른 흰 점을 쓴다.
 - **비활성 화살표를 흐리게 두지 않고 완전히 숨기고**, hover와 blur 처리를 더한다.
+
+### progress
+
+`progress`은 화살표가 눈에 띄지 않기를 바라는, 스와이프 중심 레이아웃에 맞는다:
+
+- **화살표는 hover에서만 나타난다.** 키보드 사용자를 위해 `:focus-within`도 조건에 넣었다.
+  규칙 전체가 `@media (hover: hover)` 안에 있다 — 터치 기기에는 hover가 없고,
+  보이지 않는데 탭은 되는 버튼은 그냥 보이는 버튼보다 나쁘기 때문이다.
+- **마커는 점 대신 넓은 진행 트랙 하나다.** 트랙은 여백 끝에서 카운터 바로 앞까지 뻗고, 조각들이
+  간격 없이 그 폭을 고르게 나눠 가진다. 현재 슬라이드까지가 채워지고, 스와이프하는 동안 끊기지 않고
+  이어서 차오른다.
+
+  "현재보다 앞의 마커"를 CSS로 고를 방법은 없다 — `:has()`에는 pseudo-element를 넣을 수 없고,
+  `:target-current`는 슬라이드가 아니라 마커에 붙는다. 그래서 채움을 조각이 아니라 마커 *그룹*에
+  두고, 이름 붙인 스크롤 타임라인으로 폭을 스크롤 진행률에 묶었다. 폴백 그룹은 스크롤러 밖에 있어서
+  `timeline-scope`로 이름을 꺼내 준다. 키프레임은 0이 아니라 `--carousel-progress-min`에서 시작한다.
+  첫 슬라이드에서 빈 트랙만 보이지 않게 하기 위해서다.
+
+  트랙과 카운터는 같은 모서리에 붙은, 높이가 같은 한 줄(`--carousel-footer-block`)을 공유한다.
+  세로 중앙이 맞는 건 그 때문이다. `--carousel-counter-reserve`는 트랙 끝에서 카운터 몫으로 비워
+  두는 폭이다.
+
+  Firefox에는 스크롤 타임라인이 없다. `@supports` 가드가 없으면 키프레임이 문서 타임라인에서 달려
+  바가 100%에 멈춘 채로 있게 되므로, 그쪽에서는 현재 조각만 `background-position` transition으로
+  채우는 방식으로 물러선다. `:dir(rtl)`에서는 양쪽 방향이 모두 뒤집힌다.
+- **`n / total` 카운터를 트랙 끝에 앉힌다.** 같은 줄을 공유하게 해서 세로 중앙을 맞춘다. 카운터 자체는
+  테마의 일부가 아니라 core의 opt-in이다 — `data-carousel-counter`를 붙여야 켜진다.
+  [카운터](#카운터) 참고.
 
 직접 테마를 만드는 것도 같은 작업이다. `dist/themes/basic.css`를 복사해 맨 위 변수 블록만 바꾸고 그걸
 import하면 된다. 그 전에 알아둘 규칙 두 가지:
@@ -289,6 +328,42 @@ import 'snapstrip/effects.css';
 ```
 
 `prefers-reduced-motion: reduce`에서는 자동으로 비활성화된다.
+
+## 카운터
+
+`data-carousel-counter`를 붙이면 `n / total` 배지가 나온다. CSS counter와 scroll-driven animation만으로
+만들어서 JavaScript도, 추가 스타일시트도 필요 없다 — `carousel.css` 안에 있고, 요청하기 전까지는 꺼져 있다.
+
+```html
+<div data-carousel data-carousel-counter>
+  <ul data-carousel-scroller>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+`--carousel-counter-inset`, `--carousel-counter-color`, `--carousel-counter-bg`로 모양을 바꾸거나,
+`[data-carousel-counter] > [data-carousel-scroller]::after`를 덮어써서 위치를 옮긴다. `progress` 테마가
+바로 그렇게 해서 진행 바 끝에 앉힌다.
+
+루트가 아니라 스크롤러를 겨냥하는 건 일부러다. `container-type: inline-size`는 — 아이템 수를 반응형으로
+만드는 권장 방법이다 — `contain: style`을 함의하고, 그러면 슬라이드의 `counter-increment`가 루트에서
+분리된 스코프로 갇혀 루트에 그린 카운터는 `0 / 0`을 읽는다. 리셋·증가·출력을 모두 스크롤러 안에 두면 한
+스코프가 된다. 배지는 루트를 기준으로 absolute 배치되므로 스크롤러의 overflow에 잘리지도, 스크롤을 따라
+움직이지도 않는다.
+
+알아둘 것 두 가지.
+
+**슬라이드가 스크롤포트에 완전히 들어온 순간에 센다.** 절반에서 세면 `--carousel-items`가 1보다 클 때
+옆에 걸쳐 보이는 슬라이드까지 미리 세어, 앞 카드가 `04`인데 `5 / 6`이 된다.
+
+**Firefox에서는 아무것도 안 나온다.** `animation-timeline` 지원이 없으면 타임라인 없는 애니메이션이 곧바로
+채워져 모든 슬라이드가 자기를 센다 — 첫 슬라이드에서 `5 / 5`가 나온다. 틀린 숫자가 없는 숫자보다 나쁘므로
+전체를 `@supports (animation-timeline: view())` 안에 두었다.
+
+카운터와 이펙트 프리셋은 둘 다 슬라이드를 애니메이션한다 — `animation-name`이라는 같은 자리다.
+`carousel.css`가 `effects.css`보다 먼저 로드되므로, 둘을 함께 살리는 규칙은 import 순서가 아니라
+`[data-carousel-counter]` 게이트가 얹어주는 특이도에 기댄다.
 
 ## Marquee
 

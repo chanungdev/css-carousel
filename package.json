@@ -35,7 +35,8 @@
     },
     "./carousel.css": "./dist/carousel.css",
     "./effects.css": "./dist/effects.css",
-    "./themes/basic.css": "./dist/themes/basic.css"
+    "./themes/basic.css": "./dist/themes/basic.css",
+    "./themes/progress.css": "./dist/themes/progress.css"
   },
   "scripts": {
     "test": "playwright test",
@@ -45,7 +46,8 @@
     "size": "node scripts/size-check.js",
     "prepublishOnly": "node scripts/check-readme.js && node scripts/build.js && node scripts/size-check.js && tsc --project test/types/tsconfig.json && playwright test",
     "check:readme": "node scripts/check-readme.js",
-    "build:demo": "node scripts/build-demo.js"
+    "build:demo": "node scripts/check-demo.js && node scripts/build-demo.js",
+    "check:demo": "node scripts/check-demo.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
@@ -53,7 +55,7 @@
     "typescript": "^7.0.2"
   },
   "pnpm": {
-    "//": "esbuild\ub294 \ud50c\ub7ab\ud3fc \ubc14\uc774\ub108\ub9ac\ub97c optionalDependencies\ub85c \ubc30\ud3ec\ud558\ubbc0\ub85c postinstall \uc5c6\uc774 \ub3d9\uc791\ud55c\ub2e4",
+    "//": "esbuild는 플랫폼 바이너리를 optionalDependencies로 배포하므로 postinstall 없이 동작한다",
     "ignoredBuiltDependencies": [
       "esbuild"
     ]

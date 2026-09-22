@@ -67,6 +67,10 @@
   --carousel-marker-color: rgb(0 0 0 / 0.25);
   --carousel-marker-color-current: rgb(0 0 0 / 0.75);
   --carousel-marker-group-position: after;
+
+  --carousel-counter-inset: 0.75rem;
+  --carousel-counter-color: #fff;
+  --carousel-counter-bg: rgb(0 0 0 / 0.6);
 }
 
 /* ── 네이티브 경로: 스크롤 버튼 ───────────────────────
@@ -269,6 +273,119 @@
 
 [data-carousel] > [data-carousel-scroller] > .carousel-thumb-current {
   opacity: var(--carousel-thumb-current-opacity);
+}
+
+/* ── 카운터 "n / total" ────────────────────────────
+   data-carousel-counter를 붙인 carousel에만 나온다. 기본값은 꺼짐이다 —
+   있던 화면에 숫자가 갑자기 생기면 안 되고, 안 쓰는 사람은 규칙이 붙지도 않는다.
+
+   total은 정적 counter-increment라 어디서나 동작하지만, 현재 번호는 슬라이드가
+   스크롤포트에 완전히 들어온 순간을 잡아야 해서 scroll-driven animation이 필요하다.
+   Firefox에는 그게 없다. 가드가 없으면 타임라인 없는 애니메이션이 곧바로 채워져
+   모든 슬라이드가 세어지고 첫 화면부터 "5 / 5"가 나온다. 틀린 숫자가 없는 숫자보다
+   나쁘므로 지원될 때만 켠다.
+
+   절반(entry 50%)이 아니라 완전히 들어왔을 때 세는 이유: --carousel-items가 1보다
+   크면 옆에 걸쳐 보이는 슬라이드까지 미리 세어, 앞 카드가 04인데 5를 가리킨다. */
+
+@supports (animation-timeline: view()) {
+  /* 리셋과 출력을 루트가 아니라 스크롤러에 둔다. 루트에 container-type을
+     걸면(반응형 아이템 수의 권장 방법이다) contain: style이 함께 걸리고,
+     그러면 자손의 counter-increment가 별도 스코프로 갇혀 루트의 ::after가
+     0을 읽는다 — "0 / 0"이 뜬다. 셋을 모두 스크롤러 안에 두면 같은 스코프다.
+
+     ::after는 position: absolute라 스크롤러의 overflow에 잘리지 않고
+     스크롤을 따라 움직이지도 않는다. 담는 블록이 position: relative인
+     루트이기 때문이다. */
+  [data-carousel-counter] > [data-carousel-scroller] {
+    counter-reset: carousel-total 0 carousel-current 0;
+  }
+
+  [data-carousel-counter] > [data-carousel-scroller] > *:not([data-carousel-clone]) {
+    counter-increment: carousel-total 1;
+    animation-name: carousel-count;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view(inline);
+    animation-range: entry 100% entry 100%;
+  }
+
+  [data-carousel-counter][data-carousel-axis='block']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-timeline: view(block);
+  }
+
+  /* 이펙트 프리셋도 슬라이드의 animation-name을 쓴다. 한쪽만 적으면 다른 쪽이
+     사라지므로 둘을 나란히 적는다. 게이트 속성이 하나 더 붙어 있어 effects.css보다
+     먼저 로드돼도 특이도로 이긴다 — import 순서에 기대지 않는다.
+
+     animation-range는 두 애니메이션에 함께 적용되므로 범위도 짝을 맞춘다.
+     카운터 쪽 범위(entry 100%)를 이펙트에까지 쓰면 이펙트가 망가진다. */
+  [data-carousel-counter][data-carousel-effect='fade']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-fade;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  [data-carousel-counter][data-carousel-effect='scale']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-scale;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  [data-carousel-counter][data-carousel-effect='coverflow']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-coverflow;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  [data-carousel-counter][data-carousel-effect='depth']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-depth;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  [data-carousel-counter][data-carousel-effect='curve']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-curve;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  [data-carousel-counter][data-carousel-effect='reveal']
+    > [data-carousel-scroller]
+    > *:not([data-carousel-clone]) {
+    animation-name: carousel-count, carousel-reveal;
+    animation-range: entry 100% entry 100%, normal;
+  }
+
+  @keyframes carousel-count {
+    1%,
+    100% {
+      counter-increment: carousel-total 1 carousel-current 1;
+    }
+  }
+
+  [data-carousel-counter] > [data-carousel-scroller]::after {
+    content: counter(carousel-current) ' / ' counter(carousel-total);
+    position: absolute;
+    inset-block-end: var(--carousel-counter-inset);
+    inset-inline-end: var(--carousel-counter-inset);
+    z-index: 1;
+
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--carousel-counter-bg);
+    color: var(--carousel-counter-color);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+  }
 }
 
 /* ── 모션 축소 ───────────────────────────────────── */

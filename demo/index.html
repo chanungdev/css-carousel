@@ -7,289 +7,29 @@
 <link rel="stylesheet" href="/src/carousel.css">
 <link rel="stylesheet" href="/src/effects.css">
 <link rel="stylesheet" href="/src/themes/basic.css">
-<style>
-  :root {
-    color-scheme: light dark;
-    --ink: #16181d;
-    --muted: #6b7280;
-    --line: #e4e6eb;
-    --bg: #fbfbfc;
-    --accent: #2563eb;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ink: #e8eaf0;
-      --muted: #9aa1ad;
-      --line: #2a2e37;
-      --bg: #14161a;
-      --accent: #7aa2ff;
-    }
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    padding: 4rem 1.5rem 6rem;
-    background: var(--bg);
-    color: var(--ink);
-    font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-
-  main { max-inline-size: 60rem; margin-inline: auto; }
-
-  h1 { font-size: 1.75rem; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
-  h2 { font-size: 1rem; margin: 0 0 0.25rem; letter-spacing: -0.01em; }
-
-  .lede { color: var(--muted); margin: 0 0 2rem; }
-
-  code, .mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.85em;
-  }
-
-  /* 현재 실행 경로 배지 — 이 라이브러리의 핵심 주장을 그대로 보여준다 */
-  .path {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    margin-block-end: 2.5rem;
-  }
-  .path b { font-weight: 600; }
-  .dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--accent); }
-
-  section {
-    padding-block: 2rem;
-    border-block-start: 1px solid var(--line);
-  }
-
-  .note { color: var(--muted); margin: 0 0 1.25rem; }
-
-  /* ── carousel 공통 데모 스타일 ──────────────────────── */
-
-  .demo {
-    --carousel-items: 1;
-    --carousel-gap: 0.75rem;
-    --carousel-scrollbar: none;
-    container-type: inline-size;
-  }
-
-  .demo [data-carousel-scroller] > li {
-    display: grid;
-    place-items: center;
-    block-size: 9rem;
-    border-radius: 0.6rem;
-    background: linear-gradient(145deg, hsl(calc(var(--i) * 42) 62% 58%), hsl(calc(var(--i) * 42 + 28) 62% 46%));
-    color: #fff;
-    font: 600 1.5rem/1 ui-monospace, monospace;
-    user-select: none;
-  }
-
-  /* 반응형은 전부 CSS — JS breakpoint 로직 없음.
-     container-type이 걸린 요소 자신은 자기 컨테이너가 될 수 없으므로
-     변수는 자손(스크롤러)에 선언한다. 아이템이 상속받는다. */
-  .responsive { --carousel-items: 1.2; }
-  @container (min-width: 30rem) {
-    .responsive [data-carousel-scroller] { --carousel-items: 2.5; }
-  }
-  @container (min-width: 45rem) {
-    .responsive [data-carousel-scroller] { --carousel-items: 4; }
-  }
-
-  .peek { --carousel-items: 2.5; }
-  .centered { --carousel-items: 2.5; --carousel-align: center; }
-
-  /* 수직 축: 스크롤러에 확정된 block-size가 필요하다 (README 알려진 한계) */
-  .vertical { --carousel-items: 2; inline-size: min(20rem, 100%); }
-  .vertical [data-carousel-scroller] { block-size: 19.5rem; }
-  .vertical [data-carousel-scroller] > li { block-size: auto; }
-
-  /* 썸네일 스트립 */
-  .strip { --carousel-items: 5; --carousel-gap: 0.5rem; margin-block-start: 0.5rem; }
-  .strip [data-carousel-scroller] > li {
-    block-size: 3.25rem;
-    font-size: 0.9rem;
-    opacity: 0.4;
-    cursor: pointer;
-    transition: opacity 120ms;
-  }
-  .strip [data-carousel-scroller] > .carousel-thumb-current { opacity: 1; }
-
-  /* 카드는 전부 동일한 4:3 이미지다. reveal은 안쪽 미디어를 따로 움직이므로
-     기준점이 있는 실제 이미지여야 효과가 보인다. */
-  .media [data-carousel-scroller] > li { background: none; padding: 0; block-size: auto; }
-  .media [data-carousel-scroller] img {
-    display: block;
-    inline-size: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: 0.6rem;
-  }
-
-  /* 블록 축과 썸네일 스트립은 높이를 flex-basis나 고정값이 정한다.
-     그 위에 aspect-ratio를 얹으면 서로 싸우므로 높이를 그대로 채우게 한다. */
-  .vertical [data-carousel-scroller] img,
-  .strip [data-carousel-scroller] img {
-    aspect-ratio: auto;
-    block-size: 100%;
-  }
-
-  /* 커튼이 열리는 동안 gap이 배경을 드러내면 연속된 필름이 아니라
-     분리된 카드처럼 읽힌다. reveal은 gap 없이 전폭일 때 가장 잘 보인다. */
-  .reveal-demo { --carousel-items: 1; --carousel-gap: 0px; }
-  /* 라운드는 슬라이드마다가 아니라 스크롤러에 건다. 슬라이드마다 걸면
-     이음매에 둥근 모서리가 생겨 연속된 필름처럼 안 보인다. */
-  .reveal-demo [data-carousel-scroller] { border-radius: 0.6rem; }
-  .reveal-demo [data-carousel-scroller] > li,
-  .reveal-demo [data-carousel-scroller] img { border-radius: 0; }
-  .effects { --carousel-items: 1.6; --carousel-align: center; }
-
-  /* ── marquee ─────────────────────────────────────── */
-
-  [data-carousel-marquee] { --carousel-marquee-duration: 18s; }
-  [data-carousel-marquee-track] > li {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-
-  /* ── 컨트롤 ─────────────────────────────────────── */
-
-  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-start: 1rem; }
-
-  button.ui {
-    font: inherit;
-    font-size: 0.85rem;
-    padding: 0.4rem 0.8rem;
-    border: 1px solid var(--line);
-    border-radius: 0.4rem;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-  button.ui:hover { border-color: var(--accent); color: var(--accent); }
-  button.ui[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
-
-  /* ── 코드 보기 ─────────────────────────────────
-     details/summary라서 토글에 JS가 0줄이다. 키보드 조작과 스크린리더
-     노출도 브라우저가 처리한다. */
-
-  .code {
-    margin-block-start: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.5rem;
-    overflow: clip;
-  }
-
-  .code > summary {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    color: var(--muted);
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .code > summary:hover { color: var(--accent); }
-  .code > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-  .code[open] > summary { border-block-end: 1px solid var(--line); }
-
-  .code-lang {
-    padding: 0.5rem 0.75rem 0;
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .code pre {
-    margin: 0;
-    padding: 0.5rem 0.75rem 0.75rem;
-    overflow-x: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.8rem;
-    line-height: 1.6;
-    tab-size: 2;
-  }
-
-  /* ── playground ───────────────────────────────── */
-
-  .pg-controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: 0.75rem 1rem;
-    margin-block-end: 1.25rem;
-    padding: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.5rem;
-  }
-
-  .pg-controls label {
-    display: grid;
-    gap: 0.3rem;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  .pg-controls output {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    color: var(--ink);
-  }
-
-  .pg-controls input[type='range'] { inline-size: 100%; accent-color: var(--accent); }
-
-  .pg-controls select {
-    font: inherit;
-    font-size: 0.85rem;
-    padding: 0.3rem 0.4rem;
-    border: 1px solid var(--line);
-    border-radius: 0.3rem;
-    background: transparent;
-    color: var(--ink);
-  }
-
-  /* .pg-controls label(0,1,1)이 더 구체적이라 그냥 .pg-check로는 안 이긴다 */
-  .pg-controls .pg-check {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    align-self: end;
-    color: var(--ink);
-  }
-
-  .pg-controls .pg-check input { accent-color: var(--accent); inline-size: auto; }
-
-  .code-live {
-    margin-block-start: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.5rem;
-    overflow: clip;
-  }
-
-  .code-live pre {
-    margin: 0;
-    padding: 0.5rem 0.75rem 0.75rem;
-    overflow-x: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.8rem;
-    line-height: 1.6;
-  }
-
-  .log {
-    margin-block-start: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 0.4rem;
-    color: var(--muted);
-    min-block-size: 2.25rem;
-  }
-</style>
+<link rel="stylesheet" href="./demo.css">
 </head>
 <body>
+<nav class="nav" aria-label="데모 탐색">
+  <div class="nav-inner">
+    <ul class="nav-themes">
+      <li><a href="./index.html" aria-current="page">basic</a></li>
+      <li><a href="./progress.html">progress</a></li>
+    </ul>
+    <ul class="nav-sections">
+      <li><a href="#playground">playground</a></li>
+      <li><a href="#basics">기본</a></li>
+      <li><a href="#reveal">reveal</a></li>
+      <li><a href="#peek">peek</a></li>
+      <li><a href="#loop">loop/autoplay</a></li>
+      <li><a href="#thumbs">썸네일</a></li>
+      <li><a href="#vertical">수직축</a></li>
+      <li><a href="#marquee">marquee</a></li>
+      <li><a href="#api">JS API</a></li>
+    </ul>
+  </div>
+</nav>
+
 <main>
   <h1>snapstrip</h1>
   <p class="lede">
@@ -299,347 +39,8 @@
 
   <p class="path"><span class="dot"></span> 현재 경로: <b id="path">확인 중…</b></p>
 
-  <section>
-    <h2>1. 기본 + 반응형</h2>
-    <p class="note">
-      한 화면 아이템 수는 <code>--carousel-items</code> 하나. 브레이크포인트는 <code>@container</code>가 처리하고
-      JS는 관여하지 않는다. 창 너비를 줄여보면 1.2 → 2.5 → 4로 바뀐다.
-    </p>
-    <div class="demo media responsive" data-carousel id="basic">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2306b6d4'/%3E%3Cstop offset='1' stop-color='%23155e75'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23cffafe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23cffafe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E07%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2364748b'/%3E%3Cstop offset='1' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23e2e8f0' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23e2e8f0' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E08%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — 기본 + 반응형</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div data-carousel class=&quot;gallery&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>.gallery {
-  container-type: inline-size;
-  --carousel-items: 1.2;
-  --carousel-gap: 0.75rem;
-}
-
-/* container-type이 걸린 요소는 자기 자신의 컨테이너가 될 수 없다.
-   변수는 자손(스크롤러)에 선언하고 아이템이 상속받게 한다. */
-@container (min-width: 30rem) {
-  .gallery [data-carousel-scroller] { --carousel-items: 2.5; }
-}
-@container (min-width: 45rem) {
-  .gallery [data-carousel-scroller] { --carousel-items: 4; }
-}</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>2. reveal — 커튼 + 패럴랙스</h2>
-    <p class="note">
-      슬라이드 프레임이 <code>clip-path</code>로 커튼처럼 열리는 동안, 안쪽 미디어는 반대 방향으로 움직인다.
-      그래서 프레임만 지나가고 이미지는 제자리에 있는 것처럼 보인다. 천천히 스와이프하면 두 층이
-      따로 움직이는 게 보인다. 프리셋 6종 중 유일하게 두 요소를 동시에 움직이는 것이고,
-      JS는 여전히 0바이트다. <code>--carousel-gap: 0</code>과 한 화면 한 장일 때 가장 잘 맞는다 —
-      간격이 있으면 커튼 사이로 배경이 보여 연속된 필름이 아니라 카드처럼 읽힌다.
-    </p>
-    <div class="demo media reveal-demo" data-carousel data-carousel-effect="reveal" id="reveal">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — reveal</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div data-carousel data-carousel-effect=&quot;reveal&quot; class=&quot;reveal&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;&lt;img alt=&quot;&quot; src=&quot;photo.jpg&quot;&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;   /* 프리셋은 별도 파일 */
-
-/* 커튼 은유가 전제하는 설정: 한 화면 한 장, 간격 없음 */
-.reveal { --carousel-items: 1; --carousel-gap: 0px; }</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>3. peek — 소수 아이템 수</h2>
-    <p class="note">
-      <code>--carousel-items: 2.5</code>. peek 전용 변수가 없다. 소수로 적으면 다음 아이템이 그만큼 걸쳐 보인다.
-      아래는 같은 값에 <code>--carousel-align: center</code>만 더한 것으로, 앞뒤 대칭 peek이 공짜로 나온다.
-    </p>
-    <div class="demo media peek" data-carousel>
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <div class="demo media centered" data-carousel style="margin-block-start:0.75rem">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — peek</summary>
-      <div class="code-lang">CSS</div>
-      <pre><code>/* 소수가 peek을 만든다. peek 전용 변수는 없다. */
-.peek { --carousel-items: 2.5; }
-
-/* center 정렬이면 같은 값이 앞뒤 대칭 peek이 된다 */
-.centered { --carousel-items: 2.5; --carousel-align: center; }</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>4. loop + autoplay</h2>
-    <p class="note">
-      <code>data-carousel-loop</code>은 아이템을 3세트로 복제하고 <code>scrollend</code>에 위치만 조용히 되돌린다.
-      autoplay는 hover·포커스·화면 밖에서 멈추고, 사용자가 스크롤하거나 버튼을 누르면 영구히 멈춘다.
-      <code>prefers-reduced-motion</code>이면 아예 시작하지 않는다.
-      여기에는 <code>data-carousel-autoplay-resume="5000"</code>을 걸어뒀다 — 영구 정지 대신
-      마지막 입력으로부터 5초가 조용히 지나면 다시 돈다. 스와이프해보고 손을 떼고 기다려보면 된다.
-    </p>
-    <div
-      class="demo media"
-      data-carousel
-      data-carousel-loop
-      data-carousel-autoplay="2600"
-      data-carousel-autoplay-resume="5000"
-      id="looped"
-    >
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — loop + autoplay</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div
-  data-carousel
-  data-carousel-loop
-  data-carousel-autoplay=&quot;2600&quot;
-  data-carousel-autoplay-resume=&quot;5000&quot;
-&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>5. 썸네일 연동</h2>
-    <p class="note">
-      <code>data-carousel-thumbs="#strip"</code>. 스트립도 그냥 carousel이라 자기 스크롤과 스냅을 그대로 갖는다.
-    </p>
-    <div class="demo media" data-carousel data-carousel-thumbs="#strip" id="main-gallery">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <div class="demo media strip" data-carousel id="strip">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — 썸네일 연동</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div data-carousel data-carousel-thumbs=&quot;#strip&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div data-carousel id=&quot;strip&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>#strip { --carousel-items: 5; --carousel-gap: 0.5rem; }
-
-/* 현재 썸네일에 라이브러리가 붙여주는 클래스 */
-#strip [data-carousel-scroller] &gt; li { opacity: 0.4; }
-#strip [data-carousel-scroller] &gt; .carousel-thumb-current { opacity: 1; }</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>6. 수직 축</h2>
-    <p class="note">
-      <code>data-carousel-axis="block"</code>. 같은 변수, 같은 마크업. 스크롤러에 확정된
-      <code>block-size</code>가 필요하다 — <code>flex-basis</code>의 <code>100%</code>가 주축 크기를 기준으로 풀리기 때문.
-    </p>
-    <div class="demo media vertical" data-carousel data-carousel-axis="block">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — 수직 축</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div data-carousel data-carousel-axis=&quot;block&quot; class=&quot;vertical&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>.vertical { --carousel-items: 2; }
-
-/* 블록 축은 스크롤러에 확정된 block-size가 필요하다 —
-   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */
-.vertical [data-carousel-scroller] { block-size: 19.5rem; }</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>7. scroll-driven 이펙트</h2>
-    <p class="note">
-      <code>effects.css</code>의 프리셋 6종. JS 0바이트이고, <code>animation-timeline: view()</code>를
-      지원하지 않는 브라우저에서는 이펙트만 빠진 채 carousel은 정상 동작한다.
-      <code>reveal</code>은 슬라이드 안에 <code>img</code>·<code>video</code>가 있을 때 진가가 나온다 —
-      프레임이 커튼처럼 열리는 동안 안쪽 미디어는 반대로 움직여 제자리에 있는 것처럼 보인다.
-    </p>
-    <div class="controls" id="fx-controls">
-      <button class="ui" data-fx="">없음</button>
-      <button class="ui" data-fx="fade">fade</button>
-      <button class="ui" data-fx="scale">scale</button>
-      <button class="ui" data-fx="coverflow" aria-pressed="true">coverflow</button>
-      <button class="ui" data-fx="depth">depth</button>
-      <button class="ui" data-fx="curve">curve</button>
-      <button class="ui" data-fx="reveal">reveal</button>
-    </div>
-    <div class="demo media effects" data-carousel data-carousel-effect="coverflow" id="fx" style="margin-block-start:1rem">
-      <ul data-carousel-scroller>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffffff' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffffff' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E01%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f97316'/%3E%3Cstop offset='1' stop-color='%23991b1b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ffe4b5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ffe4b5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E02%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23065f46'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23d1fae5' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23d1fae5' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E03%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23ede9fe' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23ede9fe' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E04%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ec4899'/%3E%3Cstop offset='1' stop-color='%23831843'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fce7f3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fce7f3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E05%3C/text%3E%3C/svg%3E"></li>
-        <li><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23eab308'/%3E%3Cstop offset='1' stop-color='%23713f12'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Cline x1='100' y1='0' x2='100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='300' y1='0' x2='300' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='500' y1='0' x2='500' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='700' y1='0' x2='700' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='800' y1='0' x2='800' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='900' y1='0' x2='900' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='1100' y1='0' x2='1100' y2='900' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'/%3E%3Cline x1='0' y1='100' x2='1200' y2='100' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='1200' y2='200' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='1200' y2='300' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='400' x2='1200' y2='400' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='500' x2='1200' y2='500' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='600' x2='1200' y2='600' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='700' x2='1200' y2='700' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Cline x1='0' y1='800' x2='1200' y2='800' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1010' cy='190' r='110' fill='%23fef9c3' fill-opacity='.32'/%3E%3Crect x='90' y='560' width='240' height='240' fill='%23fef9c3' fill-opacity='.28'/%3E%3Ccircle cx='140' cy='170' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='600' cy='110' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='1060' cy='240' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='260' cy='730' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='940' cy='800' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ccircle cx='700' cy='470' r='14' fill='%23ffffff' fill-opacity='.22'/%3E%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E06%3C/text%3E%3C/svg%3E"></li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — 이펙트 프리셋</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;div data-carousel data-carousel-effect=&quot;coverflow&quot;&gt;
-  &lt;ul data-carousel-scroller&gt;
-    &lt;li&gt;…&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;
-
-/* fade · scale · coverflow · depth · curve · reveal */</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>8. JavaScript API</h2>
-    <p class="note">
-      표면은 이게 전부다. 설정 객체는 없다 — 레이아웃은 CSS가, 동작은 <code>data-*</code>가 맡는다.
-    </p>
-    <div class="controls">
-      <button class="ui" id="prev">prev()</button>
-      <button class="ui" id="next">next()</button>
-      <button class="ui" id="goto">goTo(4)</button>
-    </div>
-    <p class="log mono" id="log">carousel:change 이벤트가 여기 표시됨</p>
-    <details class="code">
-      <summary>코드 보기 — JavaScript API</summary>
-      <div class="code-lang">TypeScript</div>
-      <pre><code>// carousel 속성은 HTMLElement에 선언돼 있다 —
-// querySelector&lt;HTMLElement&gt;로 받아야 타입이 붙는다.
-const root = document.querySelector&lt;HTMLElement&gt;(&#x27;[data-carousel]&#x27;);
-
-root?.carousel?.next();
-root?.carousel?.goTo(4);
-
-document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
-  console.log(event.detail.index, event.detail.slideIndex);
-});</code></pre>
-    </details>
-  </section>
-
-  <section>
-    <h2>9. marquee — carousel이 아니다</h2>
-    <p class="note">
-      스크롤 컨테이너가 없어서 스와이프도, 스냅도, 도트도, 현재 아이템 개념도 없다. 순수 CSS 띠다.
-      CSS는 DOM을 복제할 수 없으므로 사본은 마크업에서 직접 넣고 <code>aria-hidden</code>을 붙인다.
-      hover하면 멈춘다.
-    </p>
-    <div data-carousel-marquee>
-      <ul data-carousel-marquee-track>
-        <li>scroll-snap</li><li>::scroll-button()</li><li>::scroll-marker()</li>
-        <li>scroll-marker-group</li><li>animation-timeline: view()</li>
-        <li aria-hidden="true">scroll-snap</li><li aria-hidden="true">::scroll-button()</li>
-        <li aria-hidden="true">::scroll-marker()</li><li aria-hidden="true">scroll-marker-group</li>
-        <li aria-hidden="true">animation-timeline: view()</li>
-      </ul>
-    </div>
-    <details class="code">
-      <summary>코드 보기 — marquee</summary>
-      <div class="code-lang">HTML</div>
-      <pre><code>&lt;!-- CSS는 DOM을 복제할 수 없다. 사본은 직접 넣고 aria-hidden을 붙인다. --&gt;
-&lt;div data-carousel-marquee&gt;
-  &lt;ul data-carousel-marquee-track&gt;
-    &lt;li&gt;A&lt;/li&gt;&lt;li&gt;B&lt;/li&gt;&lt;li&gt;C&lt;/li&gt;
-    &lt;li aria-hidden=&quot;true&quot;&gt;A&lt;/li&gt;
-    &lt;li aria-hidden=&quot;true&quot;&gt;B&lt;/li&gt;
-    &lt;li aria-hidden=&quot;true&quot;&gt;C&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;</code></pre>
-      <div class="code-lang">CSS</div>
-      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;
-
-[data-carousel-marquee] { --carousel-marquee-duration: 18s; }</code></pre>
-    </details>
-  </section>
-
   <section id="playground">
-    <h2>10. playground — 설정을 직접 바꿔보기</h2>
+    <h2>1. playground — 설정을 직접 바꿔보기</h2>
     <p class="note">
       설정 표면이 CSS 변수와 <code>data-*</code> 속성뿐이라 컨트롤이 그대로 대응된다.
       아래 코드는 화면에 적용된 실제 상태에서 만들어진다 — 손으로 쓴 게 아니라서 어긋날 수 없다.
@@ -693,6 +94,7 @@ document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
       <label class="pg-check"><input type="checkbox" id="pg-loop"> loop</label>
       <label class="pg-check"><input type="checkbox" id="pg-autoplay"> autoplay (2.6s)</label>
       <label class="pg-check"><input type="checkbox" id="pg-resume"> resume (5s)</label>
+      <label class="pg-check"><input type="checkbox" id="pg-counter"> counter</label>
     </div>
 
     <div class="demo media pg-demo" data-carousel id="pg">
@@ -708,166 +110,305 @@ document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
       <pre><code id="pg-css"></code></pre>
     </div>
   </section>
+
+  <section id="basics">
+    <h2>2. 기본 + 반응형</h2>
+    <p class="note">
+      한 화면 아이템 수는 <code>--carousel-items</code> 하나. 브레이크포인트는 <code>@container</code>가 처리하고
+      JS는 관여하지 않는다. 창 너비를 줄여보면 1.2 → 2.5 → 4로 바뀐다.
+    </p>
+    <div class="demo media responsive" data-carousel id="basic">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+        <li><img alt="" src="./cards/07.svg"></li>
+        <li><img alt="" src="./cards/08.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — 기본 + 반응형</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel class=&quot;gallery&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>.gallery {
+  container-type: inline-size;
+  --carousel-items: 1.2;
+  --carousel-gap: 0.75rem;
+}
+
+/* container-type이 걸린 요소는 자기 자신의 컨테이너가 될 수 없다.
+   변수는 자손(스크롤러)에 선언하고 아이템이 상속받게 한다. */
+@container (min-width: 30rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 2.5; }
+}
+@container (min-width: 45rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 4; }
+}</code></pre>
+    </details>
+  </section>
+
+  <section id="reveal">
+    <h2>3. reveal — 커튼 + 패럴랙스</h2>
+    <p class="note">
+      슬라이드 프레임이 <code>clip-path</code>로 커튼처럼 열리는 동안, 안쪽 미디어는 반대 방향으로 움직인다.
+      그래서 프레임만 지나가고 이미지는 제자리에 있는 것처럼 보인다. 천천히 스와이프하면 두 층이
+      따로 움직이는 게 보인다. 프리셋 6종 중 유일하게 두 요소를 동시에 움직이는 것이고,
+      JS는 여전히 0바이트다. <code>--carousel-gap: 0</code>과 한 화면 한 장일 때 가장 잘 맞는다 —
+      간격이 있으면 커튼 사이로 배경이 보여 연속된 필름이 아니라 카드처럼 읽힌다.
+    </p>
+    <div class="demo media reveal-demo" data-carousel data-carousel-effect="reveal" id="reveal">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — reveal</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-effect=&quot;reveal&quot; class=&quot;reveal&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;&lt;img alt=&quot;&quot; src=&quot;photo.jpg&quot;&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;   /* 프리셋은 별도 파일 */
+
+/* 커튼 은유가 전제하는 설정: 한 화면 한 장, 간격 없음 */
+.reveal { --carousel-items: 1; --carousel-gap: 0px; }</code></pre>
+    </details>
+  </section>
+
+  <section id="peek">
+    <h2>4. peek — 소수 아이템 수</h2>
+    <p class="note">
+      <code>--carousel-items: 2.5</code>. peek 전용 변수가 없다. 소수로 적으면 다음 아이템이 그만큼 걸쳐 보인다.
+      아래는 같은 값에 <code>--carousel-align: center</code>만 더한 것으로, 앞뒤 대칭 peek이 공짜로 나온다.
+    </p>
+    <div class="demo media peek" data-carousel>
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+      </ul>
+    </div>
+    <div class="demo media centered" data-carousel style="margin-block-start:0.75rem">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — peek</summary>
+      <div class="code-lang">CSS</div>
+      <pre><code>/* 소수가 peek을 만든다. peek 전용 변수는 없다. */
+.peek { --carousel-items: 2.5; }
+
+/* center 정렬이면 같은 값이 앞뒤 대칭 peek이 된다 */
+.centered { --carousel-items: 2.5; --carousel-align: center; }</code></pre>
+    </details>
+  </section>
+
+  <section id="loop">
+    <h2>5. loop + autoplay</h2>
+    <p class="note">
+      <code>data-carousel-loop</code>은 아이템을 3세트로 복제하고 <code>scrollend</code>에 위치만 조용히 되돌린다.
+      autoplay는 hover·포커스·화면 밖에서 멈추고, 사용자가 스크롤하거나 버튼을 누르면 영구히 멈춘다.
+      <code>prefers-reduced-motion</code>이면 아예 시작하지 않는다.
+      여기에는 <code>data-carousel-autoplay-resume="5000"</code>을 걸어뒀다 — 영구 정지 대신
+      마지막 입력으로부터 5초가 조용히 지나면 다시 돈다. 스와이프해보고 손을 떼고 기다려보면 된다.
+    </p>
+    <div
+      class="demo media"
+      data-carousel
+      data-carousel-loop
+      data-carousel-autoplay="2600"
+      data-carousel-autoplay-resume="5000"
+      id="looped"
+    >
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — loop + autoplay</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div
+  data-carousel
+  data-carousel-loop
+  data-carousel-autoplay=&quot;2600&quot;
+  data-carousel-autoplay-resume=&quot;5000&quot;
+&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+    </details>
+  </section>
+
+  <section id="thumbs">
+    <h2>6. 썸네일 연동</h2>
+    <p class="note">
+      <code>data-carousel-thumbs="#strip"</code>. 스트립도 그냥 carousel이라 자기 스크롤과 스냅을 그대로 갖는다.
+    </p>
+    <div class="demo media" data-carousel data-carousel-thumbs="#strip" id="main-gallery">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+      </ul>
+    </div>
+    <div class="demo media strip" data-carousel id="strip">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — 썸네일 연동</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-thumbs=&quot;#strip&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div data-carousel id=&quot;strip&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>#strip { --carousel-items: 5; --carousel-gap: 0.5rem; }
+
+/* 현재 썸네일에 라이브러리가 붙여주는 클래스 */
+#strip [data-carousel-scroller] &gt; li { opacity: 0.4; }
+#strip [data-carousel-scroller] &gt; .carousel-thumb-current { opacity: 1; }</code></pre>
+    </details>
+  </section>
+
+  <section id="vertical">
+    <h2>7. 수직 축</h2>
+    <p class="note">
+      <code>data-carousel-axis="block"</code>. 같은 변수, 같은 마크업. 스크롤러에 확정된
+      <code>block-size</code>가 필요하다 — <code>flex-basis</code>의 <code>100%</code>가 주축 크기를 기준으로 풀리기 때문.
+    </p>
+    <div class="demo media vertical" data-carousel data-carousel-axis="block">
+      <ul data-carousel-scroller>
+        <li><img alt="" src="./cards/01.svg"></li>
+        <li><img alt="" src="./cards/02.svg"></li>
+        <li><img alt="" src="./cards/03.svg"></li>
+        <li><img alt="" src="./cards/04.svg"></li>
+        <li><img alt="" src="./cards/05.svg"></li>
+        <li><img alt="" src="./cards/06.svg"></li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — 수직 축</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;div data-carousel data-carousel-axis=&quot;block&quot; class=&quot;vertical&quot;&gt;
+  &lt;ul data-carousel-scroller&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>.vertical { --carousel-items: 2; }
+
+/* 블록 축은 스크롤러에 확정된 block-size가 필요하다 —
+   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */
+.vertical [data-carousel-scroller] { block-size: 19.5rem; }</code></pre>
+    </details>
+  </section>
+
+  <section id="marquee">
+    <h2>8. marquee — carousel이 아니다</h2>
+    <p class="note">
+      스크롤 컨테이너가 없어서 스와이프도, 스냅도, 도트도, 현재 아이템 개념도 없다. 순수 CSS 띠다.
+      CSS는 DOM을 복제할 수 없으므로 사본은 마크업에서 직접 넣고 <code>aria-hidden</code>을 붙인다.
+      hover하면 멈춘다.
+    </p>
+    <div data-carousel-marquee>
+      <ul data-carousel-marquee-track>
+        <li>scroll-snap</li><li>::scroll-button()</li><li>::scroll-marker()</li>
+        <li>scroll-marker-group</li><li>animation-timeline: view()</li>
+        <li aria-hidden="true">scroll-snap</li><li aria-hidden="true">::scroll-button()</li>
+        <li aria-hidden="true">::scroll-marker()</li><li aria-hidden="true">scroll-marker-group</li>
+        <li aria-hidden="true">animation-timeline: view()</li>
+      </ul>
+    </div>
+    <details class="code">
+      <summary>코드 보기 — marquee</summary>
+      <div class="code-lang">HTML</div>
+      <pre><code>&lt;!-- CSS는 DOM을 복제할 수 없다. 사본은 직접 넣고 aria-hidden을 붙인다. --&gt;
+&lt;div data-carousel-marquee&gt;
+  &lt;ul data-carousel-marquee-track&gt;
+    &lt;li&gt;A&lt;/li&gt;&lt;li&gt;B&lt;/li&gt;&lt;li&gt;C&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;A&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;B&lt;/li&gt;
+    &lt;li aria-hidden=&quot;true&quot;&gt;C&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+      <div class="code-lang">CSS</div>
+      <pre><code>@import &#x27;snapstrip/effects.css&#x27;;
+
+[data-carousel-marquee] { --carousel-marquee-duration: 18s; }</code></pre>
+    </details>
+  </section>
+
+  <section id="api">
+    <h2>9. JavaScript API</h2>
+    <p class="note">
+      표면은 이게 전부다. 설정 객체는 없다 — 레이아웃은 CSS가, 동작은 <code>data-*</code>가 맡는다.
+    </p>
+    <div class="controls">
+      <button class="ui" id="prev">prev()</button>
+      <button class="ui" id="next">next()</button>
+      <button class="ui" id="goto">goTo(4)</button>
+    </div>
+    <p class="log mono" id="log">carousel:change 이벤트가 여기 표시됨</p>
+    <details class="code">
+      <summary>코드 보기 — JavaScript API</summary>
+      <div class="code-lang">TypeScript</div>
+      <pre><code>// carousel 속성은 HTMLElement에 선언돼 있다 —
+// querySelector&lt;HTMLElement&gt;로 받아야 타입이 붙는다.
+const root = document.querySelector&lt;HTMLElement&gt;(&#x27;[data-carousel]&#x27;);
+
+root?.carousel?.next();
+root?.carousel?.goTo(4);
+
+document.addEventListener(&#x27;carousel:change&#x27;, (event) =&gt; {
+  console.log(event.detail.index, event.detail.slideIndex);
+});</code></pre>
+    </details>
+  </section>
 </main>
 
-<script type="module">
-  import { Carousel } from '/src/index.js';
-
-  const native = CSS.supports('selector(::scroll-marker)');
-  document.querySelector('#path').textContent = native
-    ? '네이티브 — 버튼·도트·키보드를 브라우저가 만든다 (JS 미사용)'
-    : '폴백 — 스크립트가 동등한 버튼·도트·tablist를 주입한다';
-
-  // 이펙트 전환
-  const fx = document.querySelector('#fx');
-  document.querySelector('#fx-controls').addEventListener('click', (event) => {
-    const button = event.target.closest('[data-fx]');
-    if (!button) return;
-    for (const other of document.querySelectorAll('#fx-controls [data-fx]')) {
-      other.setAttribute('aria-pressed', String(other === button));
-    }
-    const value = button.dataset.fx;
-    if (value) fx.setAttribute('data-carousel-effect', value);
-    else fx.removeAttribute('data-carousel-effect');
-  });
-
-  // 명령형 API
-  const gallery = document.querySelector('#main-gallery');
-  document.querySelector('#prev').addEventListener('click', () => gallery.carousel.prev());
-  document.querySelector('#next').addEventListener('click', () => gallery.carousel.next());
-  document.querySelector('#goto').addEventListener('click', () => gallery.carousel.goTo(4));
-
-  const log = document.querySelector('#log');
-  gallery.addEventListener('carousel:change', (event) => {
-    log.textContent = `carousel:change → index ${event.detail.index}`;
-  });
-
-  // ── playground ──────────────────────────────────
-  // 설정 표면이 CSS 변수 + data-* 속성이라 컨트롤이 그대로 대응된다.
-  // 코드 패널은 실제 적용된 상태에서 만들어지므로 손으로 맞출 일이 없다.
-
-  const pg = document.querySelector('#pg');
-
-  // 카드 6장을 만들어 넣는다 (다른 섹션과 같은 모양)
-  const PG_COLORS = [
-    ['%230ea5e9', '%231e3a8a'], ['%23f97316', '%23991b1b'], ['%2310b981', '%23065f46'],
-    ['%23a855f7', '%234c1d95'], ['%23ec4899', '%23831843'], ['%2306b6d4', '%23155e75'],
-  ];
-  pg.querySelectorAll('[data-carousel-scroller] > li').forEach((li, i) => {
-    const [a, b] = PG_COLORS[i % PG_COLORS.length];
-    const img = document.createElement('img');
-    img.alt = '';
-    img.src =
-      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'%3E" +
-      "%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E" +
-      `%3Cstop offset='0' stop-color='${a}'/%3E%3Cstop offset='1' stop-color='${b}'/%3E` +
-      '%3C/linearGradient%3E%3C/defs%3E%3Crect width=\'1200\' height=\'900\' fill=\'url(%23g)\'/%3E' +
-      `%3Ctext x='470' y='545' font-family='monospace' font-size='260' font-weight='700' fill='%23ffffff' fill-opacity='.9'%3E0${i + 1}%3C/text%3E%3C/svg%3E`;
-    li.append(img);
-  });
-
-  const pgEl = (id) => document.querySelector('#' + id);
-  const pgControls = {
-    items: pgEl('pg-items'),
-    gap: pgEl('pg-gap'),
-    align: pgEl('pg-align'),
-    snap: pgEl('pg-snap'),
-    scrollbar: pgEl('pg-scrollbar'),
-    axis: pgEl('pg-axis'),
-    effect: pgEl('pg-effect'),
-    loop: pgEl('pg-loop'),
-    autoplay: pgEl('pg-autoplay'),
-    resume: pgEl('pg-resume'),
-  };
-
-  // 라이브러리 기본값. 이것과 같은 값은 코드에 안 적는다 — 붙여넣을 코드가 짧아진다.
-  const PG_DEFAULTS = { align: 'start', snap: 'mandatory', scrollbar: 'auto' };
-
-  const pgState = () => ({
-    items: pgControls.items.value,
-    gap: `${pgControls.gap.value}rem`,
-    align: pgControls.align.value,
-    snap: pgControls.snap.value,
-    scrollbar: pgControls.scrollbar.value,
-    axis: pgControls.axis.value,
-    effect: pgControls.effect.value,
-    loop: pgControls.loop.checked,
-    autoplay: pgControls.autoplay.checked,
-    resume: pgControls.resume.checked,
-  });
-
-  const pgRenderCode = (s) => {
-    const attrs = ['data-carousel'];
-    if (s.axis === 'block') attrs.push('data-carousel-axis="block"');
-    if (s.loop) attrs.push('data-carousel-loop');
-    if (s.autoplay) attrs.push('data-carousel-autoplay="2600"');
-    if (s.autoplay && s.resume) attrs.push('data-carousel-autoplay-resume="5000"');
-    if (s.effect) attrs.push(`data-carousel-effect="${s.effect}"`);
-
-    const open = attrs.length > 2 ? `<div\n  ${attrs.join('\n  ')}\n  class="gallery"\n>` : `<div ${attrs.join(' ')} class="gallery">`;
-    pgEl('pg-html').textContent = `${open}\n  <ul data-carousel-scroller>\n    <li>…</li>\n  </ul>\n</div>`;
-
-    const decls = [`--carousel-items: ${s.items};`, `--carousel-gap: ${s.gap};`];
-    if (s.align !== PG_DEFAULTS.align) decls.push(`--carousel-align: ${s.align};`);
-    if (s.snap !== PG_DEFAULTS.snap) decls.push(`--carousel-snap: ${s.snap};`);
-    if (s.scrollbar !== PG_DEFAULTS.scrollbar) decls.push(`--carousel-scrollbar: ${s.scrollbar};`);
-
-    let css = `.gallery {\n  ${decls.join('\n  ')}\n}`;
-    if (s.axis === 'block') {
-      css +=
-        '\n\n/* 블록 축은 스크롤러에 확정된 block-size가 필요하다 —\n' +
-        '   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */\n' +
-        '.gallery [data-carousel-scroller] { block-size: 22rem; }';
-    }
-    if (s.effect) css = `@import 'snapstrip/effects.css';\n\n${css}`;
-    pgEl('pg-css').textContent = css;
-  };
-
-  const pgApply = () => {
-    const s = pgState();
-
-    pg.style.setProperty('--carousel-items', s.items);
-    pg.style.setProperty('--carousel-gap', s.gap);
-    pg.style.setProperty('--carousel-align', s.align);
-    pg.style.setProperty('--carousel-snap', s.snap);
-    pg.style.setProperty('--carousel-scrollbar', s.scrollbar);
-
-    const scroller = pg.querySelector('[data-carousel-scroller]');
-    scroller.style.blockSize = s.axis === 'block' ? '22rem' : '';
-
-    const attrs = {
-      'data-carousel-axis': s.axis === 'block' ? 'block' : null,
-      'data-carousel-loop': s.loop ? '' : null,
-      'data-carousel-autoplay': s.autoplay ? '2600' : null,
-      'data-carousel-autoplay-resume': s.autoplay && s.resume ? '5000' : null,
-      'data-carousel-effect': s.effect || null,
-    };
-    for (const [name, value] of Object.entries(attrs)) {
-      if (value === null) pg.removeAttribute(name);
-      else pg.setAttribute(name, value);
-    }
-
-    // loop·autoplay·폴백 컨트롤은 init() 시점에 배선된다. 속성만 바꿔서는
-    // 붙지 않으므로 문서화된 경로대로 다시 만든다.
-    pg.carousel?.destroy();
-    Carousel.init(pg);
-
-    pgRenderCode(s);
-  };
-
-  pgEl('pg-items').addEventListener('input', () => {
-    pgEl('pg-items-out').textContent = pgControls.items.value;
-  });
-  pgEl('pg-gap').addEventListener('input', () => {
-    pgEl('pg-gap-out').textContent = `${pgControls.gap.value}rem`;
-  });
-  for (const control of Object.values(pgControls)) {
-    control.addEventListener('change', pgApply);
-  }
-  pgApply();
-
-  // 수동 초기화도 가능하다는 표시 (auto-init이 이미 처리했으므로 같은 인스턴스가 돌아온다)
-  console.log('instance reused:', Carousel.init(gallery) === gallery.carousel);
-</script>
+<script type="module" src="./demo.js"></script>
 </body>
 </html>

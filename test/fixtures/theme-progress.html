@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>theme progress</title>
+  <link rel="stylesheet" href="/src/carousel.css">
+  <link rel="stylesheet" href="/src/themes/progress.css">
+  <link rel="stylesheet" href="/test/fixtures/fixture.css">
+  <style>.harness { --carousel-items: 1; --carousel-gap: 0px; }</style>
+</head>
+<body>
+  <div class="harness" data-carousel data-carousel-counter id="c1">
+    <ul data-carousel-scroller>
+      <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
+    </ul>
+  </div>
+  <script type="module">
+    import { Carousel } from '/src/index.js';
+    window.Carousel = Carousel;
+  </script>
+</body>
+</html>

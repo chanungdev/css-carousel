@@ -9,6 +9,8 @@ const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
+  // 빠뜨리면 <img>가 octet-stream을 받아 조용히 깨진 이미지가 된다
+  '.svg': 'image/svg+xml',
 };
 
 createServer(async (req, res) => {

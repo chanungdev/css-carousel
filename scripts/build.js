@@ -22,5 +22,6 @@ await copyFile('src/carousel.css', 'dist/carousel.css');
 await copyFile('src/effects.css', 'dist/effects.css');
 await mkdir('dist/themes', { recursive: true });
 await copyFile('src/themes/basic.css', 'dist/themes/basic.css');
+await copyFile('src/themes/progress.css', 'dist/themes/progress.css');
 
-console.log('built dist/carousel.js, dist/*.d.ts, dist/carousel.css, dist/effects.css, dist/themes/basic.css');
+console.log('built dist/carousel.js, dist/*.d.ts, dist/carousel.css, dist/effects.css, dist/themes/basic.css, dist/themes/progress.css');
