@@ -125,7 +125,7 @@ is not included in `files`) for the full list.
 | `data-carousel-autoplay="4000"` | root | Auto-advance in ms. Pauses on hover, focus and visibility loss; stops permanently on user input (wheel/pointerdown) |
 | `data-carousel-autoplay-resume="5000"` | root | Resume that many ms after the last user input instead of stopping for good. Omit to keep the permanent stop |
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
-| `data-carousel-effect` | root | `fade`, `scale`, `coverflow`, `depth`, `curve` or `reveal` (needs `effects.css`, see below) |
+| `data-carousel-effect` | root | `fade`, `scale` or `reveal` (needs `effects.css`, see below) |
 | `data-carousel-counter` | root | Show an `n / total` counter in the corner. See below |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
@@ -302,7 +302,7 @@ the library's own controls only, the pause follows `:focus-visible` rather than 
 
 ## Effects
 
-Six scroll-driven, decorative-only presets — `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` —
+Three scroll-driven, decorative-only presets — `fade`, `scale`, `reveal` —
 animate slides as they enter and leave the viewport using `animation-timeline: view()`. They are pure
 CSS: 0 bytes of JavaScript, and the carousel works normally if the browser doesn't support
 scroll-driven animations.
@@ -325,7 +325,7 @@ import 'snapstrip/effects.css';
 ```
 
 ```html
-<div data-carousel data-carousel-effect="coverflow">
+<div data-carousel data-carousel-effect="scale">
   <ul data-carousel-scroller>
     <li>…</li>
   </ul>

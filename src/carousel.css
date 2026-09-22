@@ -339,27 +339,6 @@
     animation-range: entry 100% entry 100%, normal;
   }
 
-  [data-carousel-counter][data-carousel-effect='coverflow']
-    > [data-carousel-scroller]
-    > *:not([data-carousel-clone]) {
-    animation-name: carousel-count, carousel-coverflow;
-    animation-range: entry 100% entry 100%, normal;
-  }
-
-  [data-carousel-counter][data-carousel-effect='depth']
-    > [data-carousel-scroller]
-    > *:not([data-carousel-clone]) {
-    animation-name: carousel-count, carousel-depth;
-    animation-range: entry 100% entry 100%, normal;
-  }
-
-  [data-carousel-counter][data-carousel-effect='curve']
-    > [data-carousel-scroller]
-    > *:not([data-carousel-clone]) {
-    animation-name: carousel-count, carousel-curve;
-    animation-range: entry 100% entry 100%, normal;
-  }
-
   [data-carousel-counter][data-carousel-effect='reveal']
     > [data-carousel-scroller]
     > *:not([data-carousel-clone]) {

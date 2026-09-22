@@ -123,7 +123,7 @@ export하는 타입: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `Resolv
 | `data-carousel-autoplay="4000"` | 루트 | ms 단위 자동 넘김. hover·포커스·화면 밖에서 일시정지, 사용자 입력(wheel/pointerdown)에 영구 정지 |
 | `data-carousel-autoplay-resume="5000"` | 루트 | 영구 정지 대신 마지막 입력으로부터 그만큼 지나면 재시작. 생략하면 영구 정지 유지 |
 | `data-carousel-thumbs="#strip"` | 루트 | 썸네일 carousel과 연동 |
-| `data-carousel-effect` | 루트 | `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` (`effects.css` 필요, 아래 참고) |
+| `data-carousel-effect` | 루트 | `fade`, `scale`, `reveal` (`effects.css` 필요, 아래 참고) |
 | `data-carousel-counter` | 루트 | 모서리에 `n / total` 카운터 표시. 아래 참고 |
 | `data-carousel-label-prev` / `-next` | 루트 | 폴백 버튼의 접근 이름. 기본값 `Previous` / `Next` |
 | `data-carousel-label` | 슬라이드 | 폴백 경로 전용. 해당 슬라이드 마커의 접근 이름. 기본값은 1부터 세는 순번 |
@@ -295,7 +295,7 @@ manual 모드에서 슬라이드 수가 3의 배수가 아니면 예외를 던�
 
 ## 이펙트
 
-scroll-driven 장식 프리셋 6종 — `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` — 이
+scroll-driven 장식 프리셋 3종 — `fade`, `scale`, `reveal` — 이
 `animation-timeline: view()`로 슬라이드가 뷰포트에 들어오고 나가는 동안 애니메이션한다. 순수 CSS이고
 JavaScript는 0바이트다. 브라우저가 scroll-driven animation을 지원하지 않으면 이펙트만 빠진 채 carousel은
 정상 동작한다.
@@ -317,7 +317,7 @@ import 'snapstrip/effects.css';
 ```
 
 ```html
-<div data-carousel data-carousel-effect="coverflow">
+<div data-carousel data-carousel-effect="scale">
   <ul data-carousel-scroller>
     <li>…</li>
   </ul>

@@ -41,7 +41,7 @@ sidebar:
 | `data-carousel-autoplay="4000"` | 루트 | ms 단위 자동 넘김 |
 | `data-carousel-autoplay-resume="5000"` | 루트 | 영구 정지 대신 마지막 입력으로부터 그만큼 지나면 재시작 |
 | `data-carousel-thumbs="#strip"` | 루트 | 썸네일 carousel과 연동 |
-| `data-carousel-effect` | 루트 | `fade`, `scale`, `coverflow`, `depth`, `curve`, `reveal` |
+| `data-carousel-effect` | 루트 | `fade`, `scale`, `reveal` |
 | `data-carousel-counter` | 루트 | 모서리에 `n / total` 카운터 표시 |
 | `data-carousel-label-prev` / `-next` | 루트 | 폴백 버튼의 접근 이름. 기본값 `Previous` / `Next` |
 | `data-carousel-label` | 슬라이드 | 폴백 경로 전용. 해당 슬라이드 마커의 접근 이름 |

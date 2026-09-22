@@ -1,13 +1,20 @@
 /* snapstrip — 이펙트 프리셋과 marquee (전부 장식, JS 0바이트) */
 
+/* coverflow·depth·curve는 뺐다. 셋 다 슬라이드의 스크롤 스냅 영역을 옮겨서
+   네이티브 마커가 어긋난다 — 측정하면 이렇다.
+     coverflow  ::scroll-marker:target-current 가 0에 고정. perspective를
+                스크롤러에 걸든 요소에 걸든 같다. 빼면 정상으로 돌아온다.
+     depth      z축 이동으로 투영된 사각형이 줄어들어 goTo()가 엉뚱한 위치에
+                멈춘다(goTo(3) -> 슬라이드 2).
+     curve      2D rotate가 축 정렬 경계 상자를 키워 스냅 위치가 한 칸 밀린다.
+   perspective를 빼면 마커는 고쳐지지만 coverflow의 입체감이 사라지고 depth는
+   투명도 변화만 남는다. 장식 하나 때문에 마커를 틀리게 둘 수는 없어서, 고칠
+   방법을 찾을 때까지 내보내지 않는다. */
+
 /* carousel.css와 같은 이유로 같은 이름의 레이어에 둔다 — 언레이어드 사용자
    CSS가 항상 이기게 한다. 같은 레이어명이면 두 파일이 합쳐져도 라이브러리
    내부 규칙 사이의 우선순위는 그대로다. */
 @layer snapstrip {
-
-[data-carousel] {
-  --carousel-effect-perspective: 800px;
-}
 
 /* ── scroll-driven 이펙트 프리셋 ─────────────────────
    미지원 브라우저에서는 적용되지 않고 carousel은 정상 동작한다. */
@@ -28,26 +35,6 @@
 
 [data-carousel-effect='scale'] > [data-carousel-scroller] > * {
   animation-name: carousel-scale;
-}
-
-[data-carousel-effect='coverflow'] > [data-carousel-scroller] {
-  perspective: var(--carousel-effect-perspective);
-}
-
-[data-carousel-effect='coverflow'] > [data-carousel-scroller] > * {
-  animation-name: carousel-coverflow;
-}
-
-[data-carousel-effect='depth'] > [data-carousel-scroller] {
-  perspective: var(--carousel-effect-perspective);
-}
-
-[data-carousel-effect='depth'] > [data-carousel-scroller] > * {
-  animation-name: carousel-depth;
-}
-
-[data-carousel-effect='curve'] > [data-carousel-scroller] > * {
-  animation-name: carousel-curve;
 }
 
 /* reveal: 슬라이드 프레임이 커튼처럼 열리는 동안 안쪽 미디어는 반대로 움직여
@@ -88,28 +75,6 @@
   entry 100% { scale: 1; }
   exit 0% { scale: 1; }
   exit 100% { scale: 0.8; }
-}
-
-/* rotate에는 논리 축 개념이 없다 — y축 회전은 물리적 좌/우를 가정한다(RTL 미보정) */
-@keyframes carousel-coverflow {
-  entry 0% { rotate: y 40deg; }
-  entry 100% { rotate: y 0deg; }
-  exit 0% { rotate: y 0deg; }
-  exit 100% { rotate: y -40deg; }
-}
-
-@keyframes carousel-depth {
-  entry 0% { translate: 0 0 -300px; opacity: 0.4; }
-  entry 100% { translate: 0 0 0; opacity: 1; }
-  exit 0% { translate: 0 0 0; opacity: 1; }
-  exit 100% { translate: 0 0 -300px; opacity: 0.4; }
-}
-
-@keyframes carousel-curve {
-  entry 0% { translate: 0 30%; rotate: 8deg; }
-  entry 100% { translate: 0 0; rotate: 0deg; }
-  exit 0% { translate: 0 0; rotate: 0deg; }
-  exit 100% { translate: 0 30%; rotate: -8deg; }
 }
 
 /* clip-path의 inset 방향은 물리적 좌/우를 가정한다(RTL 미보정) */

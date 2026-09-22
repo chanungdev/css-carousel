@@ -1,11 +1,11 @@
 ---
 title: 이펙트
-description: 6종 프리셋과 scroll-driven animation
+description: 프리셋 3종과 scroll-driven animation
 sidebar:
   order: 5
 ---
 
-프리셋 6종이 `effects.css`에 들어 있다. 전부 scroll-driven animation이라 스크롤 위치에
+프리셋 3종이 `effects.css`에 들어 있다. 전부 scroll-driven animation이라 스크롤 위치에
 직접 묶인다 — 타이머도, 스크롤 이벤트 핸들러도 없다.
 
 ```js
@@ -13,7 +13,7 @@ import 'snapstrip/effects.css';
 ```
 
 ```html
-<div data-carousel data-carousel-effect="coverflow">
+<div data-carousel data-carousel-effect="scale">
   <ul data-carousel-scroller>
     <li>…</li>
   </ul>
@@ -24,9 +24,6 @@ import 'snapstrip/effects.css';
 |---|---|
 | `fade` | 가장자리에서 흐려진다 |
 | `scale` | 가장자리에서 작아진다 |
-| `coverflow` | 좌우로 기울며 원근이 붙는다 |
-| `depth` | 뒤로 밀려나며 겹친다 |
-| `curve` | 호를 그리며 지나간다 |
 | `reveal` | 커튼이 걷히고 미디어가 패럴랙스로 따라온다 |
 
 동작하는 모습은 [Samples](/snapstrip/samples/effects/)에 있다.
