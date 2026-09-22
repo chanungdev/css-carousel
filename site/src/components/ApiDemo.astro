@@ -1,0 +1,66 @@
+---
+/** 명령형 API 샘플. 버튼이 인스턴스 메서드를 그대로 부른다. */
+import { cards } from '../lib/cards';
+---
+
+<div class="demo" data-carousel id="api-demo">
+  <ul data-carousel-scroller set:html={cards(6)} />
+</div>
+
+<div class="api-controls">
+  <button type="button" data-api="prev">prev()</button>
+  <button type="button" data-api="next">next()</button>
+  <button type="button" data-api="goto">goTo(4)</button>
+</div>
+
+<p class="api-log" id="api-log">carousel:change 이벤트가 여기 표시된다</p>
+
+<script>
+  const root = document.querySelector<HTMLElement>('#api-demo');
+  const log = document.querySelector('#api-log');
+
+  if (root && log) {
+    document.querySelector('.api-controls')?.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLElement>('[data-api]');
+      if (!button) return;
+      const action = button.dataset.api;
+      if (action === 'prev') root.carousel?.prev();
+      if (action === 'next') root.carousel?.next();
+      if (action === 'goto') root.carousel?.goTo(4);
+    });
+
+    root.addEventListener('carousel:change', (event) => {
+      log.textContent = `carousel:change → index ${event.detail.index}`;
+    });
+  }
+</script>
+
+<style>
+  .api-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-block: 1rem 0.75rem;
+  }
+
+  .api-controls button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.4rem;
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+    font-family: var(--__sl-font-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .api-controls button:hover {
+    border-color: var(--sl-color-accent);
+  }
+
+  .api-log {
+    font-family: var(--__sl-font-mono);
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3);
+  }
+</style>

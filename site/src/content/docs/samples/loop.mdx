@@ -1,0 +1,29 @@
+---
+title: loop + autoplay
+description: 끝없이 도는 캐러셀
+sidebar:
+  order: 4
+---
+
+import Demo from '../../../components/Demo.astro';
+import { carousel } from '../../../lib/cards';
+
+복제본은 `aria-hidden`과 `inert`를 함께 달고 있어 스크린 리더에도, Tab 순서에도 들어가지
+않는다. 마커는 복제본에 만들지 않으므로 슬라이드가 6장이면 마커도 6개다.
+
+포인터를 올리거나 직접 스와이프해보면 자동 넘김이 어떻게 멈추는지 볼 수 있다. 여기서는
+`data-carousel-autoplay-resume`를 줬으므로 손을 떼고 5초 뒤 다시 돈다.
+
+<Demo
+  html={carousel(
+    [
+      'data-carousel',
+      'data-carousel-loop',
+      'data-carousel-autoplay="2600"',
+      'data-carousel-autoplay-resume="5000"',
+      'data-carousel-counter',
+      'style="--carousel-items: 2.2; --carousel-gap: 0.75rem"',
+    ].join('\n  '),
+    6,
+  )}
+/>

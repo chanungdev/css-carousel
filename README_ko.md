@@ -11,27 +11,24 @@ CSS carousel primitive — `scroll-snap`, `::scroll-button()`, `::scroll-marker(
 React, Vue, Angular, Svelte, 순수 HTML 어디서나 동작한다. 설치할 프레임워크 래퍼가 없다 —
 프레임워크에 종속된 부분이 애초에 없기 때문이다.
 
-## 데모
+## 문서
 
-**[라이브 데모](https://chanungdev.github.io/snapstrip/)** — main에 푸시할 때마다 자동 배포된다.
+**[문서와 라이브 데모](https://chanungdev.github.io/snapstrip/)** — main에 푸시할 때마다 자동 배포된다.
 
 로컬에서 띄우려면:
 
 ```bash
 git clone https://github.com/chanungdev/snapstrip.git && cd snapstrip
 pnpm install            # 이 저장소는 pnpm을 쓴다. `corepack enable`이 고정된 버전을 잡아준다
-node scripts/serve.js   # http://localhost:5173/demo/index.html
+pnpm docs:dev           # http://localhost:4321/snapstrip/
 ```
 
-로컬 데모는 `src/`를 직접 불러온다 — 개발 서버가 TypeScript를 즉석에서 변환하므로 빌드할 것도, 계속 띄워둘
-감시 프로세스도 없다. 첫 화면은 playground다. 이펙트 프리셋 6종을 포함한 모든 설정을 그 자리에서 바꿔볼 수
-있고, 화면에 적용된 상태에서 HTML·CSS가 만들어진다. 그 아래로 반응형 아이템 수, 소수 peek, loop,
-autoplay, 썸네일 연동, 블록 축, marquee가 이어진다.
+사이트는 `site/` 아래의 Astro + Starlight 패키지이고 `src/`를 직접 불러오도록 배선돼 있다 — 개발
+서버가 TypeScript를 즉석에서 변환하므로 빌드할 것도, 계속 띄워둘 감시 프로세스도 없다. 라이브러리를
+고치면 문서에 바로 반영된다.
 
-메뉴는 2단이다. 1단은 테마 전환이고 테마마다 페이지가 따로 있다 — 테마가 `[data-carousel]`을 전역으로
-겨냥하므로 둘을 한 페이지에 둘 수 없기 때문이다. 2단은 현재 페이지 안의 섹션 이동이다. 상단 배지가 현재
-브라우저가 어느 경로를 탔는지 알려준다 — 같은 페이지를 Chrome과 Safari에서 열어보면 네이티브 경로와 폴백
-경로를 나란히 비교할 수 있다.
+구성은 **Overview**, **Guides**, **Samples**, **Playground** 네 갈래다. 모든 데모는 문자열 하나에서
+렌더링과 코드 블록이 함께 만들어지므로, 복사하는 코드가 곧 지금 돌고 있는 코드다.
 
 ## 설치
 

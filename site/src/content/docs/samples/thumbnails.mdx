@@ -1,0 +1,36 @@
+---
+title: 썸네일 연동
+description: 두 캐러셀을 묶기
+sidebar:
+  order: 5
+---
+
+import Demo from '../../../components/Demo.astro';
+import { cards } from '../../../lib/cards';
+
+메인이 움직이면 해당 썸네일이 강조되고, 썸네일을 누르면 메인이 그 위치로 간다.
+
+<Demo
+  html={`<div data-carousel data-carousel-thumbs="#strip" class="main">
+  <ul data-carousel-scroller>
+${cards(6)}
+  </ul>
+</div>
+
+<div data-carousel id="strip" class="strip">
+  <ul data-carousel-scroller>
+${cards(6)}
+  </ul>
+</div>`}
+  css={`.main {
+  --carousel-items: 1;
+  --carousel-gap: 0px;
+}
+
+.strip {
+  --carousel-items: 6;
+  --carousel-gap: 0.5rem;
+  --carousel-thumb-opacity: 0.4;
+  margin-block-start: 0.5rem;
+}`}
+/>

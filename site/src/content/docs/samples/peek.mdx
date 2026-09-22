@@ -1,0 +1,21 @@
+---
+title: peek
+description: 소수 아이템 수로 다음 카드를 흘리기
+sidebar:
+  order: 2
+---
+
+import Demo from '../../../components/Demo.astro';
+import { carousel } from '../../../lib/cards';
+
+`--carousel-items`에 소수를 넣으면 다음 카드가 화면 끝에 걸친다. 별도의 peek 옵션이 없는 건
+`flex-basis` 계산식이 이미 그 일을 하기 때문이다.
+
+<Demo
+  html={carousel('data-carousel data-carousel-counter class="gallery"', 8)}
+  css={`.gallery {
+  --carousel-items: 2.5;
+  --carousel-gap: 1rem;
+  --carousel-align: center;
+}`}
+/>

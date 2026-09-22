@@ -1,0 +1,22 @@
+/* 문서 사이트 전용 스타일. 라이브러리 CSS가 아니다. */
+
+/* 데모 카드 공통 */
+.demo {
+  --carousel-items: 1;
+  --carousel-gap: 0.75rem;
+  --carousel-scrollbar: none;
+  margin-block: 1.5rem;
+}
+
+.demo [data-carousel-scroller] > li {
+  border-radius: 0.6rem;
+  overflow: clip;
+}
+
+.demo [data-carousel-scroller] img {
+  display: block;
+  inline-size: 100%;
+  /* 문서 페이지에서 카드가 화면을 독차지하지 않게 낮춘다 */
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}

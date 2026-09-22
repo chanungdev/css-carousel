@@ -1,0 +1,39 @@
+---
+title: 이펙트
+description: 프리셋 6종
+sidebar:
+  order: 3
+---
+
+import Demo from '../../../components/Demo.astro';
+import { carousel } from '../../../lib/cards';
+
+전부 scroll-driven animation이라 스크롤 위치에 직접 묶인다. Firefox에는 그 기능이 없어
+이펙트 없이 평범한 스냅 캐러셀로 보인다. 설명은 [이펙트 가이드](/snapstrip/guides/effects/)에 있다.
+
+## fade
+
+<Demo html={carousel('data-carousel data-carousel-effect="fade" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+
+## scale
+
+<Demo html={carousel('data-carousel data-carousel-effect="scale" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+
+## coverflow
+
+<Demo html={carousel('data-carousel data-carousel-effect="coverflow" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+
+## depth
+
+<Demo html={carousel('data-carousel data-carousel-effect="depth" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+
+## curve
+
+<Demo html={carousel('data-carousel data-carousel-effect="curve" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+
+## reveal
+
+커튼이 걷히고 미디어가 패럴랙스로 따라온다. 간격이 있으면 커튼 사이가 벌어져 보이므로
+`--carousel-gap: 0`을 전제로 만들었다.
+
+<Demo html={carousel('data-carousel data-carousel-effect="reveal" data-carousel-counter style="--carousel-items: 1; --carousel-gap: 0px"', 6)} />

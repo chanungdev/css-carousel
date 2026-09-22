@@ -11,28 +11,25 @@ gap everywhere else with matching buttons, markers, keyboard navigation and `tab
 Works with React, Vue, Angular, Svelte or plain HTML. There is no framework wrapper to install,
 because there is nothing framework-specific to wrap.
 
-## Demo
+## Docs
 
-**[Live demo](https://chanungdev.github.io/snapstrip/)** — deployed from `main` on every push.
+**[Documentation and live demos](https://chanungdev.github.io/snapstrip/)** — deployed from `main` on
+every push.
 
-To run it locally instead:
+To run it locally:
 
 ```bash
 git clone https://github.com/chanungdev/snapstrip.git && cd snapstrip
 pnpm install            # this repo uses pnpm; `corepack enable` picks up the pinned version
-node scripts/serve.js   # http://localhost:5173/demo/index.html
+pnpm docs:dev           # http://localhost:4321/snapstrip/
 ```
 
-The local demo loads `src/` directly — the dev server transpiles TypeScript on the fly, so there is
-nothing to build and no watch process to keep running. It opens on a playground where every setting,
-including all six effect presets, is live and the corresponding HTML and CSS are generated from the
-state on screen; below it are the responsive item count, fractional peek, loop, autoplay, thumbnail
-sync, the block axis and the marquee.
+The site is an Astro + Starlight package under `site/`, wired to load `src/` directly — the dev
+server transpiles TypeScript on the fly, so there is nothing to build and no watch process to keep
+running. Editing the library updates the docs immediately.
 
-The menu has two rows. The first switches themes, and each theme is its own page — a theme targets
-`[data-carousel]` globally, so two of them cannot share one. The second jumps between sections of the
-current page. A badge near the top reports which path the browser took: open the same page in Chrome
-and in Safari to see the native and fallback paths side by side.
+It is organised as **Overview**, **Guides**, **Samples** and **Playground**. Every demo is generated
+from a single string that is both rendered and shown as code, so what you copy is what is running.
 
 ## Install
 

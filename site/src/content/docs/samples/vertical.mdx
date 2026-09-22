@@ -1,0 +1,27 @@
+---
+title: 수직 축
+description: block 축으로 스냅하기
+sidebar:
+  order: 6
+---
+
+import Demo from '../../../components/Demo.astro';
+import { carousel } from '../../../lib/cards';
+
+`data-carousel-axis="block"`이면 스냅도, 버튼 배치도 블록 축을 따른다. 버튼은 좌우가 아니라
+위아래에 놓인다.
+
+블록 축에서는 **스크롤러에 확정된 `block-size`가 필요하다.** `flex-basis`의 `100%`가 주축
+크기를 기준으로 풀리기 때문이다.
+
+<Demo
+  html={carousel('data-carousel data-carousel-axis="block" class="tall"', 6)}
+  css={`.tall {
+  --carousel-items: 1;
+  --carousel-gap: 0.5rem;
+}
+
+.tall [data-carousel-scroller] {
+  block-size: 22rem;
+}`}
+/>

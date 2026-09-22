@@ -1,0 +1,25 @@
+---
+title: JavaScript API
+description: 인스턴스 메서드와 carousel:change
+sidebar:
+  order: 8
+---
+
+import ApiDemo from '../../../components/ApiDemo.astro';
+
+auto-init이 붙인 인스턴스를 그대로 부른다. 전체 표면은
+[명령형 API 가이드](/snapstrip/guides/api/)에 있다.
+
+<ApiDemo />
+
+```js
+const root = document.querySelector('[data-carousel]');
+
+root.carousel.prev();
+root.carousel.next();
+root.carousel.goTo(4);
+
+root.addEventListener('carousel:change', (event) => {
+  console.log(event.detail.index, event.detail.slideIndex);
+});
+```

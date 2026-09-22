@@ -1,0 +1,15 @@
+{
+  "name": "@snapstrip/site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preview:test": "astro build && astro preview --port 4340 --ignore-lock"
+  },
+  "devDependencies": {
+    "astro": "^7.3.3",
+    "@astrojs/starlight": "^0.42.2"
+  }
+}

@@ -1,0 +1,31 @@
+---
+title: 기본 + 반응형
+description: 한 화면 아이템 수를 CSS만으로 바꾸기
+sidebar:
+  order: 1
+---
+
+import Demo from '../../../components/Demo.astro';
+import { carousel } from '../../../lib/cards';
+
+한 화면 아이템 수는 `--carousel-items` 하나다. 브레이크포인트는 `@container`가 처리하고
+JavaScript는 관여하지 않는다. 창 너비를 줄여보면 1.2 → 2.5 → 4로 바뀐다.
+
+<Demo
+  html={carousel('data-carousel class="gallery"', 8)}
+  css={`.gallery {
+  container-type: inline-size;
+  --carousel-items: 1.2;
+  --carousel-gap: 0.75rem;
+}
+
+/* container-type이 걸린 요소는 자기 자신의 컨테이너가 될 수 없다.
+   변수는 자손(스크롤러)에 선언하고 아이템이 상속받게 한다. */
+@container (min-width: 30rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 2.5; }
+}
+
+@container (min-width: 45rem) {
+  .gallery [data-carousel-scroller] { --carousel-items: 4; }
+}`}
+/>

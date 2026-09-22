@@ -1,4 +1,4 @@
-name: Deploy demo to Pages
+name: Deploy docs site to Pages
 
 on:
   push:
@@ -32,15 +32,15 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # 데모는 src/를 그대로 번들한다. 타입이 깨진 상태가 배포되지 않도록
+      # 문서 사이트는 src/를 그대로 번들한다. 타입이 깨진 상태가 배포되지 않도록
       # 빌드 전에 먼저 검사한다.
       - run: pnpm typecheck
 
-      - run: pnpm build:demo
+      - run: pnpm docs:build
 
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: dist-demo
+          path: site/dist
 
   deploy:
     needs: build

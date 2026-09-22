@@ -1,0 +1,244 @@
+---
+/**
+ * 설정 표면이 CSS 변수 + data-* 속성뿐이라 컨트롤이 그대로 대응된다.
+ * 아래 코드 패널은 화면에 적용된 실제 상태에서 만들어지므로 손으로 맞출 일이 없다.
+ */
+import { cards } from '../lib/cards';
+---
+
+<div class="pg-controls">
+  <label>
+    items <output id="pg-items-out">2.5</output>
+    <input type="range" id="pg-items" min="1" max="5" step="0.5" value="2.5" />
+  </label>
+  <label>
+    gap <output id="pg-gap-out">0.75rem</output>
+    <input type="range" id="pg-gap" min="0" max="2" step="0.25" value="0.75" />
+  </label>
+  <label>
+    align
+    <select id="pg-align">
+      <option value="start">start</option>
+      <option value="center">center</option>
+      <option value="end">end</option>
+    </select>
+  </label>
+  <label>
+    snap
+    <select id="pg-snap">
+      <option value="mandatory">mandatory</option>
+      <option value="proximity">proximity</option>
+    </select>
+  </label>
+  <label>
+    scrollbar
+    <select id="pg-scrollbar">
+      <option value="none">none</option>
+      <option value="auto">auto</option>
+    </select>
+  </label>
+  <label>
+    axis
+    <select id="pg-axis">
+      <option value="inline">inline</option>
+      <option value="block">block</option>
+    </select>
+  </label>
+  <label>
+    effect
+    <select id="pg-effect">
+      <option value="">없음</option>
+      <option value="fade">fade</option>
+      <option value="scale">scale</option>
+      <option value="coverflow">coverflow</option>
+      <option value="depth">depth</option>
+      <option value="curve">curve</option>
+      <option value="reveal">reveal</option>
+    </select>
+  </label>
+
+  <label class="pg-check"><input type="checkbox" id="pg-loop" /> loop</label>
+  <label class="pg-check"><input type="checkbox" id="pg-autoplay" /> autoplay (2.6s)</label>
+  <label class="pg-check"><input type="checkbox" id="pg-resume" /> resume (5s)</label>
+  <label class="pg-check"><input type="checkbox" id="pg-counter" /> counter</label>
+</div>
+
+<div class="demo" data-carousel id="pg">
+  <ul data-carousel-scroller set:html={cards(6)} />
+</div>
+
+<div class="pg-code">
+  <pre><code id="pg-html"></code></pre>
+  <pre><code id="pg-css"></code></pre>
+</div>
+
+<script>
+  import { Carousel } from '../../../src/index.js';
+
+  const pg = document.querySelector<HTMLElement>('#pg');
+
+  if (pg) {
+    const el = <T extends HTMLElement>(id: string) => document.querySelector<T>('#' + id)!;
+
+    const controls = {
+      items: el<HTMLInputElement>('pg-items'),
+      gap: el<HTMLInputElement>('pg-gap'),
+      align: el<HTMLSelectElement>('pg-align'),
+      snap: el<HTMLSelectElement>('pg-snap'),
+      scrollbar: el<HTMLSelectElement>('pg-scrollbar'),
+      axis: el<HTMLSelectElement>('pg-axis'),
+      effect: el<HTMLSelectElement>('pg-effect'),
+      loop: el<HTMLInputElement>('pg-loop'),
+      autoplay: el<HTMLInputElement>('pg-autoplay'),
+      resume: el<HTMLInputElement>('pg-resume'),
+      counter: el<HTMLInputElement>('pg-counter'),
+    };
+
+    // 라이브러리 기본값. 이것과 같은 값은 코드에 안 적는다 — 붙여넣을 코드가 짧아진다.
+    const DEFAULTS = { align: 'start', snap: 'mandatory', scrollbar: 'auto' };
+
+    const state = () => ({
+      items: controls.items.value,
+      gap: `${controls.gap.value}rem`,
+      align: controls.align.value,
+      snap: controls.snap.value,
+      scrollbar: controls.scrollbar.value,
+      axis: controls.axis.value,
+      effect: controls.effect.value,
+      loop: controls.loop.checked,
+      autoplay: controls.autoplay.checked,
+      resume: controls.resume.checked,
+      counter: controls.counter.checked,
+    });
+
+    const renderCode = (s: ReturnType<typeof state>) => {
+      const attrs = ['data-carousel'];
+      if (s.axis === 'block') attrs.push('data-carousel-axis="block"');
+      if (s.loop) attrs.push('data-carousel-loop');
+      if (s.autoplay) attrs.push('data-carousel-autoplay="2600"');
+      if (s.autoplay && s.resume) attrs.push('data-carousel-autoplay-resume="5000"');
+      if (s.effect) attrs.push(`data-carousel-effect="${s.effect}"`);
+      if (s.counter) attrs.push('data-carousel-counter');
+
+      const open =
+        attrs.length > 2
+          ? `<div\n  ${attrs.join('\n  ')}\n  class="gallery"\n>`
+          : `<div ${attrs.join(' ')} class="gallery">`;
+      el('pg-html').textContent =
+        `${open}\n  <ul data-carousel-scroller>\n    <li>…</li>\n  </ul>\n</div>`;
+
+      const decls = [`--carousel-items: ${s.items};`, `--carousel-gap: ${s.gap};`];
+      if (s.align !== DEFAULTS.align) decls.push(`--carousel-align: ${s.align};`);
+      if (s.snap !== DEFAULTS.snap) decls.push(`--carousel-snap: ${s.snap};`);
+      if (s.scrollbar !== DEFAULTS.scrollbar) decls.push(`--carousel-scrollbar: ${s.scrollbar};`);
+
+      let css = `.gallery {\n  ${decls.join('\n  ')}\n}`;
+      if (s.axis === 'block') {
+        css +=
+          '\n\n/* 블록 축은 스크롤러에 확정된 block-size가 필요하다 —\n' +
+          '   flex-basis의 100%가 주축 크기를 기준으로 풀리기 때문. */\n' +
+          '.gallery [data-carousel-scroller] { block-size: 22rem; }';
+      }
+      if (s.effect) css = `@import 'snapstrip/effects.css';\n\n${css}`;
+      el('pg-css').textContent = css;
+    };
+
+    const apply = () => {
+      const s = state();
+
+      pg.style.setProperty('--carousel-items', s.items);
+      pg.style.setProperty('--carousel-gap', s.gap);
+      pg.style.setProperty('--carousel-align', s.align);
+      pg.style.setProperty('--carousel-snap', s.snap);
+      pg.style.setProperty('--carousel-scrollbar', s.scrollbar);
+
+      const scroller = pg.querySelector<HTMLElement>('[data-carousel-scroller]')!;
+      scroller.style.blockSize = s.axis === 'block' ? '22rem' : '';
+
+      const attrs: Record<string, string | null> = {
+        'data-carousel-axis': s.axis === 'block' ? 'block' : null,
+        'data-carousel-loop': s.loop ? '' : null,
+        'data-carousel-autoplay': s.autoplay ? '2600' : null,
+        'data-carousel-autoplay-resume': s.autoplay && s.resume ? '5000' : null,
+        'data-carousel-effect': s.effect || null,
+        'data-carousel-counter': s.counter ? '' : null,
+      };
+      for (const [name, value] of Object.entries(attrs)) {
+        if (value === null) pg.removeAttribute(name);
+        else pg.setAttribute(name, value);
+      }
+
+      // loop·autoplay·폴백 컨트롤은 init() 시점에 배선된다. 속성만 바꿔서는
+      // 붙지 않으므로 문서화된 경로대로 다시 만든다.
+      pg.carousel?.destroy();
+      Carousel.init(pg);
+
+      renderCode(s);
+    };
+
+    controls.items.addEventListener('input', () => {
+      el('pg-items-out').textContent = controls.items.value;
+    });
+    controls.gap.addEventListener('input', () => {
+      el('pg-gap-out').textContent = `${controls.gap.value}rem`;
+    });
+    for (const control of Object.values(controls)) {
+      control.addEventListener('change', apply);
+    }
+    apply();
+  }
+</script>
+
+<style>
+  .pg-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.75rem 1rem;
+    padding: 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    margin-block: 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .pg-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .pg-controls output {
+    font-family: var(--__sl-font-mono);
+    color: var(--sl-color-gray-2);
+  }
+
+  .pg-controls input[type='range'] {
+    inline-size: 100%;
+  }
+
+  .pg-controls .pg-check {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .pg-code {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .pg-code pre {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background: var(--sl-color-gray-6);
+    overflow-x: auto;
+  }
+
+  .pg-code code {
+    font-family: var(--__sl-font-mono);
+    font-size: 0.8rem;
+    white-space: pre;
+  }
+</style>

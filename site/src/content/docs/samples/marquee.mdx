@@ -1,0 +1,39 @@
+---
+title: marquee
+description: carousel이 아닌 순수 CSS 띠
+sidebar:
+  order: 7
+---
+
+import Demo from '../../../components/Demo.astro';
+
+marquee는 carousel이 **아니다** — 스크롤 컨테이너도, 스와이프도, 스냅도, 버튼도, 마커도,
+JS도 없다. `effects.css`에 같이 들어 있는 순수 CSS 띠다.
+
+스크롤 컨테이너가 없으니 라이브러리가 대신 복제해 줄 수도 없다. 아이템을 마크업에서 한 벌
+직접 복제하고 사본에 `aria-hidden="true"`를 붙인다.
+
+hover와 포커스에서, 그리고 `prefers-reduced-motion: reduce`에서 멈춘다.
+
+<Demo
+  html={`<div data-carousel-marquee class="ticker">
+  <ul data-carousel-marquee-track>
+    <li>scroll-snap</li><li>::scroll-button()</li><li>::scroll-marker</li><li>:target-current</li>
+    <li aria-hidden="true">scroll-snap</li><li aria-hidden="true">::scroll-button()</li>
+    <li aria-hidden="true">::scroll-marker</li><li aria-hidden="true">:target-current</li>
+  </ul>
+</div>`}
+  css={`.ticker {
+  --carousel-marquee-duration: 18s;
+  --carousel-marquee-gap: 1.5rem;
+}
+
+.ticker li {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 999px;
+  font-family: var(--__sl-font-mono);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}`}
+/>
