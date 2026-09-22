@@ -27,7 +27,7 @@ sidebar:
 | `--carousel-gap` | `0px` | 아이템 간격 (단위 필수) |
 | `--carousel-align` | `start` | `scroll-snap-align` 값 |
 | `--carousel-snap` | `mandatory` | 스냅 강도 |
-| `--carousel-scrollbar` | `auto` | `none`으로 스크롤바 숨김 |
+| `--carousel-scrollbar` | `none` | `auto`로 네이티브 스크롤바 표시 |
 
 버튼·마커·카운터·썸네일의 외형은 `--carousel-button-*`, `--carousel-marker-*`,
 `--carousel-counter-*`, `--carousel-thumb-*`로 조정한다. 전체 목록은 `dist/carousel.css`에 있다.

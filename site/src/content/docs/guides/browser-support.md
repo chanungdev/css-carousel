@@ -37,3 +37,7 @@ CSS.supports('selector(::scroll-marker)');
   않는다. 슬라이드 수가 바뀌면 `destroy()` 후 다시 `init()`한다.
 - 카운터는 `container-type`을 건 루트에서 스크롤러에 그려야 맞는 값이 나온다. 라이브러리가
   이미 그렇게 하므로 직접 옮기지만 않으면 된다.
+- Firefox는 `--carousel-scrollbar`를 **런타임에 바꿔도 반영하지 않는다.** 변수 자체는
+  전파되지만 `scrollbar-width` 계산값이 최초 레이아웃 값에 머문다. 스타일시트에 처음부터
+  적어 두면 정상이다 — 이 문서 사이트의 Playground에서 Firefox로 scrollbar를 바꿔도 변화가
+  없는 건 그 때문이다.

@@ -112,7 +112,7 @@ Layout is CSS. Responsiveness is CSS. There is no JavaScript options object.
 | `--carousel-gap` | `0px` | Gap between items (unit required) |
 | `--carousel-align` | `start` | `scroll-snap-align` value |
 | `--carousel-snap` | `mandatory` | Snap strictness |
-| `--carousel-scrollbar` | `auto` | Set to `none` to hide the scrollbar |
+| `--carousel-scrollbar` | `none` | Set to `auto` to show the native scrollbar |
 
 Button, marker and thumbnail appearance is themed through `--carousel-button-*`, `--carousel-marker-*`
 and `--carousel-thumb-*`. See `dist/carousel.css` (the file this package actually publishes — `src/carousel.css`

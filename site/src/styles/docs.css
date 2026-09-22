@@ -4,7 +4,6 @@
 .demo {
   --carousel-items: 1;
   --carousel-gap: 0.75rem;
-  --carousel-scrollbar: none;
   margin-block: 1.5rem;
 }
 

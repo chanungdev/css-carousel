@@ -14,7 +14,10 @@
   --carousel-gap: 0px;
   --carousel-align: start;
   --carousel-snap: mandatory;
-  --carousel-scrollbar: auto;
+  /* 버튼·마커·스와이프가 이미 스크롤 가능하다는 신호를 준다. 그 위에 네이티브
+     스크롤바까지 얹히면 마감이 덜 된 것처럼 보인다. auto로 되돌릴 수 있다.
+     숨기는 것은 표시뿐이고 스크롤·키보드 접근은 그대로다. */
+  --carousel-scrollbar: none;
 }
 
 [data-carousel] > [data-carousel-scroller] {
