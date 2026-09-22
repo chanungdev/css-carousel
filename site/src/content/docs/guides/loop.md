@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-`data-carousel-loop`를 붙이면 슬라이드를 앞뒤로 복제해 세 세트를 만들고, 경계를 넘을 때마다
+`data-carousel-loop`를 붙이면 슬라이드를 앞뒤로 복제해 세 세트를 만들고 경계를 넘을 때마다
 스크롤 위치를 가운데로 되돌린다. 되돌림은 `behavior: 'instant'`라 사용자 눈에는 끊김이 없다.
 
 ```html

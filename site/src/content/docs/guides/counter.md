@@ -6,7 +6,7 @@ sidebar:
 ---
 
 `data-carousel-counter`를 붙이면 `n / total` 배지가 나온다. CSS counter와 scroll-driven
-animation만으로 만들어서 JavaScript도, 추가 스타일시트도 필요 없다 — `carousel.css` 안에 있고,
+animation만으로 만들어서 JavaScript도, 추가 스타일시트도 필요 없다 — `carousel.css` 안에 있고
 요청하기 전까지는 꺼져 있다.
 
 ```html
@@ -37,7 +37,7 @@ animation만으로 만들어서 JavaScript도, 추가 스타일시트도 필요 
 ### 루트가 아니라 스크롤러에 그린다
 
 `container-type: inline-size`는 — 아이템 수를 반응형으로 만드는 권장 방법이다 —
-`contain: style`을 함의하고, 그러면 슬라이드의 `counter-increment`가 루트에서 분리된 스코프로
+`contain: style`을 함의한다. 그러면 슬라이드의 `counter-increment`가 루트에서 분리된 스코프로
 갇혀 루트에 그린 카운터는 `0 / 0`을 읽는다. 리셋·증가·출력을 모두 스크롤러 안에 두면 한
 스코프가 된다. 배지는 루트를 기준으로 absolute 배치되므로 스크롤러의 overflow에 잘리지도,
 스크롤을 따라 움직이지도 않는다.

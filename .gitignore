@@ -9,3 +9,4 @@ yarn.lock
 *.swp
 site/dist/
 site/.astro/
+_workspace/

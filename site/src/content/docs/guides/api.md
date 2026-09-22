@@ -45,7 +45,7 @@ document.addEventListener('carousel:change', (event) => {
 
 ## 언제 직접 초기화하나
 
-`data-carousel`이 붙은 요소는 자동으로 초기화되고, 나중에 DOM에 추가된 것도
+`data-carousel`이 붙은 요소는 자동으로 초기화되고 나중에 DOM에 추가된 것도
 `MutationObserver`가 잡는다. `Carousel.init()`을 직접 부를 일은 드물다 — 초기화 시점을
 정확히 통제해야 할 때 정도다. 멱등이라 두 번 불러도 같은 인스턴스가 돌아온다.
 
