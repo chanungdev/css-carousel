@@ -113,6 +113,7 @@ Layout is CSS. Responsiveness is CSS. There is no JavaScript options object.
 | `--carousel-align` | `start` | `scroll-snap-align` value |
 | `--carousel-snap` | `mandatory` | Snap strictness |
 | `--carousel-scrollbar` | `none` | Set to `auto` to show the native scrollbar |
+| `--carousel-page-block` | `20rem` | Height of one page in pages mode — it decides how many rows fit |
 
 Button, marker and thumbnail appearance is themed through `--carousel-button-*`, `--carousel-marker-*`
 and `--carousel-thumb-*`. See `dist/carousel.css` (the file this package actually publishes — `src/carousel.css`
@@ -127,6 +128,7 @@ is not included in `files`) for the full list.
 | `data-carousel-thumbs="#strip"` | root | Sync with a thumbnail carousel |
 | `data-carousel-effect` | root | `fade`, `scale` or `reveal` (needs `effects.css`, see below) |
 | `data-carousel-counter` | root | Show an `n / total` counter in the corner. See below |
+| `data-carousel-pages` | root | Page a flat list instead of scrolling slide by slide. See below |
 | `data-carousel-label-prev` / `-next` | root | Accessible names for the fallback buttons. Default `Previous` / `Next` |
 | `data-carousel-label` | a slide | Fallback-path only. Accessible name for that slide's marker. Default is the slide's 1-based position |
 
@@ -372,6 +374,47 @@ worse than no number, so the whole thing sits behind `@supports (animation-timel
 The counter and the effect presets both animate the slides, which is the same `animation-name` slot.
 `carousel.css` loads before `effects.css`, so the rules that keep both alive carry the
 `[data-carousel-counter]` gate as extra specificity rather than relying on import order.
+
+## Pages
+
+`data-carousel-pages` switches from "one slide at a time" to "one screenful at a time". The markup
+stays a flat list — the browser paginates it with multi-column layout, so you never chunk the list
+yourself.
+
+```html
+<div data-carousel data-carousel-pages class="grid">
+  <ul data-carousel-scroller>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+```css
+.grid {
+  --carousel-items: 3;        /* per row */
+  --carousel-gap: 0.75rem;
+  --carousel-page-block: 20rem;
+}
+```
+
+Rows come from the height: `--carousel-page-block` divided by a row's height is how many rows fit.
+Three per row and room for two rows gives six per page, which is the Swiper `grid` layout without a
+grid option.
+
+Scrolling stops on page boundaries, never between them. The snap target is the page — individual
+slides have their alignment turned off, or a drag would settle on a card edge and leave the end of
+one page beside the start of the next. Where `::column` is missing there is no snap target at all,
+so the fallback script settles to the nearest page once scrolling ends.
+
+Everything downstream follows the page rather than the slide. Markers are one per page — the browser
+generates them on `::column` where it can, and the fallback script builds the same count. `next()`,
+`prev()` and `goTo()` move a page, and `index` is the page index. `pageCount` reports how many pages
+the browser made; it is read back from layout rather than computed, so it follows a resize.
+
+Two limits worth knowing. The counter is suppressed in this mode — CSS counters are incremented by
+slides, and there is no way to count columns, so it would read `1 / 12` instead of `1 / 2`. And items
+are floated rather than flex items, because inside a column the layout is normal flow: inline-level
+items would lose a slot per row to the whitespace between tags.
 
 ## Marquee
 

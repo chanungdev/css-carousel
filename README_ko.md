@@ -111,6 +111,7 @@ export하는 타입: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `Resolv
 | `--carousel-align` | `start` | `scroll-snap-align` 값 |
 | `--carousel-snap` | `mandatory` | 스냅 강도 |
 | `--carousel-scrollbar` | `none` | `auto`로 네이티브 스크롤바 표시 |
+| `--carousel-page-block` | `20rem` | 페이지 모드에서 한 페이지의 높이. 줄 수가 여기서 정해진다 |
 
 버튼·마커·썸네일의 외형은 `--carousel-button-*`, `--carousel-marker-*`, `--carousel-thumb-*`로 조정한다.
 전체 목록은 `dist/carousel.css`를 참고한다 (패키지가 실제로 배포하는 파일. `src/carousel.css`는 `files`에
@@ -125,6 +126,7 @@ export하는 타입: `Carousel`, `CarouselChangeDetail`, `CarouselAxis`, `Resolv
 | `data-carousel-thumbs="#strip"` | 루트 | 썸네일 carousel과 연동 |
 | `data-carousel-effect` | 루트 | `fade`, `scale`, `reveal` (`effects.css` 필요, 아래 참고) |
 | `data-carousel-counter` | 루트 | 모서리에 `n / total` 카운터 표시. 아래 참고 |
+| `data-carousel-pages` | 루트 | 평평한 목록을 한 장씩이 아니라 한 화면씩 넘긴다. 아래 참고 |
 | `data-carousel-label-prev` / `-next` | 루트 | 폴백 버튼의 접근 이름. 기본값 `Previous` / `Next` |
 | `data-carousel-label` | 슬라이드 | 폴백 경로 전용. 해당 슬라이드 마커의 접근 이름. 기본값은 1부터 세는 순번 |
 
@@ -361,6 +363,45 @@ import 'snapstrip/effects.css';
 카운터와 이펙트 프리셋은 둘 다 슬라이드를 애니메이션한다 — `animation-name`이라는 같은 자리다.
 `carousel.css`가 `effects.css`보다 먼저 로드되므로, 둘을 함께 살리는 규칙은 import 순서가 아니라
 `[data-carousel-counter]` 게이트가 얹어주는 특이도에 기댄다.
+
+## 페이지
+
+`data-carousel-pages`를 붙이면 한 장씩이 아니라 한 화면씩 넘긴다. 마크업은 평평한 목록 그대로다 —
+브라우저가 multicol로 나누므로 작성자가 목록을 끊을 필요가 없다.
+
+```html
+<div data-carousel data-carousel-pages class="grid">
+  <ul data-carousel-scroller>
+    <li>…</li>
+  </ul>
+</div>
+```
+
+```css
+.grid {
+  --carousel-items: 3;        /* 한 줄에 셋 */
+  --carousel-gap: 0.75rem;
+  --carousel-page-block: 20rem;
+}
+```
+
+줄 수는 높이가 정한다. `--carousel-page-block`을 한 줄 높이로 나눈 만큼 들어간다. 한 줄에 셋,
+두 줄이 들어가는 높이면 페이지당 여섯이다 — Swiper의 `grid` 배치를 grid 옵션 없이 얻는다.
+
+스크롤은 페이지 경계에서만 멈춘다. 스냅 대상은 페이지 하나뿐이고 슬라이드 쪽 정렬은 꺼 둔다 —
+안 그러면 드래그가 카드 경계에 멈춰 앞 페이지 끝과 다음 페이지 앞이 한 화면에 섞인다. `::column`이
+없는 브라우저에는 스냅 대상 자체가 없으므로, 폴백 스크립트가 스크롤이 멈춘 뒤 가장 가까운 페이지로
+맞춘다.
+
+그 뒤로는 전부 슬라이드가 아니라 페이지를 따른다. 마커는 페이지마다 하나이고, 되는 브라우저에서는
+`::column`에 브라우저가 만들며 폴백 스크립트도 같은 수를 만든다. `next()`·`prev()`·`goTo()`는 한
+페이지씩 움직이고 `index`는 페이지 번호다. `pageCount`는 브라우저가 몇 페이지로 나눴는지를 레이아웃에서
+되읽는 값이라 크기가 바뀌면 따라온다.
+
+알아둘 한계 둘. 이 모드에서는 카운터를 내지 않는다 — CSS counter는 슬라이드가 올리는데 세어야 할 것은
+페이지라 `1 / 2` 대신 `1 / 12`가 나온다. 그리고 아이템은 flex가 아니라 float다. 컬럼 안은 일반
+흐름이라 가로로 늘어놓으려면 inline-level이거나 float여야 하는데, inline-level은 태그 사이 줄바꿈
+공백이 한 줄에 한 자리를 먹는다.
 
 ## Marquee
 

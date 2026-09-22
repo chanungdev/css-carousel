@@ -20,6 +20,8 @@ export class Carousel {
   readonly root: HTMLElement;
   readonly scroller: HTMLElement;
   readonly axis: CarouselAxis;
+  /** data-carousel-pages — 슬라이드가 아니라 한 화면씩 넘긴다. */
+  readonly isPages: boolean;
   /** loop 모듈이 설정한다. null이면 loop 비활성. */
   setSize: number | null = null;
 
@@ -35,6 +37,7 @@ export class Carousel {
     this.root = root;
     this.scroller = scroller;
     this.axis = root.getAttribute('data-carousel-axis') === 'block' ? 'block' : 'inline';
+    this.isPages = root.hasAttribute('data-carousel-pages');
 
     this.refresh();
     root.carousel = this;
@@ -64,6 +67,44 @@ export class Carousel {
     return this.axis === 'inline';
   }
 
+  /**
+   * 페이지 수. 브라우저가 multicol로 나눈 결과를 되읽는 것이라 몇 개로 나뉘었는지
+   * 우리가 계산하지 않는다 — 줄 수·아이템 수가 바뀌어도 따라온다.
+   */
+  get pageCount(): number {
+    const viewport = this.isInline ? this.scroller.clientWidth : this.scroller.clientHeight;
+    if (!viewport) return 1;
+    const total = this.isInline ? this.scroller.scrollWidth : this.scroller.scrollHeight;
+    return Math.max(1, Math.round(total / viewport));
+  }
+
+  /** 페이지 하나만큼의 스크롤 거리. 페이지 사이 간격은 column-gap이 만든다. */
+  private get pageStride(): number {
+    const gap = Number.parseFloat(getComputedStyle(this.scroller).columnGap) || 0;
+    return (this.isInline ? this.scroller.clientWidth : this.scroller.clientHeight) + gap;
+  }
+
+  /**
+   * 스크롤이 멈춘 자리에서 가장 가까운 페이지로 맞춘다. 이미 맞아 있으면 아무것도
+   * 하지 않는다 — 안 그러면 맞추고 다시 멈추고를 반복한다.
+   */
+  snapToNearestPage(): void {
+    if (!this.isPages) return;
+    const stride = this.pageStride;
+    if (!stride) return;
+
+    const position = Math.abs(this.isInline ? this.scroller.scrollLeft : this.scroller.scrollTop);
+    const nearest = Math.round(position / stride);
+    if (Math.abs(position - nearest * stride) <= EDGE_TOLERANCE) return;
+    this.scrollToPage(nearest);
+  }
+
+  scrollToPage(i: number, behavior: ScrollBehavior = scrollBehavior()): void {
+    const target = Math.max(0, Math.min(i, this.pageCount - 1));
+    const axis = this.isInline ? 'left' : 'top';
+    this.scroller.scrollTo({ [axis]: target * this.pageStride, behavior });
+  }
+
   refresh(): void {
     this.observer?.disconnect();
     this.ratios.clear();
@@ -78,9 +119,30 @@ export class Carousel {
     for (const slide of this.slides) observer.observe(slide);
   }
 
+  private setIndex(next: number): void {
+    if (next === this.slideIndexValue) return;
+    this.slideIndexValue = next;
+    this.root.dispatchEvent(
+      new CustomEvent<CarouselChangeDetail>('carousel:change', {
+        bubbles: true,
+        detail: { index: this.index, slideIndex: this.slideIndexValue },
+      }),
+    );
+  }
+
   private recompute(): void {
     const slides = this.slides;
     if (slides.length === 0) return;
+
+    // 페이지 모드에서는 현재 위치가 곧 인덱스다. 어느 슬라이드가 정렬 지점에
+    // 가까운지 따질 필요가 없다 — 스냅 대상이 슬라이드가 아니라 페이지다.
+    if (this.isPages) {
+      const position = Math.abs(this.isInline ? this.scroller.scrollLeft : this.scroller.scrollTop);
+      const stride = this.pageStride;
+      if (!stride) return;
+      this.setIndex(Math.max(0, Math.min(Math.round(position / stride), this.pageCount - 1)));
+      return;
+    }
 
     const visible: number[] = [];
     for (let i = 0; i < slides.length; i += 1) {
@@ -129,14 +191,7 @@ export class Carousel {
       }
     }
 
-    if (next === this.slideIndexValue) return;
-    this.slideIndexValue = next;
-    this.root.dispatchEvent(
-      new CustomEvent<CarouselChangeDetail>('carousel:change', {
-        bubbles: true,
-        detail: { index: this.index, slideIndex: this.slideIndexValue },
-      }),
-    );
+    this.setIndex(next);
   }
 
   scrollToSlide(i: number, behavior: ScrollBehavior = scrollBehavior()): void {
@@ -162,14 +217,17 @@ export class Carousel {
   }
 
   next(behavior?: ScrollBehavior): void {
+    if (this.isPages) return this.scrollToPage(this.slideIndexValue + 1, behavior);
     this.scrollToSlide(this.slideIndexValue + 1, behavior);
   }
 
   prev(behavior?: ScrollBehavior): void {
+    if (this.isPages) return this.scrollToPage(this.slideIndexValue - 1, behavior);
     this.scrollToSlide(this.slideIndexValue - 1, behavior);
   }
 
   goTo(i: number, behavior?: ScrollBehavior): void {
+    if (this.isPages) return this.scrollToPage(i, behavior);
     this.scrollToSlide((this.setSize ?? 0) + i, behavior);
   }
 

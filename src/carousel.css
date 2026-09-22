@@ -18,6 +18,9 @@
      스크롤바까지 얹히면 마감이 덜 된 것처럼 보인다. auto로 되돌릴 수 있다.
      숨기는 것은 표시뿐이고 스크롤·키보드 접근은 그대로다. */
   --carousel-scrollbar: none;
+
+  /* 페이지 모드에서 한 페이지의 높이. 줄 수는 이 높이가 정한다. */
+  --carousel-page-block: 20rem;
 }
 
 [data-carousel] > [data-carousel-scroller] {
@@ -278,6 +281,66 @@
   opacity: var(--carousel-thumb-current-opacity);
 }
 
+/* ── 페이지 모드 ───────────────────────────────────
+   슬라이드를 한 장씩이 아니라 한 화면씩 넘긴다. 목록은 평평한 채로 두고
+   브라우저가 multicol로 페이지를 나눈다 — 작성자가 손으로 끊지 않는다.
+
+   컬럼 안은 일반 흐름이라 아이템이 세로로 쌓인다. 가로로 늘어놓으려면
+   inline-level이거나 float여야 하는데, inline-block은 마크업의 줄바꿈 공백이
+   슬롯을 먹어 한 줄에 들어가는 수가 줄어든다(실측: 3개 자리에 2개). float에는
+   그 문제가 없다.
+
+   페이지 안 줄 수는 스크롤러 높이가 정한다 — 한 줄 높이 × 줄 수로 잡으면 된다. */
+
+[data-carousel-pages] > [data-carousel-scroller] {
+  display: block;
+  columns: 1;
+  column-fill: auto;
+  column-gap: var(--carousel-gap);
+  block-size: var(--carousel-page-block);
+}
+
+[data-carousel-pages] > [data-carousel-scroller] > * {
+  float: inline-start;
+  box-sizing: border-box;
+  /* 간격은 padding으로 만든다. margin으로 하면 마지막 칸의 바깥 여백까지 더해져
+     줄 폭이 100%를 넘고 한 칸이 다음 줄로 밀린다. */
+  inline-size: calc(100% / var(--carousel-items));
+  padding-inline-end: var(--carousel-gap);
+  padding-block-end: var(--carousel-gap);
+  flex: none;
+
+  /* 스냅 대상은 페이지(::column) 하나뿐이어야 한다. 기본 규칙이 걸어 둔 슬라이드
+     쪽 정렬을 끄지 않으면 컬럼과 슬라이드가 둘 다 스냅 대상이 되어, 스크롤이 카드
+     경계에 멈추고 앞 페이지 끝과 다음 페이지 앞이 한 화면에 섞인다. */
+  scroll-snap-align: none;
+}
+
+[data-carousel-pages] > [data-carousel-scroller]::column {
+  scroll-snap-align: var(--carousel-align);
+}
+
+/* 페이지 모드에서는 마커가 슬라이드가 아니라 페이지를 가리킨다.
+   슬라이드 쪽 마커를 끄고 컬럼에 붙인다 — 한 선택자 목록으로 묶지 않는다.
+   ::column을 모르는 브라우저가 규칙 전체를 버리면 슬라이드 마커까지 같이 죽는다. */
+
+[data-carousel-pages] > [data-carousel-scroller] > *::scroll-marker {
+  content: none;
+}
+
+[data-carousel-pages] > [data-carousel-scroller]::column::scroll-marker {
+  content: var(--carousel-marker-content);
+  inline-size: var(--carousel-marker-size);
+  block-size: var(--carousel-marker-size);
+  border-radius: 50%;
+  background: var(--carousel-marker-color);
+  cursor: pointer;
+}
+
+[data-carousel-pages] > [data-carousel-scroller]::column::scroll-marker:target-current {
+  background: var(--carousel-marker-color-current);
+}
+
 /* ── 카운터 "n / total" ────────────────────────────
    data-carousel-counter를 붙인 carousel에만 나온다. 기본값은 꺼짐이다 —
    있던 화면에 숫자가 갑자기 생기면 안 되고, 안 쓰는 사람은 규칙이 붙지도 않는다.
@@ -351,6 +414,13 @@
     100% {
       counter-increment: carousel-total 1 carousel-current 1;
     }
+  }
+
+  /* 페이지 모드에서는 카운터를 내지 않는다. counter는 슬라이드가 올리는데
+     세어야 할 것은 페이지라 "1 / 12" 같은 틀린 값이 나온다. 컬럼은 counter를
+     올릴 수 없어 CSS만으로는 맞출 방법이 없다. 틀린 숫자보다 없는 쪽이 낫다. */
+  [data-carousel-pages][data-carousel-counter] > [data-carousel-scroller]::after {
+    content: none;
   }
 
   [data-carousel-counter] > [data-carousel-scroller]::after {

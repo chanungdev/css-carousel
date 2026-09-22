@@ -20,6 +20,7 @@ const PAGES = [
   { path: '/guides/browser-support/', carousels: 0 },
   { path: '/samples/basics/', carousels: 1 },
   { path: '/samples/peek/', carousels: 1 },
+  { path: '/samples/pages/', carousels: 1 },
   { path: '/samples/effects/', carousels: 3 },
   { path: '/samples/loop/', carousels: 1 },
   { path: '/samples/thumbnails/', carousels: 2 },

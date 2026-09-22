@@ -28,6 +28,7 @@ sidebar:
 | `--carousel-align` | `start` | `scroll-snap-align` 값 |
 | `--carousel-snap` | `mandatory` | 스냅 강도 |
 | `--carousel-scrollbar` | `none` | `auto`로 네이티브 스크롤바 표시 |
+| `--carousel-page-block` | `20rem` | 페이지 모드에서 한 페이지의 높이 |
 
 버튼·마커·카운터·썸네일의 외형은 `--carousel-button-*`, `--carousel-marker-*`,
 `--carousel-counter-*`, `--carousel-thumb-*`로 조정한다. 전체 목록은 `dist/carousel.css`에 있다.
@@ -43,6 +44,7 @@ sidebar:
 | `data-carousel-thumbs="#strip"` | 루트 | 썸네일 carousel과 연동 |
 | `data-carousel-effect` | 루트 | `fade`, `scale`, `reveal` |
 | `data-carousel-counter` | 루트 | 모서리에 `n / total` 카운터 표시 |
+| `data-carousel-pages` | 루트 | 평평한 목록을 한 화면씩 넘긴다 |
 | `data-carousel-label-prev` / `-next` | 루트 | 폴백 버튼의 접근 이름. 기본값 `Previous` / `Next` |
 | `data-carousel-label` | 슬라이드 | 폴백 경로 전용. 해당 슬라이드 마커의 접근 이름 |
 
