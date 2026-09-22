@@ -13,15 +13,15 @@ import { carousel } from '../../../lib/cards';
 
 ## fade
 
-<Demo html={carousel('data-carousel data-carousel-effect="fade" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+<Demo html={carousel('data-carousel data-carousel-effect="fade" style="--carousel-items: 1.4; --carousel-gap: 0.75rem; --carousel-align: center"', 10)} />
 
 ## scale
 
-<Demo html={carousel('data-carousel data-carousel-effect="scale" style="--carousel-items: 1.4; --carousel-gap: 0.75rem"', 6)} />
+<Demo html={carousel('data-carousel data-carousel-effect="scale" style="--carousel-items: 1.4; --carousel-gap: 0.75rem; --carousel-align: center"', 10)} />
 
 ## reveal
 
 커튼이 걷히고 미디어가 패럴랙스로 따라온다. 간격이 있으면 커튼 사이가 벌어져 보이므로
 `--carousel-gap: 0`을 전제로 만들었다.
 
-<Demo html={carousel('data-carousel data-carousel-effect="reveal" data-carousel-counter style="--carousel-items: 1; --carousel-gap: 0px"', 6)} />
+<Demo html={carousel('data-carousel data-carousel-effect="reveal" data-carousel-counter style="--carousel-items: 1; --carousel-gap: 0px; --carousel-align: center"', 10)} />

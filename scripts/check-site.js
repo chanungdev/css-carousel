@@ -99,11 +99,18 @@ for (const [path, text] of Object.entries(texts)) {
 }
 
 // ── 카드 이미지 ─────────────────────────────────────
-// 이름은 lib/cards.ts가 01..08로 만들어 붙인다. 파일이 그만큼 없으면 조용히 깨진다.
+// lib/cards.ts가 CARD_COUNT 만큼 이름을 만들어 붙인다. 파일이 그만큼 없으면
+// 조용히 깨진 이미지가 된다. 개수는 cards.ts에서 읽어 와 두 군데 적히지 않게 한다.
 const cards = new Set(await readdir('site/public/cards'));
-for (let n = 1; n <= 8; n++) {
-  const name = `0${n}.svg`;
-  if (!cards.has(name)) fail(`site/public/cards/${name} 가 없다 (cards.ts가 01..08을 순환한다)`);
+const cardCount = Number(
+  (await read('site/src/lib/cards.ts')).match(/CARD_COUNT = (\d+)/)?.[1] ?? 0,
+);
+if (!cardCount) fail('site/src/lib/cards.ts 에서 CARD_COUNT를 찾지 못했다');
+
+for (let n = 1; n <= cardCount; n++) {
+  const name = `${String(n).padStart(2, '0')}.svg`;
+  if (!cards.has(name))
+    fail(`site/public/cards/${name} 가 없다 (cards.ts가 ${cardCount}장을 순환한다)`);
 }
 
 if (failures.length > 0) {
